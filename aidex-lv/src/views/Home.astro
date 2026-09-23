@@ -4,8 +4,8 @@ import Hero from '../components/home/Hero.astro';
 import WhyAidex from '../components/home/WhyAidex.astro';
 import Packages from '../components/home/Packages.astro';
 import Calculator from '../components/home/Calculator.astro';
-import EnergyFlow from '../components/home/EnergyFlow.astro';
-import Benefits from '../components/home/Benefits.astro';
+import DayNight from '../components/home/DayNight.astro';
+import Hotspots from '../components/home/Hotspots.astro';
 import SupportSection from '../components/home/SupportSection.astro';
 import Process from '../components/home/Process.astro';
 import ProjectsGrid from '../components/home/ProjectsGrid.astro';
@@ -21,11 +21,11 @@ const t = useT(lang);
 ---
 <Base lang={lang} route={route} title={t.meta.home.title} description={t.meta.home.description} jsonLd={[serviceLd(lang, t.nav.solar, t.meta.solar.description, 'solar')]}>
   <Hero lang={lang} />
-  <WhyAidex lang={lang} />
   <Packages lang={lang} />
+  <Hotspots lang={lang} />
+  <DayNight lang={lang} />
   <Calculator lang={lang} />
-  <EnergyFlow lang={lang} />
-  <Benefits lang={lang} />
+  <WhyAidex lang={lang} />
   <SupportSection lang={lang} />
   <Process lang={lang} />
   <ProjectsGrid lang={lang} limit={3} />

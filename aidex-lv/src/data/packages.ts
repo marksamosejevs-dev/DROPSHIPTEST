@@ -81,6 +81,8 @@ export interface SolarPackage {
   /** Typical annual consumption the package is sized for (kWh). */
   fitsConsumption: [number, number] | null;
   featured?: boolean;
+  /** Key in src/data/media.ts used as the card photograph. */
+  image: 'pkg6' | 'pkg8' | 'pkg10' | 'pkgMax';
   source: Source;
   /** e.g. 'energum.lv/komplekti — TURBO 6' */
   benchmarkRef?: string;
@@ -88,28 +90,28 @@ export interface SolarPackage {
 
 export const packages: SolarPackage[] = [
   {
-    id: 'home-6', name: 'AIDEX Home 6', kw: 6, panel: 'aiko500', panelCount: 12, inverter: 'gw6', battery: 'renon16',
+    id: 'home-6', name: 'AIDEX Home 6', image: 'pkg6', kw: 6, panel: 'aiko500', panelCount: 12, inverter: 'gw6', battery: 'renon16',
     withBattery: { standard: 9000, supportPv: 2800, supportBattery: 2500 },
     withoutBattery: { standard: 5600, supportPv: 2800, supportBattery: 0 },
     fitsConsumption: [3500, 6500],
     source: 'benchmark', benchmarkRef: 'energum.lv/komplekti — 6 kW kit (price & support); no-battery variant is an approximation',
   },
   {
-    id: 'home-8', name: 'AIDEX Home 8', kw: 8, panel: 'aiko500', panelCount: 16, inverter: 'gw8', battery: 'renon16',
+    id: 'home-8', name: 'AIDEX Home 8', image: 'pkg8', kw: 8, panel: 'aiko500', panelCount: 16, inverter: 'gw8', battery: 'renon16',
     withBattery: { standard: 11500, promo: 10900, supportPv: 3500, supportBattery: 2500 },
     withoutBattery: { standard: 7400, supportPv: 3500, supportBattery: 0 },
     fitsConsumption: [6500, 9000], featured: true,
     source: 'benchmark-approximation', benchmarkRef: 'energum.lv/komplekti — 8 kW kit (support); price approximated',
   },
   {
-    id: 'home-10', name: 'AIDEX Home 10', kw: 10, panel: 'aiko500', panelCount: 20, inverter: 'gw12', battery: 'renon16',
+    id: 'home-10', name: 'AIDEX Home 10', image: 'pkg10', kw: 10, panel: 'aiko500', panelCount: 20, inverter: 'gw12', battery: 'renon16',
     withBattery: { standard: 13300, supportPv: 4000, supportBattery: 2500 },
     withoutBattery: { standard: 9200, supportPv: 4000, supportBattery: 0 },
     fitsConsumption: [9000, 12000],
     source: 'benchmark-approximation', benchmarkRef: 'energum.lv/komplekti — 10 kW kit (support); price approximated',
   },
   {
-    id: 'max', name: 'AIDEX Max', kw: null, panel: 'aiko500', panelCount: null, inverter: null, battery: null,
+    id: 'max', name: 'AIDEX Max', image: 'pkgMax', kw: null, panel: 'aiko500', panelCount: null, inverter: null, battery: null,
     withBattery: null, withoutBattery: null, fitsConsumption: [12000, 40000],
     source: 'benchmark',
   },

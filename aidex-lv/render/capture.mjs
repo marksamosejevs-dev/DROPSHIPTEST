@@ -4,8 +4,8 @@ const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromi
 const page = await browser.newPage({ viewport: { width: +w, height: +h } });
 page.on('console', m => console.log('console:', m.text()));
 page.on('pageerror', e => console.log('ERR', e.message));
-await page.goto(`http://localhost:8123/render/index.html?scene=${scene}&w=${w}&h=${h}`, { timeout: 120000 });
+await page.goto(`http://localhost:8123/render/index.html?scene=${scene}&w=${w}&h=${h}${process.env.ALPHA === '1' ? '&alpha=1' : ''}`, { timeout: 120000 });
 await page.waitForFunction(() => document.title === 'done', null, { timeout: 300000 });
-await page.locator('canvas').screenshot({ path: out });
+await page.locator('canvas').screenshot({ path: out, omitBackground: process.env.ALPHA === '1' });
 await browser.close();
 console.log('saved', out);

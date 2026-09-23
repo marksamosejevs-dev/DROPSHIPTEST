@@ -1,0 +1,170 @@
+---
+/**
+ * "How it works" — isometric home model with Day / Night states and indicative
+ * figures per system size (computed with the calculator model at build time).
+ */
+import SectionHead from '../SectionHead.astro';
+import Picture from '../Picture.astro';
+import Icon from '../Icon.astro';
+import { useT, fmtEur, fmtNum, units, type Locale } from '../../i18n';
+import { media } from '../../data/media';
+import { calculate } from '../../lib/calc';
+import { calculatorAssumptions as A } from '../../data/calculator';
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const d = t.v2.dn;
+const u = units[lang];
+const sizes = [6, 8, 10, 12];
+const stats = sizes.map((kw) => {
+  const r = calculate({ mode: 'kwh', value: (kw * A.specificYield) / 12, battery: true, support: true });
+  return {
+    kw,
+    production: `${fmtNum(Math.round(r.productionKwh / 100) * 100, lang)} ${u.kwh}`,
+    savings: fmtEur(Math.round(r.savings / 10) * 10, lang),
+    battery: `${fmtNum(r.batteryKwh, lang)} ${u.kwh}`,
+    payback: r.paybackYears ? `~${fmtNum(Math.round(r.paybackYears), lang)} ${t.calc.results.years}` : '—',
+  };
+});
+const def = 1; // 8 kW
+---
+<section class="section dn" aria-labelledby="dn-title" data-daynight data-mode="day">
+  <div class="container">
+    <SectionHead eyebrow={d.eyebrow} title={d.title} id="dn-title" />
+
+    <div class="dn__grid">
+      <button type="button" class="dn__card dn__card--day" data-dn="day" aria-pressed="true">
+        <span class="dn__ic"><Icon name="sun" size={24} /></span>
+        <strong>{d.day}</strong>
+        <span class="dn__txt">{d.dayText}</span>
+        <span class="dn__bar" aria-hidden="true"><i></i></span>
+      </button>
+
+      <figure class="dn__model" data-reveal>
+        <div class="dn__img dn__img--day"><Picture src={media.isoDay.src} alt={media.isoDay.alt[lang]} sizes="(min-width: 1100px) 640px, 100vw" widths={[480, 720, 960, 1280]} /></div>
+        <div class="dn__img dn__img--night"><Picture src={media.isoNight.src} alt={media.isoNight.alt[lang]} sizes="(min-width: 1100px) 640px, 100vw" widths={[480, 720, 960, 1280]} /></div>
+        <svg class="dn__flow" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path class="dn__path dn__path--day" d="M43 31 L47 42 L48.5 47.6 L50.1 52.7" />
+          <path class="dn__path dn__path--night" d="M50.1 52.7 L48.5 47.6 L44 46" />
+        </svg>
+        <span class="dn__glow" style="left:48.5%;top:47.6%" aria-hidden="true"></span>
+        <span class="dn__glow dn__glow--bat" style="left:50.1%;top:52.7%" aria-hidden="true"></span>
+        <span class="dn__sun" aria-hidden="true"></span>
+      </figure>
+
+      <button type="button" class="dn__card dn__card--night" data-dn="night" aria-pressed="false">
+        <span class="dn__ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" stroke-linejoin="round" /></svg></span>
+        <strong>{d.night}</strong>
+        <span class="dn__txt">{d.nightText}</span>
+        <span class="dn__bar" aria-hidden="true"><i></i></span>
+      </button>
+    </div>
+
+    <div class="dn__sizes" data-reveal>
+      <p class="dn__sizel">{d.size}</p>
+      <div class="seg" role="radiogroup" aria-label={d.size}>
+        {stats.map((s, i) => <button type="button" role="radio" aria-checked={i === def ? 'true' : 'false'} data-kw={s.kw}>{fmtNum(s.kw, lang)} {u.kw}</button>)}
+      </div>
+    </div>
+    <ul class="dn__stats" data-reveal data-stats={JSON.stringify(stats)}>
+      <li><strong data-s="production">{stats[def].production}</strong><span>{d.stats.production}</span></li>
+      <li><strong data-s="savings">{stats[def].savings}</strong><span>{d.stats.savings}</span></li>
+      <li><strong data-s="battery">{stats[def].battery}</strong><span>{d.stats.battery}</span></li>
+      <li><strong data-s="payback">{stats[def].payback}</strong><span>{d.stats.payback}</span></li>
+    </ul>
+    <p class="dn__note">{d.note}</p>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-daynight]').forEach((root) => {
+    const cards = root.querySelectorAll<HTMLButtonElement>('[data-dn]');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer: number | undefined;
+    const set = (m: string) => { root.dataset.mode = m; cards.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.dn === m))); };
+    cards.forEach((c) => c.addEventListener('click', () => { if (timer) clearInterval(timer); timer = undefined; root.classList.add('is-manual'); set(c.dataset.dn!); }));
+    if (!reduce && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting && !timer && !root.classList.contains('is-manual')) { root.classList.add('is-cycling'); timer = window.setInterval(() => set(root.dataset.mode === 'day' ? 'night' : 'day'), 6000); }
+        else if (!e.isIntersecting && timer) { clearInterval(timer); timer = undefined; root.classList.remove('is-cycling'); }
+      }, { threshold: 0.3 }).observe(root);
+    }
+    const list = root.querySelector<HTMLElement>('[data-stats]')!;
+    const stats = JSON.parse(list.dataset.stats!);
+    root.querySelectorAll<HTMLButtonElement>('[data-kw]').forEach((b) => b.addEventListener('click', () => {
+      root.querySelectorAll('[data-kw]').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+      const s = stats.find((x: { kw: number }) => x.kw === Number(b.dataset.kw));
+      for (const k of ['production', 'savings', 'battery', 'payback']) {
+        const el = list.querySelector<HTMLElement>(`[data-s="${k}"]`)!;
+        el.textContent = s[k]; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+      }
+    }));
+  });
+</script>
+
+<style>
+  .dn { background: linear-gradient(180deg, var(--bg) 0%, #eef2f0 100%); overflow: hidden; }
+  .dn__grid { display: grid; gap: 24px; align-items: center; }
+  @media (min-width: 1100px) { .dn__grid { grid-template-columns: 290px 1fr 290px; gap: 8px; } .dn__model { transform: scale(1.18); } }
+  .dn__card { text-align: left; display: grid; gap: 12px; align-content: start; padding: 28px; border-radius: var(--r-lg); border: 0; font: inherit; transition: transform .5s var(--ease), box-shadow .5s var(--ease), opacity .5s var(--ease); cursor: pointer; }
+  .dn__card strong { font-family: var(--font-display); font-weight: 800; font-size: 1.75rem; letter-spacing: -0.02em; }
+  .dn__txt { font-size: 1.02rem; line-height: 1.6; }
+  .dn__ic { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; }
+  .dn__card--day { background: var(--sun); color: #2b2206; }
+  .dn__card--day .dn__ic { background: rgba(255,255,255,.55); color: #a86b00; }
+  .dn__card--night { background: var(--deep); color: rgba(236,243,240,.86); }
+  .dn__card--night strong { color: #fff; }
+  .dn__card--night .dn__ic { background: rgba(255,255,255,.1); color: #cfe0f5; }
+  .dn__card[aria-pressed='true'] { box-shadow: var(--shadow-card); transform: translateY(-4px); }
+  .dn__card[aria-pressed='false'] { opacity: .62; filter: saturate(.7); }
+  .dn__card:hover { opacity: 1; }
+  .dn__bar { display: block; height: 4px; border-radius: 4px; background: rgba(0,0,0,.12); overflow: hidden; margin-top: 8px; }
+  .dn__card--night .dn__bar { background: rgba(255,255,255,.14); }
+  .dn__bar i { display: block; height: 100%; width: 0; background: var(--brand); border-radius: 4px; }
+  .dn__card--night .dn__bar i { background: #7fd6a8; }
+  :global(.dn.is-cycling:not(.is-manual)) .dn__card[aria-pressed='true'] .dn__bar i { animation: dnbar 6s linear infinite; }
+  :global(.dn.is-manual) .dn__card[aria-pressed='true'] .dn__bar i { width: 100%; }
+  @keyframes dnbar { to { width: 100%; } }
+
+  .dn__model { position: relative; margin: 0; aspect-ratio: 1486 / 835; }
+  .dn__img { position: absolute; inset: 0; transition: opacity .9s var(--ease); }
+  .dn__img :global(img) { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 40px 40px rgba(13,29,26,.18)); }
+  .dn[data-mode='day'] .dn__img--night, .dn[data-mode='night'] .dn__img--day { opacity: 0; }
+  .dn__flow { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .dn__path { fill: none; stroke-width: 3; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 6 10; opacity: 0; transition: opacity .6s; }
+  .dn__path--day { stroke: #34c77b; filter: drop-shadow(0 0 4px #34c77b); }
+  .dn__path--night { stroke: #7cc8ff; filter: drop-shadow(0 0 4px #7cc8ff); }
+  .dn[data-mode='day'] .dn__path--day, .dn[data-mode='night'] .dn__path--night { opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) { .dn__path { animation: dash 1.2s linear infinite; } @keyframes dash { to { stroke-dashoffset: -32; } } }
+  .dn__glow { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #34c77b; box-shadow: 0 0 0 6px rgba(52,199,123,.25), 0 0 18px #34c77b; }
+  .dn[data-mode='night'] .dn__glow { background: #7cc8ff; box-shadow: 0 0 0 6px rgba(124,200,255,.25), 0 0 18px #7cc8ff; }
+  .dn__sun { position: absolute; left: 14%; top: 4%; width: 54px; height: 54px; border-radius: 50%; border: 5px solid var(--sun); box-shadow: 0 0 40px rgba(247,205,70,.7); transition: opacity .8s, transform .8s var(--ease); }
+  .dn[data-mode='night'] .dn__sun { opacity: 0; transform: translateY(20px); }
+
+  .dn__sizes { display: grid; justify-items: center; gap: 12px; margin-top: 40px; }
+  .dn__sizel { font-weight: 600; color: var(--muted); font-size: .9375rem; }
+  .dn__stats { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 24px; }
+  .dn__stats li { background: #fff; border-radius: var(--r-md); padding: 22px 24px; box-shadow: var(--shadow-sm); display: grid; gap: 4px; }
+  .dn__stats strong { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 2.6vw, 2.2rem); letter-spacing: -0.03em; color: var(--ink); }
+  .dn__stats span { font-size: .875rem; color: var(--muted); }
+  :global(.pop) { animation: pop .45s var(--ease); }
+  @keyframes pop { from { opacity: .4; transform: translateY(4px); } }
+  .dn__note { text-align: center; font-size: .8125rem; color: var(--muted); margin-top: 16px; }
+  @media (max-width: 1099px) {
+    .dn__grid { grid-template-columns: 1fr 1fr; }
+    .dn__model { grid-column: 1 / -1; order: -1; }
+  }
+  @media (max-width: 719px) {
+    .dn__grid { grid-template-columns: 1fr; gap: 12px; }
+    .dn__card { padding: 22px; }
+    .dn__card[aria-pressed='false'] { display: none; }
+    .dn__card[aria-pressed='false'] { display: grid; opacity: .5; padding: 16px 22px; }
+    .dn__card[aria-pressed='false'] .dn__txt, .dn__card[aria-pressed='false'] .dn__bar { display: none; }
+    .dn__card[aria-pressed='false'] { grid-template-columns: auto 1fr; align-items: center; }
+    .dn__stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .dn__stats li { padding: 16px; }
+    .dn__sizes .seg { width: 100%; }
+    .dn__sizes .seg > button { flex: 1; padding: 0 6px; }
+    .dn__sun { width: 38px; height: 38px; border-width: 4px; }
+  }
+</style>

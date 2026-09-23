@@ -17,8 +17,8 @@ const p = t.pages.solar;
 ---
 <Base lang={lang} route={route} title={t.meta.solar.title} description={t.meta.solar.description}
   jsonLd={[serviceLd(lang, p.title, t.meta.solar.description, 'solar'), breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.solar, key: 'solar' }])]}>
-  <PageHero lang={lang} eyebrow={p.eyebrow} title={p.title} lead={p.lead} crumb={t.nav.solar} image={media.homeDay.src} imageAlt={media.homeDay.alt[lang]} secondary={{ href: path('solar', lang, 'calculator'), label: t.cta.calc }} />
-  <FeatureSplit lang={lang} items={p.sections} image={media.roofDetail} checklistTitle={p.specsTitle} checklist={p.specs} icons={['layers', 'home', 'doc', 'chart']} />
+  <PageHero lang={lang} eyebrow={p.eyebrow} title={p.title} lead={p.lead} crumb={t.nav.solar} image={media.pkg10.src} imageAlt={media.pkg10.alt[lang]} secondary={{ href: path('solar', lang, 'calculator'), label: t.cta.calc }} />
+  <FeatureSplit lang={lang} items={p.sections} image={media.hotspot} checklistTitle={p.specsTitle} checklist={p.specs} icons={['layers', 'home', 'doc', 'chart']} />
   <Packages lang={lang} />
   <Calculator lang={lang} />
   <Process lang={lang} />

@@ -1,4 +1,5 @@
 ---
+/** Government support — renders only src/data/support.ts (editable programme data). */
 import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
 import { useT, path, fmtEur, fmtDate, type Locale } from '../../i18n';
@@ -8,76 +9,74 @@ const { lang, headingLevel = 2, cta = true } = Astro.props;
 const t = useT(lang);
 const s = t.support;
 const active = supportProgrammes.filter((p) => p.active);
+const itemIcons = ['panel', 'battery'];
 ---
-<section class="section section--sand sup" id="support" aria-labelledby="sup-title">
-  <div class="container sup__grid">
-    <div class="sup__copy">
-      <SectionHead eyebrow={s.eyebrow} title={s.title} lead={s.lead} id="sup-title" level={headingLevel} />
-      <ol class="sup__steps" data-reveal>
-        {s.steps.map((st, i) => <li><span class="tnum">{i + 1}</span>{st}</li>)}
-      </ol>
-      {cta && <a href={path('support', lang)} class="btn btn--primary" data-reveal>{t.cta.support}<Icon name="arrow" /></a>}
-    </div>
+<section class="section sup" id="support" aria-labelledby="sup-title">
+  <div class="container">
+    <SectionHead eyebrow={s.eyebrow} title={s.title} lead={s.lead} id="sup-title" level={headingLevel} />
 
-    <div class="sup__cards">
-      {active.map((p) => (
-        <article class="prog" data-reveal>
-          <header class="prog__head">
-            <span class="badge badge--dark">{p.shortName}</span>
-            {!p.verified && <span class="dev-flag">{t.placeholder}</span>}
-          </header>
-          <h3 class="prog__name">{p.name[lang]}</h3>
-          {p.maxTotal && (
-            <p class="prog__total">
-              <span class="prog__tl">{s.total}</span>
-              <span class="prog__tv tnum"><small>{s.upTo}</small> {fmtEur(p.maxTotal, lang)}</span>
-            </p>
-          )}
+    {active.map((p) => (
+      <article class="prog" data-reveal>
+        <div class="prog__hero">
+          <span class="prog__badge">{p.shortName}</span>
+          <p class="prog__tl">{s.total}</p>
+          {p.maxTotal && <p class="prog__tv tnum"><small>{s.upTo}</small> {fmtEur(p.maxTotal, lang)}</p>}
+          <p class="prog__name">{p.name[lang]}</p>
+          {p.deadline && <p class="prog__dl"><Icon name="clock" size={16} />{s.deadline}: {fmtDate(p.deadline, lang)}</p>}
+        </div>
+        <div class="prog__body">
           <ul class="prog__items">
-            {p.items.map((it) => (
+            {p.items.map((it, i) => (
               <li>
+                <span class="prog__ic"><Icon name={itemIcons[i] ?? 'check'} size={22} /></span>
                 <div><strong>{it.label[lang]}</strong><span>{it.condition[lang]}</span></div>
-                {it.maxAmount !== null && <span class="prog__amt tnum">{s.upTo} {fmtEur(it.maxAmount, lang)}</span>}
+                {it.maxAmount !== null && <p class="prog__amt tnum"><small>{s.upTo}</small> {fmtEur(it.maxAmount, lang)}</p>}
               </li>
             ))}
           </ul>
-          <dl class="prog__meta">
-            {p.deadline && <div><dt>{s.deadline}</dt><dd>{fmtDate(p.deadline, lang)}</dd></div>}
-            <div><dt>{s.checked}</dt><dd>{fmtDate(p.lastChecked, lang)}</dd></div>
-            <div><dt>{s.source}</dt><dd>{p.sources.map((src) => <a href={src.url} rel="noopener" target="_blank">{src.label}</a>)}</dd></div>
-          </dl>
-          <p class="prog__note">{s.verifyNote}</p>
+          <p class="prog__note">{s.verifyNote} {s.checked}: {fmtDate(p.lastChecked, lang)} · {s.source}: {p.sources.map((src) => <a href={src.url} rel="noopener" target="_blank">{src.label}</a>)}</p>
           {!p.verified && <p class="dev-note">{s.unverified}</p>}
-        </article>
-      ))}
-    </div>
+        </div>
+      </article>
+    ))}
+
+    <ol class="sup__steps">
+      {s.steps.map((st, i) => <li data-reveal style={`--d:${i * 0.07}s`}><span class="tnum">{i + 1}</span><p>{st}</p></li>)}
+    </ol>
+    {cta && <div class="sup__cta" data-reveal><a href={path('support', lang)} class="btn btn--primary">{t.cta.support}<Icon name="arrow" /></a></div>}
   </div>
 </section>
 
 <style>
-  .sup__grid { display: grid; gap: 48px; }
-  @media (min-width: 1000px) { .sup__grid { grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; } }
-  .sup__copy { display: grid; gap: 0; justify-items: start; }
-  .sup__steps { list-style: none; display: grid; gap: 0; margin-bottom: 36px; width: 100%; border-top: 1px solid var(--line-strong); }
-  .sup__steps li { display: flex; gap: 16px; align-items: baseline; padding: 16px 0; border-bottom: 1px solid var(--line-strong); font-size: 1.0625rem; }
-  .sup__steps span { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--ink); font-size: .8125rem; font-weight: 600; transform: translateY(-2px); }
-  .sup__cards { display: grid; gap: 16px; }
-  .prog { background: #fff; border-radius: 16px; padding: clamp(24px, 3vw, 36px); display: grid; gap: 20px; box-shadow: var(--shadow-card); }
-  .prog__head { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
-  .prog__name { font-size: 1.3rem; letter-spacing: -0.02em; line-height: 1.2; }
-  .prog__total { display: grid; gap: 4px; padding: 20px; border-radius: 12px; background: var(--ink); color: #fff; }
-  .prog__tl { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(238,241,236,.6); font-weight: 600; }
-  .prog__tv { font-family: var(--font-display); font-size: clamp(2.6rem, 5vw, 3.6rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; color: var(--volt); }
-  .prog__tv small { font-size: .35em; letter-spacing: 0; color: rgba(238,241,236,.7); font-weight: 500; }
-  .prog__items { list-style: none; display: grid; }
-  .prog__items li { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
-  .prog__items li div { display: grid; gap: 2px; }
-  .prog__items strong { font-weight: 600; }
-  .prog__items span { font-size: .8125rem; color: var(--muted); }
-  .prog__items .prog__amt { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); white-space: nowrap; letter-spacing: -0.02em; }
-  .prog__meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 0; font-size: .8125rem; }
-  .prog__meta dt { color: var(--muted); }
-  .prog__meta dd { margin: 0; font-weight: 500; }
-  .prog__meta a { color: var(--moss); }
+  .sup { background: var(--bg); }
+  .prog { display: grid; border-radius: var(--r-xl); overflow: hidden; background: #fff; box-shadow: var(--shadow-card); }
+  @media (min-width: 900px) { .prog { grid-template-columns: 0.9fr 1.1fr; } }
+  .prog__hero { position: relative; display: grid; gap: 8px; align-content: center; padding: clamp(28px, 4vw, 56px); background: radial-gradient(90% 90% at 0% 0%, #1d6a4e 0%, var(--deep) 70%); color: rgba(236,243,240,.8); }
+  .prog__badge { justify-self: start; height: 30px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.12); color: #fff; font-weight: 700; font-size: .8125rem; margin-bottom: 14px; }
+  .prog__tl { font-weight: 600; font-size: .9375rem; }
+  .prog__tv { font-family: var(--font-display); font-weight: 800; font-size: clamp(3.4rem, 7vw, 5.4rem); letter-spacing: -0.045em; line-height: 1; color: #fff; }
+  .prog__tv small { font-size: .3em; font-weight: 700; letter-spacing: 0; color: #7fd6a8; margin-right: 4px; }
+  .prog__name { font-size: 1rem; max-width: 40ch; margin-top: 10px; }
+  .prog__dl { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; color: #7fd6a8; margin-top: 6px; }
+  .prog__body { display: grid; gap: 20px; align-content: center; padding: clamp(24px, 4vw, 48px); }
+  .prog__items { list-style: none; display: grid; gap: 12px; }
+  .prog__items li { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 20px; border-radius: var(--r-md); background: var(--bg); }
+  .prog__ic { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: var(--brand); box-shadow: var(--shadow-sm); }
+  .prog__items div { display: grid; gap: 2px; }
+  .prog__items strong { font-family: var(--font-display); font-weight: 750; font-size: 1.1rem; color: var(--ink); }
+  .prog__items span { font-size: .875rem; color: var(--muted); }
+  .prog__amt { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
+  .prog__amt small { font-size: .5em; font-weight: 700; color: var(--muted); letter-spacing: 0; }
   .prog__note { font-size: .8125rem; color: var(--muted); }
+  .prog__note a { color: var(--brand); }
+  .sup__steps { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 24px; }
+  @media (min-width: 900px) { .sup__steps { grid-template-columns: repeat(3, 1fr); } }
+  .sup__steps li { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; background: #fff; border-radius: var(--r-md); box-shadow: var(--shadow-sm); }
+  .sup__steps span { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--brand-50); color: var(--brand); font-weight: 800; font-family: var(--font-display); }
+  .sup__steps p { color: var(--ink); font-weight: 500; }
+  .sup__cta { display: flex; justify-content: center; margin-top: 36px; }
+  @media (max-width: 719px) {
+    .prog__items li { grid-template-columns: auto 1fr; }
+    .prog__amt { grid-column: 2; font-size: 1.4rem; }
+  }
 </style>

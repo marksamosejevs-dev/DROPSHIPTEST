@@ -35,9 +35,9 @@ const o = t.pages.offer;
   </section>
 </Base>
 <style>
-  .of { padding: calc(var(--header-h) + clamp(32px, 5vw, 72px)) 0 clamp(64px, 8vw, 120px); background: linear-gradient(180deg, var(--paper), var(--sand)); min-height: 100svh; }
+  .of { padding: calc(var(--hdr-total) + clamp(32px, 5vw, 72px)) 0 clamp(64px, 8vw, 120px); background: linear-gradient(180deg, var(--paper), var(--sand)); min-height: 100svh; }
   .of__grid { display: grid; gap: 40px; align-items: start; }
-  @media (min-width: 1000px) { .of__grid { grid-template-columns: 1fr minmax(440px, 560px); gap: 80px; } .of__form { position: sticky; top: calc(var(--header-h) + 24px); } }
+  @media (min-width: 1000px) { .of__grid { grid-template-columns: 1fr minmax(440px, 560px); gap: 80px; } .of__form { position: sticky; top: calc(var(--hdr-total) + 24px); } }
   .of__copy { display: grid; gap: 22px; }
   .of__copy h1 { font-size: clamp(2.2rem, 4.6vw, 3.9rem); letter-spacing: -0.04em; }
   .of__crumbs ol { list-style: none; display: flex; gap: 8px; font-size: .8125rem; color: var(--muted); }

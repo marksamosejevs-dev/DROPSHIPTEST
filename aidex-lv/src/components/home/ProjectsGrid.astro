@@ -5,6 +5,7 @@ import Icon from '../Icon.astro';
 import { useT, path, fmtNum, units, type Locale } from '../../i18n';
 import { projects } from '../../data/projects';
 import { media } from '../../data/media';
+import { SHOW_DEV_MARKERS } from '../../config/site';
 interface Props { lang: Locale; limit?: number; headingLevel?: 1 | 2; filter?: boolean }
 const { lang, limit, headingLevel = 2, filter = false } = Astro.props;
 const t = useT(lang);
@@ -12,8 +13,10 @@ const p = t.projects;
 const u = units[lang];
 const list = limit ? projects.slice(0, limit) : projects;
 const hasPlaceholders = list.some((x) => x.placeholder);
+// Placeholder projects are never shown to visitors: the gallery appears once real projects exist.
+const visible = SHOW_DEV_MARKERS || projects.some((x) => !x.placeholder);
 ---
-<section class="section section--white prj" aria-labelledby="prj-title" data-projects>
+{visible ? <section class="section section--white prj" aria-labelledby="prj-title" data-projects>
   <div class="container">
     <SectionHead eyebrow={p.eyebrow} title={p.title} lead={p.lead} split id="prj-title" level={headingLevel}>
       {limit && <a href={path('projects', lang)} class="link-arrow">{t.cta.allProjects}<Icon name="arrow" /></a>}
@@ -51,7 +54,15 @@ const hasPlaceholders = list.some((x) => x.placeholder);
       })}
     </ul>
   </div>
-</section>
+</section> : filter && (
+  <section class="section section--white prj" aria-labelledby="prj-title">
+    <div class="container prj__empty">
+      <h2 id="prj-title">{p.title}</h2>
+      <p class="lead muted">{t.pages.projects.empty}</p>
+      <a href={path('offer', lang)} class="btn btn--primary">{t.cta.offer}<Icon name="arrow" /></a>
+    </div>
+  </section>
+)}
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-projects]').forEach((root) => {
@@ -67,6 +78,8 @@ const hasPlaceholders = list.some((x) => x.placeholder);
 
 <style>
   .prj__dev { margin: -24px 0 28px; }
+  .prj__empty { display: grid; justify-items: center; text-align: center; gap: 18px; max-width: 640px; }
+  .prj__empty h2 { font-size: clamp(2rem, 4vw, 3rem); }
   .prj__grid { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; }
   @media (min-width: 720px) { .prj__grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1100px) { .prj__grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: auto; } .prj__item--lead { grid-column: span 2; grid-row: span 2; } }

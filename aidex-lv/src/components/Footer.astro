@@ -18,9 +18,9 @@ const email = known(company.email);
   <div class="container">
     <div class="ftr__top">
       <div class="ftr__brand">
-        <Logo tone="light" />
+        <Logo tone="light" sub={t.v2.brandSub} />
         <p class="ftr__tag">{f.tagline}</p>
-        <a href={path('offer', lang)} class="btn btn--volt">{t.cta.offer}<Icon name="arrow" /></a>
+        <a href={path('offer', lang)} class="btn btn--primary">{t.cta.offer}<Icon name="arrow" /></a>
       </div>
 
       <nav class="ftr__cols" aria-label={t.nav.footerNav}>
@@ -83,14 +83,14 @@ const email = known(company.email);
 </footer>
 
 <style>
-  .ftr { background: var(--ink); color: rgba(238, 241, 236, 0.86); padding: clamp(64px, 8vw, 112px) 0 calc(28px + env(safe-area-inset-bottom)); position: relative; }
+  .ftr { background: radial-gradient(60% 80% at 100% 0%, rgba(52,199,123,.14), transparent 70%), repeating-linear-gradient(120deg, rgba(255,255,255,.025) 0 2px, transparent 2px 160px), var(--deep); color: rgba(238, 241, 236, 0.86); padding: clamp(64px, 8vw, 104px) 0 calc(28px + env(safe-area-inset-bottom)); position: relative; }
   .ftr__top { display: grid; gap: 56px; padding-bottom: 56px; border-bottom: 1px solid var(--line-inv); }
   @media (min-width: 1000px) { .ftr__top { grid-template-columns: 0.9fr 1.6fr; gap: 80px; } }
   .ftr__brand { display: grid; gap: 24px; align-content: start; justify-items: start; }
   .ftr__tag { max-width: 34ch; color: rgba(238, 241, 236, 0.62); font-size: 1rem; }
   .ftr__cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px 24px; }
   @media (min-width: 720px) { .ftr__cols { grid-template-columns: repeat(4, 1fr); } }
-  .ftr h3 { font-family: var(--font-body); font-size: .75rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(238, 241, 236, 0.6); margin-bottom: 18px; }
+  .ftr h3 { font-family: var(--font-body); font-size: .75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: rgba(238, 241, 236, 0.6); margin-bottom: 18px; }
   .ftr ul { list-style: none; display: grid; gap: 12px; }
   .ftr ul a, .ftr__linkbtn { font-size: .9375rem; text-decoration: none; color: rgba(238, 241, 236, 0.86); display: inline-flex; align-items: center; gap: 6px; transition: color .2s; }
   .ftr ul a:hover, .ftr__linkbtn:hover { color: #fff; text-decoration: underline; }

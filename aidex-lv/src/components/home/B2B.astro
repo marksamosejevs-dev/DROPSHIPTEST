@@ -1,4 +1,8 @@
 ---
+/**
+ * Progression HOME → BUSINESS → AIDEX ENERGY GROUP. Group facts come from
+ * src/config/company.ts (group.facts) and must be confirmed before launch.
+ */
 import SectionHead from '../SectionHead.astro';
 import Picture from '../Picture.astro';
 import Icon from '../Icon.astro';
@@ -9,107 +13,83 @@ interface Props { lang: Locale; headingLevel?: 1 | 2; compact?: boolean }
 const { lang, headingLevel = 2, compact = false } = Astro.props;
 const t = useT(lang);
 const b = t.b2b;
+const v = t.v2.b2b;
+const imgs = [media.pkg8, media.commercialRoof, media.solarField];
+const links = [
+  { href: path('packages', lang), label: t.cta.allPackages, ext: false },
+  { href: path('business', lang), label: compact ? t.cta.more : t.cta.b2b, ext: false },
+  { href: group.url, label: t.cta.group, ext: true },
+];
 const catIcons = ['warehouse', 'factory', 'battery', 'truck'];
 const catIds = ['commercial', 'industrial', 'bess', 'supply'];
-const segIcons = ['warehouse', 'factory', 'office', 'store', 'truck', 'leaf'];
 ---
-<section class="section dark b2b" id="business" aria-labelledby="b2b-title">
+<section class="section b2b" id="business" aria-labelledby="b2b-title">
+  <div class="b2b__bg" aria-hidden="true"></div>
   <div class="container">
-    <SectionHead eyebrow={b.eyebrow} title={b.title} lead={b.lead} split id="b2b-title" level={headingLevel}>
-      <div class="b2b__ctas">
-        <a href={compact ? path('business', lang) : path('contact', lang)} class="btn btn--volt">{compact ? t.cta.more : t.cta.b2b}<Icon name="arrow" /></a>
-        <a href={group.url} class="btn btn--ghost-inv" rel="noopener" target="_blank">{t.cta.group}<Icon name="external" /></a>
-      </div>
-    </SectionHead>
+    <SectionHead eyebrow={v.eyebrow} title={v.title} lead={v.lead} id="b2b-title" level={headingLevel} />
 
-    <div class="b2b__hero" data-reveal>
-      <figure class="media b2b__media">
-        <Picture src={media.commercialRoof.src} alt={media.commercialRoof.alt[lang]} sizes="100vw" widths={[800, 1200, 1600, 2000]} />
-      </figure>
-      <ul class="b2b__segs" aria-label={b.segmentsTitle}>
-        {b.segments.map((s, i) => <li><Icon name={segIcons[i]} size={18} />{s}</li>)}
-      </ul>
-    </div>
-
-    <ul class="b2b__cats">
-      {b.categories.map((c, i) => (
-        <li id={catIds[i]} data-reveal style={`--d:${i * 0.06}s`}>
-          <span class="b2b__ci"><Icon name={catIcons[i]} size={22} /></span>
-          <h3>{c.title}</h3>
-          <p>{c.text}</p>
+    <ol class="b2b__stages">
+      {v.stages.map((s, i) => (
+        <li class:list={['st', i === 2 && 'st--group']} data-reveal style={`--d:${i * 0.1}s`}>
+          <figure class="st__media"><Picture src={imgs[i].src} alt={imgs[i].alt[lang]} sizes="(min-width: 1000px) 30vw, 100vw" widths={[480, 720, 960]} /></figure>
+          <div class="st__body">
+            <p class="st__tag">{s.tag}</p>
+            <h3>{s.title}</h3>
+            <ul>{s.points.map((p) => <li><Icon name="check" size={16} />{p}</li>)}</ul>
+            {i === 2 && (
+              <p class="st__stat"><strong class="tnum">{group.facts.biomassTonnes}</strong><span>{b.groupStat}</span></p>
+            )}
+            <a href={links[i].href} class:list={['btn btn--sm', i === 2 ? 'btn--white' : 'btn--ghost-inv']} {...(links[i].ext ? { target: '_blank', rel: 'noopener' } : {})}>
+              {links[i].label}<Icon name={links[i].ext ? 'external' : 'arrow'} />
+            </a>
+          </div>
+          {i < 2 && <span class="st__arrow" aria-hidden="true"><Icon name="arrow" size={20} /></span>}
         </li>
       ))}
-    </ul>
+    </ol>
 
-    <div class="b2b__split" data-reveal>
-      <div class="b2b__side">
-        <p class="b2b__brand">{b.split.local}</p>
-        <p>{b.split.localText}</p>
-      </div>
-      <div class="b2b__link" aria-hidden="true"><span></span><Icon name="arrow" /><span></span></div>
-      <div class="b2b__side b2b__side--intl">
-        <p class="b2b__brand">{b.split.intl}</p>
-        <p>{b.split.intlText}</p>
-      </div>
-    </div>
-
-    <div class="b2b__group" data-reveal>
-      <figure class="media b2b__gimg">
-        <Picture src={media.solarField.src} alt={media.solarField.alt[lang]} sizes="(min-width: 1000px) 50vw, 100vw" widths={[600, 900, 1300, 1800]} />
-      </figure>
-      <div class="b2b__gcopy">
-        <p class="eyebrow">{b.groupEyebrow}</p>
-        <h3>{b.groupTitle}</h3>
-        <p class="b2b__gtext">{b.groupText}</p>
-        <div class="b2b__stat">
-          <p class="b2b__statv tnum">{group.facts.biomassTonnes}</p>
-          <p class="b2b__statl">{b.groupStat}</p>
-          <p class="b2b__src">{b.groupStatSource}{!group.facts.biomassTonnesConfirmed && <span class="dev-flag">{t.tbc}</span>}</p>
-        </div>
-        <a href={group.url} class="btn btn--ghost-inv" rel="noopener" target="_blank">{t.cta.group}<Icon name="external" /></a>
-      </div>
-    </div>
+    {!compact && (
+      <ul class="b2b__cats">
+        {b.categories.map((c, i) => (
+          <li id={catIds[i]} data-reveal style={`--d:${i * 0.06}s`}>
+            <span class="b2b__ci"><Icon name={catIcons[i]} size={22} /></span>
+            <h3>{c.title}</h3>
+            <p>{c.text}</p>
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 </section>
 
 <style>
-  .b2b { background: var(--ink); overflow: hidden; }
-  .b2b__ctas { display: flex; flex-wrap: wrap; gap: 10px; }
-  .b2b__hero { position: relative; margin-bottom: 16px; }
-  .b2b__media { aspect-ratio: 21 / 9; margin: 0; }
-  @media (max-width: 719px) { .b2b__media { aspect-ratio: 4 / 3; } }
-  .b2b__segs { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-  @media (min-width: 900px) { .b2b__segs { position: absolute; left: 24px; bottom: 24px; right: 24px; margin: 0; } }
-  .b2b__segs li { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: rgba(11,20,16,.66); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px var(--line-inv); font-size: .875rem; font-weight: 500; color: #fff; }
-  .b2b__segs :global(svg) { color: var(--volt); }
-  .b2b__cats { list-style: none; display: grid; gap: 0; grid-template-columns: 1fr; border-top: 1px solid var(--line-inv); margin-top: 40px; }
+  .b2b { position: relative; background: var(--deep); color: rgba(236,243,240,.84); overflow: hidden; isolation: isolate; }
+  .b2b__bg { position: absolute; inset: 0; z-index: -1; background: radial-gradient(60% 50% at 85% 0%, rgba(52,199,123,.18), transparent 70%), radial-gradient(50% 40% at 0% 100%, rgba(124,200,255,.1), transparent 70%), repeating-linear-gradient(115deg, rgba(255,255,255,.025) 0 2px, transparent 2px 120px); }
+  .b2b :global(.s-head h2) { color: #fff; }
+  .b2b :global(.s-head .lead) { color: rgba(236,243,240,.74); }
+  .b2b :global(.eyebrow) { color: #7fd6a8; }
+  .b2b__stages { list-style: none; display: grid; gap: 20px; grid-template-columns: 1fr; }
+  @media (min-width: 1000px) { .b2b__stages { grid-template-columns: repeat(3, 1fr); gap: 28px; } }
+  .st { position: relative; display: grid; grid-template-rows: auto 1fr; border-radius: var(--r-lg); background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px var(--line-inv); overflow: visible; }
+  .st--group { background: linear-gradient(160deg, rgba(52,199,123,.22), rgba(52,199,123,.04)); box-shadow: inset 0 0 0 1px rgba(127,214,168,.4); }
+  .st__media { margin: 0; aspect-ratio: 16 / 10; border-radius: var(--r-lg) var(--r-lg) 0 0; overflow: hidden; }
+  .st__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .st__body { display: grid; gap: 12px; align-content: start; justify-items: start; padding: 24px 26px 28px; }
+  .st__tag { font-size: .8125rem; font-weight: 700; letter-spacing: .04em; color: #7fd6a8; }
+  .st h3 { font-size: 1.45rem; color: #fff; }
+  .st ul { list-style: none; display: grid; gap: 8px; margin-bottom: 6px; }
+  .st li { display: flex; gap: 10px; align-items: flex-start; font-size: .9688rem; }
+  .st li :global(svg) { color: #7fd6a8; flex: none; margin-top: 4px; }
+  .st__stat { display: grid; gap: 2px; padding: 14px 0; border-top: 1px solid var(--line-inv); width: 100%; }
+  .st__stat strong { font-family: var(--font-display); font-weight: 800; font-size: 2rem; letter-spacing: -0.03em; color: #fff; }
+  .st__stat span { font-size: .8438rem; color: rgba(236,243,240,.7); }
+  .st__arrow { position: absolute; z-index: 2; right: -24px; top: calc(50% - 20px); width: 40px; height: 40px; display: none; place-items: center; border-radius: 50%; background: var(--brand); color: #fff; box-shadow: 0 0 0 6px var(--deep); }
+  @media (min-width: 1000px) { .st__arrow { display: grid; right: -34px; } }
+  .b2b__cats { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 48px; }
   @media (min-width: 720px) { .b2b__cats { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1100px) { .b2b__cats { grid-template-columns: repeat(4, 1fr); } }
-  .b2b__cats li { padding: 32px 28px 36px 0; display: grid; gap: 12px; align-content: start; border-bottom: 1px solid var(--line-inv); scroll-margin-top: calc(var(--header-h) + 24px); }
-  @media (min-width: 1100px) { .b2b__cats li + li { padding-left: 28px; border-left: 1px solid var(--line-inv); } .b2b__cats li { border-bottom: 0; } }
-  .b2b__ci { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: rgba(200,238,98,.1); color: var(--volt); margin-bottom: 6px; }
-  .b2b__cats h3 { font-size: 1.3rem; letter-spacing: -0.02em; color: #fff; }
-  .b2b__cats p { color: rgba(238,241,236,.64); font-size: .9375rem; }
-
-  .b2b__split { display: grid; grid-template-columns: 1fr; gap: 12px; margin: clamp(56px, 7vw, 96px) 0 16px; align-items: stretch; }
-  @media (min-width: 900px) { .b2b__split { grid-template-columns: 1fr auto 1fr; gap: 0; } }
-  .b2b__side { padding: 28px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--line-inv); display: grid; gap: 6px; }
-  .b2b__side p:not(.b2b__brand) { color: rgba(238,241,236,.66); }
-  .b2b__side--intl { background: linear-gradient(135deg, rgba(200,238,98,.14), rgba(200,238,98,.02)); box-shadow: inset 0 0 0 1px rgba(200,238,98,.3); }
-  .b2b__brand { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; color: #fff; }
-  .b2b__link { display: none; align-items: center; gap: 8px; padding: 0 16px; color: var(--volt); }
-  .b2b__link span { width: 32px; height: 1px; background: var(--line-inv); }
-  @media (min-width: 900px) { .b2b__link { display: flex; } }
-
-  .b2b__group { display: grid; gap: 0; border-radius: 16px; overflow: hidden; background: var(--spruce); box-shadow: inset 0 0 0 1px var(--line-inv); }
-  @media (min-width: 1000px) { .b2b__group { grid-template-columns: 1fr 1fr; } }
-  .b2b__gimg { margin: 0; border-radius: 0; aspect-ratio: 16 / 10; }
-  @media (min-width: 1000px) { .b2b__gimg { aspect-ratio: auto; height: 100%; } }
-  .b2b__gcopy { padding: clamp(28px, 4vw, 56px); display: grid; gap: 18px; align-content: center; justify-items: start; }
-  .b2b__gcopy h3 { font-size: clamp(1.7rem, 3vw, 2.4rem); color: #fff; }
-  .b2b__gtext { color: rgba(238,241,236,.72); }
-  .b2b__stat { display: grid; gap: 4px; padding: 20px 0; border-top: 1px solid var(--line-inv); border-bottom: 1px solid var(--line-inv); width: 100%; }
-  .b2b__statv { font-family: var(--font-display); font-size: clamp(2.6rem, 5vw, 3.6rem); font-weight: 600; letter-spacing: -0.045em; color: var(--volt); line-height: 1; }
-  .b2b__statl { color: rgba(238,241,236,.8); font-size: .9375rem; }
-  .b2b__src { display: flex; gap: 10px; align-items: center; font-size: .75rem; color: rgba(238,241,236,.46); }
+  .b2b__cats li { padding: 24px; border-radius: var(--r-md); background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px var(--line-inv); display: grid; gap: 10px; align-content: start; scroll-margin-top: calc(var(--header-h) + 24px); }
+  .b2b__ci { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; background: rgba(127,214,168,.12); color: #7fd6a8; }
+  .b2b__cats h3 { font-size: 1.2rem; color: #fff; }
+  .b2b__cats p { font-size: .9375rem; color: rgba(236,243,240,.68); }
 </style>

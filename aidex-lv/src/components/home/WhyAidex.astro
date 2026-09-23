@@ -2,55 +2,83 @@
 import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
 import Picture from '../Picture.astro';
-import { useT, path, type Locale } from '../../i18n';
+import { useT, units, type Locale } from '../../i18n';
 import { media } from '../../data/media';
 interface Props { lang: Locale }
 const { lang } = Astro.props;
 const t = useT(lang);
 const w = t.why;
-const icons = ['layers', 'shield', 'tool', 'battery', 'chart', 'doc'];
+const v = t.v2.why;
+const u = units[lang];
+const [one, quality, install, battery, , docs] = w.pillars;
 ---
 <section class="section why" aria-labelledby="why-title">
   <div class="container">
-    <SectionHead eyebrow={w.eyebrow} title={w.title} lead={w.lead} split id="why-title">
-      <a href={path('about', lang)} class="link-arrow">{t.cta.more}<Icon name="arrow" /></a>
-    </SectionHead>
+    <SectionHead eyebrow={w.eyebrow} title={v.title} lead={w.lead} id="why-title" />
 
-    <div class="why__grid">
-      <figure class="why__media media media--zoom" data-reveal>
-        <Picture src={media.roofDetail.src} alt={media.roofDetail.alt[lang]} sizes="(min-width: 1000px) 40vw, 100vw" widths={[600, 900, 1300, 1800]} />
-        {media.roofDetail.temporary && <figcaption class="dev-flag why__flag">{t.placeholder}</figcaption>}
-      </figure>
-      <ol class="why__list">
-        {w.pillars.map((p, i) => (
-          <li class="why__item" data-reveal style={`--d:${(i % 2) * 0.08}s`}>
-            <span class="why__icon"><Icon name={icons[i]} size={22} /></span>
-            <h3>{p.title}</h3>
-            <p>{p.text}</p>
-          </li>
-        ))}
-      </ol>
-    </div>
+    <ul class="why__cards">
+      <li class="wc" data-reveal>
+        <figure class="wc__media media"><Picture src={media.pkg10.src} alt={media.pkg10.alt[lang]} sizes="(min-width: 1000px) 30vw, 100vw" widths={[480, 720, 960]} /></figure>
+        <h3>{one.title}</h3>
+        <p>{one.text}</p>
+      </li>
+      <li class="wc" data-reveal style="--d:.08s">
+        <figure class="wc__media media"><Picture src={media.batteryRoom.src} alt={media.batteryRoom.alt[lang]} sizes="(min-width: 1000px) 30vw, 100vw" widths={[480, 720, 960]} /></figure>
+        <h3>{battery.title}</h3>
+        <p>{battery.text}</p>
+      </li>
+      <li class="wc" data-reveal style="--d:.16s">
+        <div class="wc__media wc__app" aria-hidden="true">
+          <div class="app">
+            <div class="app__top"><span>AIDEX</span><span>{v.today}</span></div>
+            <p class="app__big tnum">38,4 <small>{u.kwh}</small></p>
+            <p class="app__cap">{v.produced}</p>
+            <svg class="app__chart" viewBox="0 0 200 60" preserveAspectRatio="none"><path d="M0 58 C30 58 40 50 60 36 S100 4 120 8 S160 40 200 56 L200 60 L0 60 Z" fill="url(#g1)" /><path d="M0 58 C30 58 40 50 60 36 S100 4 120 8 S160 40 200 56" fill="none" stroke="#34c77b" stroke-width="2" /><defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#34c77b" stop-opacity=".45" /><stop offset="1" stop-color="#34c77b" stop-opacity="0" /></linearGradient></defs></svg>
+            <div class="app__row">
+              <div><span>{v.used}</span><strong class="tnum">21,7 {u.kwh}</strong></div>
+              <div><span>{v.stored}</span><strong class="tnum">86 %</strong></div>
+            </div>
+          </div>
+        </div>
+        <h3>{v.monitor.title}</h3>
+        <p>{v.monitor.text}</p>
+      </li>
+    </ul>
+
+    <ul class="why__mini">
+      {[{ i: 'shield', ...quality }, { i: 'tool', ...install }, { i: 'doc', ...docs }].map((m, k) => (
+        <li data-reveal style={`--d:${k * 0.06}s`}>
+          <span class="why__ic"><Icon name={m.i} size={22} /></span>
+          <div><h3>{m.title}</h3><p>{m.text}</p></div>
+        </li>
+      ))}
+    </ul>
   </div>
 </section>
 
 <style>
-  .why { background: var(--paper); }
-  .why__grid { display: grid; gap: clamp(32px, 4vw, 64px); }
-  @media (min-width: 1000px) { .why__grid { grid-template-columns: 0.8fr 1.2fr; align-items: stretch; } }
-  .why__media { aspect-ratio: 16 / 10; margin: 0; }
-  .why__media :global(img) { object-position: 70% 60%; }
-  @media (min-width: 1000px) { .why__media { aspect-ratio: auto; min-height: 100%; } }
-  .why__media :global(picture), .why__media :global(img) { height: 100%; }
-  .why__flag { position: absolute; left: 14px; top: 14px; z-index: 2; }
-  .why__list { list-style: none; display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
-  @media (min-width: 640px) { .why__list { grid-template-columns: 1fr 1fr; } }
-  .why__item { display: grid; gap: 10px; align-content: start; padding: 28px 0 32px; border-bottom: 1px solid var(--line); }
-  @media (min-width: 640px) {
-    .why__item { padding: 32px 28px 36px 0; }
-    .why__item:nth-child(even) { padding-left: 28px; padding-right: 0; border-left: 1px solid var(--line); }
-  }
-  .why__icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--white); color: var(--moss); box-shadow: inset 0 0 0 1px var(--line); margin-bottom: 8px; }
-  .why__item h3 { font-size: 1.25rem; letter-spacing: -0.02em; }
-  .why__item p { color: var(--muted); font-size: .98rem; }
+  .why { background: var(--bg); }
+  .why__cards { list-style: none; display: grid; gap: 24px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .why__cards { grid-template-columns: repeat(3, 1fr); } }
+  .wc { display: grid; gap: 12px; align-content: start; }
+  .wc__media { margin: 0 0 10px; aspect-ratio: 4 / 3; border-radius: var(--r-lg); overflow: hidden; }
+  .wc h3 { font-size: 1.45rem; }
+  .wc p { color: var(--muted); }
+  .wc__app { display: grid; place-items: center; background: radial-gradient(120% 100% at 80% 0%, #1b4a3b 0%, var(--deep) 60%); padding: 24px; }
+  .app { width: min(260px, 86%); background: rgba(255,255,255,.06); border-radius: 22px; padding: 20px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 30px 60px -20px rgba(0,0,0,.5); color: #fff; }
+  .app__top { display: flex; justify-content: space-between; font-size: .75rem; font-weight: 700; letter-spacing: .08em; opacity: .7; }
+  .app__big { font-family: var(--font-display); font-weight: 800; font-size: 2.4rem; letter-spacing: -0.03em; margin-top: 14px; line-height: 1; }
+  .app__big small { font-size: .45em; opacity: .7; }
+  .app__cap { font-size: .8125rem; opacity: .7; }
+  .app__chart { width: 100%; height: 60px; margin: 12px 0; }
+  .app__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .app__row div { background: rgba(255,255,255,.07); border-radius: 12px; padding: 10px 12px; display: grid; gap: 2px; }
+  .app__row span { font-size: .6875rem; opacity: .7; }
+  .app__row strong { font-size: .9375rem; }
+  .why__mini { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 48px; }
+  @media (min-width: 900px) { .why__mini { grid-template-columns: repeat(3, 1fr); } }
+  .why__mini li { display: flex; gap: 16px; padding: 24px; background: #fff; border-radius: var(--r-md); box-shadow: var(--shadow-sm); }
+  .why__ic { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 12px; background: var(--brand-50); color: var(--brand); }
+  .why__mini h3 { font-size: 1.15rem; margin-bottom: 4px; }
+  .why__mini p { color: var(--muted); font-size: .9375rem; }
 </style>

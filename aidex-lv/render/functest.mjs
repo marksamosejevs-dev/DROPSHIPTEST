@@ -50,11 +50,20 @@ ok(c.analytics && c.marketing, 'accept all from prefs');
 
 // ---- package toggle
 await p.goto(B + '/lv/', { waitUntil: 'networkidle' });
-const vis = async () => p.locator('.card--featured .price:visible .price__value').innerText();
+const vis = async () => p.locator('.pc--featured .pc__price:visible .pc__net').innerText();
 const before = await vis();
 await p.click('[data-mode-btn="without"]');
 const after = await vis();
 ok(before !== after, `package toggle changes price (${before.replace(/\s+/g,' ')} → ${after.replace(/\s+/g,' ')})`);
+
+// ---- hotspots + day/night + kW selector
+await p.click('[data-pin="battery"]');
+ok(await p.isVisible('[data-info="battery"]') && await p.isHidden('[data-info="panels"]'), 'hotspot switches info card');
+await p.click('[data-dn="night"]');
+ok((await p.getAttribute('[data-daynight]', 'data-mode')) === 'night', 'day/night toggles');
+const prod1 = await p.locator('[data-s="production"]').innerText();
+await p.click('[data-kw="12"]');
+ok(prod1 !== await p.locator('[data-s="production"]').innerText(), 'kW selector updates stats');
 
 // ---- calculator
 const kw1 = await p.locator('[data-out="kw"]').innerText();

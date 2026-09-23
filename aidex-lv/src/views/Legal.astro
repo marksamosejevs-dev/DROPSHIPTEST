@@ -45,10 +45,10 @@ const nav: { key: LegalKey; label: string }[] = [
   </div>
 </Base>
 <style>
-  .lg { padding: calc(var(--header-h) + clamp(40px, 6vw, 88px)) 0 clamp(64px, 8vw, 120px); background: var(--white); }
+  .lg { padding: calc(var(--hdr-total) + clamp(40px, 6vw, 88px)) 0 clamp(64px, 8vw, 120px); background: var(--white); }
   .lg__grid { display: grid; gap: 40px; }
   .lg__grid > * { min-width: 0; }
-  @media (min-width: 1000px) { .lg__grid { grid-template-columns: 240px 1fr; gap: 80px; } .lg__nav { position: sticky; top: calc(var(--header-h) + 32px); align-self: start; } }
+  @media (min-width: 1000px) { .lg__grid { grid-template-columns: 240px 1fr; gap: 80px; } .lg__nav { position: sticky; top: calc(var(--hdr-total) + 32px); align-self: start; } }
   .lg__nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
   @media (min-width: 1000px) { .lg__nav ul { display: grid; gap: 2px; } }
   .lg__nav a, .lg__nav button { display: block; padding: 10px 14px; border-radius: 8px; text-decoration: none; font-size: .9375rem; font-weight: 500; color: var(--muted); background: none; border: 0; text-align: left; width: 100%; }

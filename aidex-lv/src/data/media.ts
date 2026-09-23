@@ -18,6 +18,13 @@ import roofDetail from '../assets/img/roof-detail.png';
 import commercialRoof from '../assets/img/commercial-roof.png';
 import solarField from '../assets/img/solar-field.png';
 import batteryRoom from '../assets/img/battery-room.png';
+import pkg6 from '../assets/img/pkg-6.png';
+import pkg8 from '../assets/img/pkg-8.png';
+import pkg10 from '../assets/img/pkg-10.png';
+import pkgMax from '../assets/img/pkg-max.png';
+import hotspot from '../assets/img/hotspot.png';
+import isoDay from '../assets/img/iso-day.png';
+import isoNight from '../assets/img/iso-night.png';
 import type { Localized } from './packages';
 
 export interface MediaItem { src: ImageMetadata; alt: Localized; temporary: boolean }
@@ -86,6 +93,34 @@ export const media = {
       ru: 'Домашняя система накопления энергии: модули аккумулятора и гибридный инвертор',
       en: 'Home energy storage: stacked battery modules and a hybrid inverter',
     },
+  },
+  pkg6: {
+    src: pkg6, temporary: true,
+    alt: { lv: 'Tumša koka māja ar melniem saules paneļiem uz jumta vakara saulē', ru: 'Тёмный деревянный дом с чёрными солнечными панелями на крыше в вечернем солнце', en: 'Dark timber house with black solar panels on the roof in evening sun' },
+  },
+  pkg8: {
+    src: pkg8, temporary: true,
+    alt: { lv: 'Moderna māja ar saules paneļu jumtu starp bērziem', ru: 'Современный дом с солнечной крышей среди берёз', en: 'Modern house with a solar roof among birch trees' },
+  },
+  pkg10: {
+    src: pkg10, temporary: true,
+    alt: { lv: 'Gaiša privātmāja ar saules paneļiem dienas gaismā', ru: 'Светлый частный дом с солнечными панелями днём', en: 'Light-clad family house with solar panels in daylight' },
+  },
+  pkgMax: {
+    src: pkgMax, temporary: true,
+    alt: { lv: 'Liela māja ar jumta saules paneļiem un zemes saules konstrukciju', ru: 'Большой дом с солнечными панелями на крыше и наземной конструкцией', en: 'Large house with rooftop solar and a ground-mounted array' },
+  },
+  hotspot: {
+    src: hotspot, temporary: true,
+    alt: { lv: 'Māja ar saules paneļiem, invertoru, akumulatoru un elektroauto lādētāju', ru: 'Дом с солнечными панелями, инвертором, аккумулятором и зарядкой для электромобиля', en: 'House with solar panels, inverter, battery and EV charger' },
+  },
+  isoDay: {
+    src: isoDay, temporary: true,
+    alt: { lv: 'Mājas saules sistēmas modelis dienā', ru: 'Модель солнечной системы дома днём', en: 'Model of a home solar system by day' },
+  },
+  isoNight: {
+    src: isoNight, temporary: true,
+    alt: { lv: 'Mājas saules sistēmas modelis naktī', ru: 'Модель солнечной системы дома ночью', en: 'Model of a home solar system at night' },
   },
 } satisfies Record<string, MediaItem>;
 

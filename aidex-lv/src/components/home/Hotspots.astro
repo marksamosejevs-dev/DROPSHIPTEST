@@ -1,0 +1,85 @@
+---
+import SectionHead from '../SectionHead.astro';
+import Picture from '../Picture.astro';
+import Icon from '../Icon.astro';
+import { useT, type Locale } from '../../i18n';
+import { media } from '../../data/media';
+import { hotspots } from '../../data/hotspots';
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const h = t.v2.hs;
+const icons: Record<string, string> = { panels: 'panel', inverter: 'bolt', battery: 'battery', ev: 'ev' };
+---
+<section class="section section--white hs" aria-labelledby="hs-title" data-hotspots>
+  <div class="container">
+    <SectionHead eyebrow={h.eyebrow} title={h.title} lead={h.lead} id="hs-title" />
+    <div class="hs__stage" data-reveal>
+      <div class="hs__img">
+        <Picture src={media.hotspot.src} alt={media.hotspot.alt[lang]} sizes="(min-width: 1360px) 1280px, 100vw" widths={[640, 960, 1280, 1600, 2000, 2400]} />
+        {hotspots.map((s, i) => (
+          <button type="button" class:list={['hs__pin', `hs__pin--${s.side}`]} style={`left:${s.x}%;top:${s.y}%`} aria-pressed={i === 0 ? 'true' : 'false'} aria-label={h.items[s.id].label} data-pin={s.id}>
+            <span class="hs__dot" aria-hidden="true"></span>
+            <span class="hs__label">{h.items[s.id].label}</span>
+          </button>
+        ))}
+      </div>
+      <div class="hs__card" aria-live="polite">
+        {hotspots.map((s, i) => (
+          <div class="hs__info" data-info={s.id} hidden={i !== 0}>
+            <span class="hs__ic"><Icon name={icons[s.id]} size={22} /></span>
+            <div>
+              <h3>{h.items[s.id].title}</h3>
+              <p>{h.items[s.id].text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p class="hs__hint"><Icon name="plus" size={18} />{h.hint}</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-hotspots]').forEach((root) => {
+    const pins = root.querySelectorAll<HTMLButtonElement>('[data-pin]');
+    const infos = root.querySelectorAll<HTMLElement>('[data-info]');
+    pins.forEach((p) => p.addEventListener('click', () => {
+      pins.forEach((x) => x.setAttribute('aria-pressed', String(x === p)));
+      infos.forEach((i) => (i.hidden = i.dataset.info !== p.dataset.pin));
+    }));
+  });
+</script>
+
+<style>
+  .hs__stage { position: relative; border-radius: var(--r-xl); overflow: hidden; isolation: isolate; aspect-ratio: 16 / 9; box-shadow: var(--shadow-card); background: var(--bg-2); }
+  .hs__img { position: absolute; inset: 0; }
+  .hs__img :global(picture), .hs__img :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hs__card { position: absolute; left: clamp(16px, 2.4vw, 32px); top: clamp(16px, 2.4vw, 32px); z-index: 3; width: min(420px, calc(100% - 32px)); background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--r-md); box-shadow: var(--shadow-card); padding: 22px 24px; }
+  .hs__info { display: flex; gap: 16px; align-items: flex-start; }
+  .hs__info h3 { font-size: 1.35rem; margin-bottom: 6px; }
+  .hs__info p { color: var(--muted); font-size: .98rem; }
+  .hs__ic { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 12px; background: var(--brand-50); color: var(--brand); }
+  @media (prefers-reduced-motion: no-preference) { .hs__info:not([hidden]) { animation: hsIn .4s var(--ease); } @keyframes hsIn { from { opacity: 0; transform: translateY(6px); } } }
+  .hs__pin { position: absolute; z-index: 2; transform: translate(-11px, -50%); display: flex; align-items: center; gap: 10px; padding: 0; background: none; border: 0; }
+  .hs__pin--left { flex-direction: row-reverse; transform: translate(calc(-100% + 11px), -50%); }
+  .hs__dot { position: relative; width: 22px; height: 22px; flex: none; border-radius: 50%; background: rgba(255,255,255,.9); box-shadow: 0 2px 10px rgba(0,0,0,.3); }
+  .hs__dot::after { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--brand); }
+  @media (prefers-reduced-motion: no-preference) { .hs__dot::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(255,255,255,.7); animation: ping 2.2s var(--ease) infinite; } @keyframes ping { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } } }
+  .hs__label { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 999px; background: #fff; color: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: .9688rem; white-space: nowrap; box-shadow: 0 6px 20px -6px rgba(0,0,0,.35); transition: background .25s, color .25s; }
+  .hs__pin[aria-pressed='true'] .hs__label, .hs__pin:hover .hs__label { background: var(--brand); color: #fff; }
+  .hs__hint { position: absolute; left: clamp(16px, 2.4vw, 32px); bottom: clamp(16px, 2.4vw, 32px); z-index: 2; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 20px; border-radius: 999px; background: rgba(255,255,255,.94); font-family: var(--font-display); font-weight: 700; color: var(--ink); box-shadow: var(--shadow-sm); }
+  .hs__hint :global(svg) { color: var(--brand); }
+  @media (max-width: 899px) {
+    .hs__stage { aspect-ratio: auto; display: grid; overflow: visible; box-shadow: none; background: none; }
+    .hs__img { position: relative; aspect-ratio: 4 / 3; border-radius: var(--r-lg); overflow: hidden; }
+    .hs__img :global(picture), .hs__img :global(img) { object-position: 62% 50%; }
+    .hs__card { position: static; width: auto; margin-top: 14px; box-shadow: var(--shadow-sm); }
+    .hs__hint { display: none; }
+    .hs__label { height: 32px; padding: 0 11px; font-size: .8125rem; }
+    .hs__pin[aria-pressed='false'] .hs__label { display: none; }
+    .hs__pin { padding: 8px; margin: -8px; }
+    .hs__dot { width: 18px; height: 18px; }
+    .hs__dot::after { inset: 5px; }
+  }
+</style>

@@ -1,9 +1,9 @@
 ---
-interface Props { eyebrow?: string; title: string; lead?: string; split?: boolean; id?: string; level?: 1 | 2 }
-const { eyebrow, title, lead, split = false, id, level = 2 } = Astro.props;
+interface Props { eyebrow?: string; title: string; lead?: string; split?: boolean; id?: string; level?: 1 | 2; align?: 'center' | 'left' }
+const { eyebrow, title, lead, split = false, id, level = 2, align = 'center' } = Astro.props;
 const H = level === 1 ? 'h1' : 'h2';
 ---
-<div class:list={['s-head', split && 's-head--split']}>
+<div class:list={['s-head', split && 's-head--split', !split && align === 'left' && 's-head--left']}>
   <div class="s-head__main" data-reveal>
     {eyebrow && <p class="eyebrow">{eyebrow}</p>}
     <H id={id} class="s-head__title">{title}</H>
@@ -17,8 +17,10 @@ const H = level === 1 ? 'h1' : 'h2';
 </div>
 
 <style>
-  .s-head__main { display: grid; gap: 18px; }
-  .s-head__aside { display: grid; gap: 22px; justify-items: start; }
-  .s-head__aside .lead { color: var(--muted); max-width: 58ch; }
-  :global(.dark) .s-head__aside .lead { color: rgba(238, 241, 236, 0.7); }
+  .s-head__main { display: grid; gap: 14px; justify-items: inherit; }
+  .s-head__aside { display: grid; gap: 22px; justify-items: inherit; }
+  .s-head--split .s-head__main, .s-head--split .s-head__aside { justify-items: start; }
+  .s-head--left { text-align: left; justify-items: start; margin-inline: 0; }
+  .s-head__aside .lead { color: var(--muted); }
+  :global(.dark) .s-head__aside .lead { color: rgba(236, 243, 240, 0.72); }
 </style>

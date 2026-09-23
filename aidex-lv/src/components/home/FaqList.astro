@@ -11,7 +11,7 @@ const items = limit ? faq.slice(0, limit) : faq;
 <section class="section section--white faq" id="faq" aria-labelledby="faq-title">
   <div class="container faq__grid">
     <div class="faq__side">
-      <SectionHead eyebrow={t.faq.eyebrow} title={t.faq.title} lead={t.faq.lead} id="faq-title" level={headingLevel} />
+      <SectionHead eyebrow={t.faq.eyebrow} title={t.faq.title} lead={t.faq.lead} id="faq-title" level={headingLevel} align="left" />
       <div class="faq__ask" data-reveal>
         <p>{t.faq.more}</p>
         <a href={path('contact', lang)} class="link-arrow">{t.faq.ask}<Icon name="arrow" /></a>

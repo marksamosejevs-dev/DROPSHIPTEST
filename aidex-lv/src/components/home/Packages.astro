@@ -1,19 +1,22 @@
 ---
 /**
- * Solar package cards. Renders ONLY what src/data/packages.ts defines.
- * Both variants (with / without battery) are server-rendered; a small script
- * switches between them.
+ * Solar package cards + comparison table. Renders ONLY what src/data/packages.ts
+ * defines. Both variants (with / without battery) are server-rendered and a
+ * small script switches between them.
  */
 import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
+import Picture from '../Picture.astro';
 import PriceDisclaimer from '../PriceDisclaimer.astro';
 import { useT, path, fmtEur, fmtNum, units, type Locale } from '../../i18n';
-import { packages, panels, inverters, batteries, warranties, BENCHMARK_MODE, type PackagePricing } from '../../data/packages';
+import { packages, panels, inverters, batteries, warranties, type PackagePricing } from '../../data/packages';
+import { media } from '../../data/media';
 
-interface Props { lang: Locale; headingLevel?: 1 | 2; showHead?: boolean }
-const { lang, headingLevel = 2, showHead = true } = Astro.props;
+interface Props { lang: Locale; headingLevel?: 1 | 2; showHead?: boolean; compare?: boolean }
+const { lang, headingLevel = 2, showHead = true, compare = true } = Astro.props;
 const t = useT(lang);
 const pk = t.packages;
+const v = t.v2.pk;
 const u = units[lang];
 const variants = [
   { id: 'with', key: 'withBattery' as const },
@@ -21,113 +24,130 @@ const variants = [
 ];
 const net = (p: PackagePricing) => (p.promo ?? p.standard) - p.supportPv - p.supportBattery;
 const offerHref = (id: string, battery: boolean) => `${path('offer', lang)}?package=${id}&battery=${battery ? 1 : 0}`;
+const monthly = (y: number) => Math.round(y / 12 / 50) * 50;
+const std = packages.filter((p) => p.kw !== null);
 ---
-<section class="section section--white pk" id="packages" aria-labelledby="packages-title" data-packages data-mode="with">
+<section class="section pk" id="packages" aria-labelledby="packages-title" data-packages data-mode="with">
   <div class="container">
-    {showHead && (
-      <SectionHead eyebrow={pk.eyebrow} title={pk.title} lead={pk.lead} split id="packages-title" level={headingLevel}>
-        <div class="seg" role="radiogroup" aria-label={pk.toggleLabel}>
-          <button type="button" role="radio" aria-checked="true" data-mode-btn="with"><Icon name="battery" size={18} />{pk.withBattery}</button>
-          <button type="button" role="radio" aria-checked="false" data-mode-btn="without"><Icon name="panel" size={18} />{pk.withoutBattery}</button>
-        </div>
-      </SectionHead>
-    )}
+    {showHead && <SectionHead title={v.title} lead={v.lead} id="packages-title" level={headingLevel} />}
 
-    {BENCHMARK_MODE && <p class="dev-note pk__dev" data-reveal><strong>{t.demo}.</strong> {pk.demoNote}</p>}
-
-    <div class="pk__rail" data-reveal>
-      <ul class="pk__grid">
-        {packages.map((p) => {
-          const panel = panels[p.panel];
-          const inv = p.inverter ? inverters[p.inverter] : null;
-          const bat = p.battery ? batteries[p.battery] : null;
-          if (p.kw === null) {
-            return (
-              <li class="card card--custom">
-                <div class="card__top">
-                  <p class="card__name">{p.name}</p>
-                  <p class="card__kw"><span>{pk.custom.kw}</span></p>
-                  <p class="card__title">{pk.custom.title}</p>
-                </div>
-                <p class="card__text">{pk.custom.text}</p>
-                <ul class="card__points">
-                  {pk.custom.points.map((pt) => <li><Icon name="check" size={18} />{pt}</li>)}
-                </ul>
-                <div class="card__foot">
-                  <p class="card__custom-price">{pk.custom.price}</p>
-                  <a href={`${path('offer', lang)}?package=${p.id}`} class="btn btn--ghost btn--block">{t.cta.consult}<Icon name="arrow" /></a>
-                </div>
-              </li>
-            );
-          }
-          return (
-            <li class:list={['card', p.featured && 'card--featured']}>
-              <div class="card__top">
-                <div class="card__row">
-                  <p class="card__name">{p.name}</p>
-                  {p.featured && <span class="badge badge--volt">{pk.featured}</span>}
-                  {!p.featured && p.withBattery?.promo && <span class="badge badge--dark">{pk.promo}</span>}
-                </div>
-                <p class="card__kw"><span class="tnum">{fmtNum(p.kw, lang)}</span><small>{u.kw}</small></p>
-                <p class="card__sub">
-                  {p.panelCount} × {fmtNum(panel.watt, lang)} {u.w}
-                  <span data-variant="with"> · {bat && `${fmtNum(bat.kwh, lang)} ${u.kwh}`}</span>
-                </p>
-                {p.fitsConsumption && (
-                  <p class="card__fits">{pk.fits} <span class="tnum">{fmtNum(p.fitsConsumption[0], lang)}–{fmtNum(p.fitsConsumption[1], lang)}</span> {pk.perYear}</p>
-                )}
-              </div>
-
-              {variants.map((v) => {
-                const pr = p[v.key];
-                if (!pr) return null;
-                const support = pr.supportPv + pr.supportBattery;
-                return (
-                  <div class="price" data-variant={v.id}>
-                    <dl class="price__rows">
-                      <div class="price__row">
-                        <dt>{pr.promo ? pk.price.promo : pk.price.standard}</dt>
-                        <dd class="tnum">
-                          {pr.promo && <s aria-label={pk.price.standard}>{fmtEur(pr.standard, lang)}</s>}
-                          {fmtEur(pr.promo ?? pr.standard, lang)}
-                        </dd>
-                      </div>
-                      {support > 0 && (
-                        <div class="price__row price__row--support">
-                          <dt>{pk.price.support}</dt>
-                          <dd class="tnum">− {pk.price.upTo} {fmtEur(support, lang)}</dd>
-                        </div>
-                      )}
-                    </dl>
-                    <div class="price__net">
-                      <p class="price__label">{pk.price.estimate}</p>
-                      <p class="price__value"><small>{pk.price.from}</small> <span class="tnum">{fmtEur(net(pr), lang)}</span></p>
-                      <p class="price__vat">{pk.price.vat}</p>
-                    </div>
-                    <a href={offerHref(p.id, v.id === 'with')} class:list={['btn btn--block', p.featured ? 'btn--volt' : 'btn--primary']} data-cta={`package-${p.id}`}>
-                      {t.cta.offer}<Icon name="arrow" />
-                    </a>
-                  </div>
-                );
-              })}
-
-              <dl class="card__specs">
-                <div><dt>{pk.specs.panels}</dt><dd>{p.panelCount} × {panel.manufacturer} {fmtNum(panel.watt, lang)} {u.w}</dd></div>
-                <div><dt>{pk.specs.power}</dt><dd>{fmtNum(p.kw, lang)} {u.kw}</dd></div>
-                {inv && <div><dt>{pk.specs.inverter}</dt><dd>{inv.manufacturer} {inv.model}</dd></div>}
-                <div>
-                  <dt>{pk.specs.battery}</dt>
-                  <dd><span data-variant="with">{bat ? `${bat.manufacturer} ${bat.model}` : '—'}</span><span data-variant="without">{pk.specs.noBattery}</span></dd>
-                </div>
-                <div><dt>{pk.specs.installation}</dt><dd>{pk.specs.installationValue}</dd></div>
-                <div><dt>{pk.specs.warranty}</dt><dd>{pk.specs.warrantyValue(warranties.panelPowerYears, warranties.inverterYears, warranties.installationYears)}</dd></div>
-              </dl>
-              {BENCHMARK_MODE && <span class="dev-flag card__flag">{t.demo}</span>}
-            </li>
-          );
-        })}
-      </ul>
+    <div class="pk__toggle" data-reveal>
+      <div class="seg" role="radiogroup" aria-label={pk.toggleLabel}>
+        <button type="button" role="radio" aria-checked="true" data-mode-btn="with"><Icon name="battery" size={18} />{pk.withBattery}</button>
+        <button type="button" role="radio" aria-checked="false" data-mode-btn="without"><Icon name="panel" size={18} />{pk.withoutBattery}</button>
+      </div>
     </div>
+
+    <ul class="pk__grid">
+      {packages.map((p, i) => {
+        const m = media[p.image];
+        const panel = panels[p.panel];
+        const bat = p.battery ? batteries[p.battery] : null;
+        const inv = p.inverter ? inverters[p.inverter] : null;
+        return (
+          <li class:list={['pc', p.featured && 'pc--featured', p.kw === null && 'pc--max']} data-reveal style={`--d:${(i % 2) * 0.08}s`}>
+            <div class="pc__media">
+              <Picture src={m.src} alt={m.alt[lang]} sizes="(min-width: 900px) 46vw, 100vw" widths={[480, 720, 960, 1280, 1600]} />
+            </div>
+            <div class="pc__shade" aria-hidden="true"></div>
+            <div class="pc__top">
+              {p.fitsConsumption && (
+                <span class="pc__use">
+                  {p.kw === null
+                    ? v.forUseMax.replace('{from}', fmtNum(monthly(p.fitsConsumption[0]), lang))
+                    : v.forUse.replace('{from}', fmtNum(monthly(p.fitsConsumption[0]), lang)).replace('{to}', fmtNum(monthly(p.fitsConsumption[1]), lang))}
+                </span>
+              )}
+              {p.featured && <span class="badge badge--brand">{pk.featured}</span>}
+            </div>
+            <div class="pc__body">
+              {p.kw === null ? (
+                <>
+                  <h3 class="pc__name">{p.name}</h3>
+                  <p class="pc__line">{pk.custom.kw} · {v.maxTitle}</p>
+                  <p class="pc__max">{v.maxText}</p>
+                  <div class="pc__btns">
+                    <a href={`${path('offer', lang)}?package=${p.id}`} class="btn btn--primary">{t.cta.consult}<Icon name="arrow" /></a>
+                    <a href={path('calculator', lang)} class="btn btn--white">{t.cta.calc}</a>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 class="pc__name">{p.name}</h3>
+                  <p class="pc__line">
+                    {fmtNum(p.kw, lang)} {u.kw} · {p.panelCount} × {fmtNum(panel.watt, lang)} {u.w}
+                    <span data-variant="with"> · {bat && v.withBat.replace('{kwh}', fmtNum(bat.kwh, lang))}</span>
+                    <span data-variant="without"> · {v.noBat}</span>
+                  </p>
+                  {variants.map((vv) => {
+                    const pr = p[vv.key];
+                    if (!pr) return null;
+                    const support = pr.supportPv + pr.supportBattery;
+                    return (
+                      <div class="pc__price" data-variant={vv.id}>
+                        <p class="pc__net"><small>{v.from}</small> <span class="tnum">{fmtEur(net(pr), lang)}</span></p>
+                        <p class="pc__after">{v.afterSupport}</p>
+                        <p class="pc__meta tnum">
+                          {v.full} {pr.promo && <s>{fmtEur(pr.standard, lang)}</s>} {fmtEur(pr.promo ?? pr.standard, lang)}
+                          {support > 0 && <> · {v.support} {fmtEur(support, lang)}</>}
+                        </p>
+                      </div>
+                    );
+                  })}
+                  <p class="pc__spec">{panel.manufacturer} {fmtNum(panel.watt, lang)} {u.w} · {inv && `${inv.manufacturer} ${inv.model}`}<span data-variant="with">{bat && ` · ${bat.manufacturer} ${bat.model}`}</span></p>
+                  <div class="pc__btns">
+                    {variants.map((vv) => (
+                      <a href={offerHref(p.id, vv.id === 'with')} class="btn btn--primary" data-variant={vv.id} data-cta={`package-${p.id}`}>{t.cta.offer}<Icon name="arrow" /></a>
+                    ))}
+                    {compare && <a href={`#compare`} class="btn btn--white">{v.details}</a>}
+                  </div>
+                </>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+
+    {compare && (
+      <div class="cmp" id="compare" data-reveal>
+        <div class="cmp__head">
+          <h3>{v.compare}</h3>
+          <p class="muted">{v.compareLead}</p>
+        </div>
+        <div class="cmp__scroll">
+          <table class="cmp__table">
+            <thead>
+              <tr>
+                <th scope="col"><span class="sr-only">{v.compare}</span></th>
+                {std.map((p) => <th scope="col" class:list={[p.featured && 'is-featured']}><span class="cmp__kw tnum">{fmtNum(p.kw!, lang)} {u.kw}</span><span class="cmp__nm">{p.name}</span></th>)}
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">{v.consumption}</th>{std.map((p) => <td class="tnum">{p.fitsConsumption && `${fmtNum(monthly(p.fitsConsumption[0]), lang)}–${fmtNum(monthly(p.fitsConsumption[1]), lang)} ${u.kwh}/${lang === 'en' ? 'mo' : lang === 'ru' ? 'мес.' : 'mēn.'}`}</td>)}</tr>
+              <tr><th scope="row">{pk.specs.panels}</th>{std.map((p) => <td>{p.panelCount} × {panels[p.panel].manufacturer} {fmtNum(panels[p.panel].watt, lang)} {u.w}</td>)}</tr>
+              <tr><th scope="row">{pk.specs.inverter}</th>{std.map((p) => <td>{p.inverter && `${inverters[p.inverter].manufacturer} ${inverters[p.inverter].model}`}</td>)}</tr>
+              <tr><th scope="row">{pk.specs.battery}</th>{std.map((p) => <td><span data-variant="with">{p.battery && `${batteries[p.battery].manufacturer} ${fmtNum(batteries[p.battery].kwh, lang)} ${u.kwh}`}</span><span data-variant="without">{pk.specs.noBattery}</span></td>)}</tr>
+              <tr><th scope="row">{pk.specs.installation}</th>{std.map(() => <td><Icon name="check" size={18} class="cmp__ok" />{pk.specs.installationValue}</td>)}</tr>
+              <tr><th scope="row">{pk.specs.warranty}</th>{std.map(() => <td>{pk.specs.warrantyValue(warranties.panelPowerYears, warranties.inverterYears, warranties.installationYears)}</td>)}</tr>
+              {variants.map((vv) => (
+                <>
+                  <tr data-variant={vv.id}><th scope="row">{v.full}</th>{std.map((p) => { const pr = p[vv.key]!; return <td class="tnum">{fmtEur(pr.promo ?? pr.standard, lang)}</td>; })}</tr>
+                  <tr data-variant={vv.id}><th scope="row">{pk.price.support}</th>{std.map((p) => { const pr = p[vv.key]!; return <td class="tnum cmp__sup">− {fmtEur(pr.supportPv + pr.supportBattery, lang)}</td>; })}</tr>
+                  <tr data-variant={vv.id} class="cmp__total"><th scope="row">{v.yourPrice}</th>{std.map((p) => <td class="tnum"><small>{v.from}</small> {fmtEur(net(p[vv.key]!), lang)}</td>)}</tr>
+                </>
+              ))}
+              <tr class="cmp__cta"><th scope="row"></th>{std.map((p) => (
+                <td>
+                  <a href={offerHref(p.id, true)} class="btn btn--primary btn--sm btn--block" data-variant="with">{t.cta.offer}</a>
+                  <a href={offerHref(p.id, false)} class="btn btn--primary btn--sm btn--block" data-variant="without">{t.cta.offer}</a>
+                </td>
+              ))}</tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
 
     <div class="pk__foot">
       <PriceDisclaimer lang={lang} />
@@ -158,68 +178,65 @@ const offerHref = (id: string, battery: boolean) => `${path('offer', lang)}?pack
 
 <style>
   .pk[data-mode='with'] [data-variant='without'], .pk[data-mode='without'] [data-variant='with'] { display: none !important; }
-  .pk__dev { margin: -24px 0 28px; }
+  .pk__toggle { display: flex; justify-content: center; margin: -16px 0 36px; }
 
-  .seg { display: inline-flex; padding: 4px; border-radius: 10px; background: var(--sand); gap: 4px; }
-  .seg button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 7px; background: transparent; font-weight: 600; font-size: .9375rem; color: var(--muted); transition: background .25s, color .25s, box-shadow .25s; }
-  @media (max-width: 559px) { .seg { display: flex; width: 100%; } .seg button { flex: 1; justify-content: center; padding: 0 10px; font-size: .875rem; } .seg button :global(svg) { display: none; } }
-  .seg button[aria-checked='true'] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 12px -4px rgba(0,0,0,.12); }
+  .pk__grid { list-style: none; display: grid; gap: 24px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .pk__grid { grid-template-columns: 1fr 1fr; } }
 
-  .pk__rail { margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; padding-bottom: 8px; padding-top: 14px; }
-  .pk__rail::-webkit-scrollbar { display: none; }
-  .pk__grid { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: min(86%, 360px); gap: 14px; }
-  @media (min-width: 760px) { .pk__grid { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); } .pk__rail { overflow: visible; } }
-  @media (min-width: 1280px) { .pk__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+  .pc { position: relative; isolation: isolate; overflow: hidden; border-radius: var(--r-lg); min-height: clamp(560px, 50vw, 680px); display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: #122; box-shadow: var(--shadow-card); }
+  .pc__media { position: absolute; inset: 0; z-index: -2; }
+  .pc__media :global(picture), .pc__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
+  .pc:hover .pc__media :global(img) { transform: scale(1.035); }
+  .pc__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(5, 14, 12, 0.45) 0%, rgba(5, 14, 12, 0) 22%, rgba(5, 14, 12, 0) 38%, rgba(5, 14, 12, 0.72) 62%, rgba(5, 14, 12, 0.94) 100%); }
+  .pc--featured { box-shadow: 0 0 0 3px var(--brand), var(--shadow-card); }
+  .pc__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: clamp(22px, 3vw, 36px) clamp(22px, 3vw, 40px) 0; }
+  .pc__use { font-weight: 600; font-size: 1.0625rem; text-shadow: 0 1px 12px rgba(0,0,0,.4); }
+  .pc__body { display: grid; gap: 8px; padding: 0 clamp(22px, 3vw, 40px) clamp(24px, 3vw, 40px); }
+  .pc__name { color: #fff; font-size: clamp(2.2rem, 3.6vw, 3.1rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+  .pc__line { font-size: clamp(1.02rem, 1.4vw, 1.2rem); font-weight: 600; color: rgba(255,255,255,.92); margin-bottom: 10px; }
+  .pc__price { display: grid; gap: 2px; padding: 16px 0 6px; border-top: 1px solid rgba(255,255,255,.2); }
+  .pc__net { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 4.4vw, 3.6rem); letter-spacing: -0.04em; line-height: 1; }
+  .pc__net small { font-size: .4em; font-weight: 700; letter-spacing: 0; opacity: .8; margin-right: 2px; }
+  .pc__after { font-weight: 600; color: #8fe0b4; font-size: 1rem; }
+  .pc__meta { font-size: .9063rem; color: rgba(255,255,255,.78); margin-top: 4px; }
+  .pc__meta s { opacity: .7; margin-right: 4px; }
+  .pc__spec { font-size: .875rem; color: rgba(255,255,255,.66); }
+  .pc__max { font-size: 1.0625rem; color: rgba(255,255,255,.86); max-width: 40ch; margin-bottom: 6px; }
+  .pc__btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .pc__btns .btn { min-height: 54px; }
 
-  .card { position: relative; scroll-snap-align: start; display: flex; flex-direction: column; gap: 22px; padding: 26px 24px 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; transition: transform .5s var(--ease), box-shadow .5s var(--ease), border-color .3s; }
-  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); border-color: var(--line-strong); }
-  .card--featured { background: var(--ink); color: #eef1ec; border-color: var(--ink); }
-  @media (min-width: 1280px) { .card--featured { transform: translateY(-12px); } .card--featured:hover { transform: translateY(-16px); } }
-  .card__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 26px; }
-  .card__name { font-size: .8125rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  .card--featured .card__name { color: rgba(238,241,236,.6); }
-  .card__top { display: grid; gap: 6px; }
-  .card__kw { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.05em; line-height: .9; font-size: clamp(3.8rem, 5vw, 4.6rem); margin-top: 10px; display: flex; align-items: baseline; gap: 6px; }
-  .card__kw small { font-size: .38em; letter-spacing: -0.01em; font-weight: 500; opacity: .6; }
-  .card__sub { font-size: .9375rem; font-weight: 500; }
-  .card__fits { font-size: .8125rem; color: var(--muted); }
-  .card--featured .card__fits { color: rgba(238,241,236,.56); }
+  /* comparison */
+  .cmp { margin-top: 48px; background: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow-card); padding: clamp(22px, 3vw, 40px); scroll-margin-top: calc(var(--header-h) + 24px); }
+  .cmp__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; margin-bottom: 20px; }
+  .cmp__head h3 { font-size: clamp(1.5rem, 2.4vw, 2rem); }
+  .cmp__head p { font-size: .9375rem; }
+  .cmp__scroll { overflow-x: auto; margin-inline: calc(clamp(22px, 3vw, 40px) * -1); padding-inline: clamp(22px, 3vw, 40px); }
+  .cmp__table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: .9375rem; }
+  .cmp__table th, .cmp__table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cmp__table thead th { border-bottom: 0; padding-top: 4px; }
+  .cmp__table tbody th { color: var(--muted); font-weight: 500; width: 20%; white-space: nowrap; }
+  @media (max-width: 899px) { .cmp__table th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 8px 0 12px -10px rgba(0,0,0,.25); } .cmp__table { min-width: 640px; font-size: .875rem; } .cmp__table th, .cmp__table td { padding: 12px 10px; } }
+  .cmp__table td { color: var(--ink); font-weight: 500; }
+  .cmp__kw { display: block; font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; letter-spacing: -0.03em; color: var(--ink); }
+  .cmp__nm { display: block; font-size: .8125rem; color: var(--muted); font-weight: 500; }
+  thead th.is-featured .cmp__kw { color: var(--brand); }
+  .cmp__sup { color: var(--brand) !important; }
+  .cmp__total th, .cmp__total td { border-bottom: 0; background: var(--brand-50); }
+  .cmp__total td { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; }
+  .cmp__total td small { font-size: .55em; font-weight: 700; color: var(--muted); }
+  .cmp__total th { color: var(--ink) !important; font-weight: 700 !important; border-radius: 12px 0 0 12px; }
+  .cmp__total td:last-child { border-radius: 0 12px 12px 0; }
+  .cmp__cta th, .cmp__cta td { border-bottom: 0; padding-top: 18px; }
+  :global(.cmp__ok) { display: inline-block; color: var(--brand); vertical-align: -3px; margin-right: 6px; }
 
-  .price { display: grid; gap: 18px; padding-top: 20px; border-top: 1px solid var(--line); }
-  .card--featured .price { border-color: var(--line-inv); }
-  .price__rows { display: grid; gap: 8px; margin: 0; }
-  .price__row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: .875rem; }
-  .price__row dt { color: var(--muted); line-height: 1.3; }
-  .card--featured .price__row dt { color: rgba(238,241,236,.6); }
-  .price__row dd { margin: 0; font-weight: 600; display: flex; gap: 8px; align-items: baseline; white-space: nowrap; }
-  .price__row s { font-weight: 400; color: var(--muted-2); font-size: .8125rem; }
-  .price__row--support dd { color: var(--moss); }
-  .card--featured .price__row--support dd { color: var(--volt); }
-  .price__net { display: grid; gap: 2px; padding: 16px 16px 14px; border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
-  .card--featured .price__net { background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px var(--line-inv); }
-  .price__label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  .card--featured .price__label { color: rgba(238,241,236,.6); }
-  .price__value { font-family: var(--font-display); font-size: 2.35rem; font-weight: 600; letter-spacing: -0.035em; line-height: 1.1; }
-  .price__value small { font-size: .9rem; font-weight: 500; letter-spacing: 0; opacity: .6; }
-  .price__vat { font-size: .75rem; color: var(--muted-2); }
+  .pk__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px 40px; margin-top: 32px; }
 
-  .card__specs { display: grid; gap: 0; margin: 0; font-size: .8125rem; margin-top: auto; }
-  .card__specs div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
-  .card--featured .card__specs div { border-color: var(--line-inv); }
-  .card__specs dt { color: var(--muted); }
-  .card--featured .card__specs dt { color: rgba(238,241,236,.5); }
-  .card__specs dd { margin: 0; font-weight: 500; }
-  .card__flag { position: absolute; top: -11px; right: 16px; }
-
-  .card--custom { background: transparent; border-style: dashed; border-color: var(--line-strong); }
-  .card__title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px; }
-  .card--custom .card__kw { font-size: clamp(2.6rem, 3.6vw, 3.4rem); flex-wrap: wrap; }
-  .card__text { color: var(--muted); font-size: .9375rem; }
-  .card__points { list-style: none; display: grid; gap: 10px; font-size: .9375rem; }
-  .card__points li { display: flex; gap: 10px; }
-  .card__points :global(svg) { color: var(--moss); flex: none; margin-top: 2px; }
-  .card__foot { margin-top: auto; display: grid; gap: 14px; }
-  .card__custom-price { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; }
-
-  .pk__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px 40px; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
+  @media (max-width: 719px) {
+    .pk__toggle { margin: -12px 0 24px; }
+    .pk__toggle .seg { width: 100%; }
+    .pk__toggle .seg > button { flex: 1; padding: 0 10px; font-size: .9375rem; }
+    .pc { min-height: 580px; }
+    .pc__btns { display: grid; grid-template-columns: 1fr; }
+    .pc__use { font-size: .9375rem; }
+  }
 </style>

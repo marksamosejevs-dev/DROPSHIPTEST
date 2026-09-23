@@ -197,11 +197,11 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
   :global(.js) .lf[data-step='1'] .lf__submit, :global(.js) .lf[data-step='2'] .lf__submit, :global(.js) .lf[data-step='3'] .lf__submit { display: none; }
   :global(.js) .lf[data-step='4'] .lf__next { display: none; }
   :global(.no-js) .lf__next, :global(.no-js) .lf__back, :global(.no-js) .lf__progress { display: none; }
-  .lf__submit { --bg: var(--volt); --fg: var(--ink); --bd: var(--volt); }
-  .lf__submit:hover { --bg: #d6f67d; --bd: #d6f67d; }
+  .lf__submit { --bg: var(--brand); --fg: #fff; --bd: var(--brand); box-shadow: var(--shadow-btn); }
+  .lf__submit:hover { --bg: var(--brand-hover); --bd: var(--brand-hover); }
   .lf__done { display: grid; gap: 12px; justify-items: start; padding: 12px 0; }
   .lf__done:focus { outline: none; }
-  .lf__doneicon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--volt); color: var(--ink); }
+  .lf__doneicon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--brand); color: #fff; }
   .lf__donetitle { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
   :global(.lf.is-done) > :not(.lf__done) { display: none !important; }
 </style>

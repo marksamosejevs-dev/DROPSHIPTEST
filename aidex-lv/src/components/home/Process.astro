@@ -6,39 +6,45 @@ interface Props { lang: Locale }
 const { lang } = Astro.props;
 const t = useT(lang);
 const p = t.process;
+const icons = ['doc', 'chart', 'home', 'layers', 'tool', 'sun'];
 ---
-<section class="section proc" aria-labelledby="proc-title">
+<section class="section section--white proc" aria-labelledby="proc-title">
   <div class="container">
-    <SectionHead eyebrow={p.eyebrow} title={p.title} split id="proc-title">
-      <a href={path('offer', lang)} class="btn btn--primary">{t.cta.offer}<Icon name="arrow" /></a>
-    </SectionHead>
+    <SectionHead eyebrow={p.eyebrow} title={p.title} id="proc-title" />
     <ol class="proc__list">
       {p.steps.map((s, i) => (
-        <li class="proc__step" data-reveal style={`--d:${(i % 3) * 0.08}s`}>
-          <span class="proc__num tnum">{String(i + 1).padStart(2, '0')}</span>
+        <li class:list={['proc__step', i === p.steps.length - 1 && 'proc__step--last']} data-reveal style={`--d:${(i % 3) * 0.07}s`}>
+          <div class="proc__top">
+            <span class="proc__num tnum">{String(i + 1).padStart(2, '0')}</span>
+            <span class="proc__ic"><Icon name={icons[i]} size={22} /></span>
+          </div>
           <h3>{s.title}</h3>
           <p>{s.text}</p>
         </li>
       ))}
     </ol>
+    <div class="proc__cta" data-reveal>
+      <a href={path('offer', lang)} class="btn btn--primary">{t.cta.offer}<Icon name="arrow" /></a>
+    </div>
   </div>
 </section>
 
 <style>
-  .proc__list { list-style: none; display: grid; grid-template-columns: 1fr; position: relative; }
+  .proc__list { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; counter-reset: s; }
   @media (min-width: 720px) { .proc__list { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1100px) { .proc__list { grid-template-columns: repeat(3, 1fr); } }
-  .proc__step { position: relative; display: grid; gap: 10px; align-content: start; padding: 28px 28px 40px 0; border-top: 1px solid var(--line-strong); }
-  .proc__step::before { content: ''; position: absolute; top: -4px; left: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
-  .proc__step:last-child::before { background: var(--volt); box-shadow: 0 0 0 4px rgba(200, 238, 98, .35); }
-  .proc__num { font-family: var(--font-display); font-size: clamp(3rem, 5vw, 4.25rem); font-weight: 500; letter-spacing: -0.05em; line-height: 1; color: var(--stone); margin-bottom: 10px; transition: color .4s; }
-  .proc__step:hover .proc__num { color: var(--moss); }
-  .proc__step h3 { font-size: 1.35rem; letter-spacing: -0.02em; }
-  .proc__step p { color: var(--muted); max-width: 34ch; }
-  @media (max-width: 719px) {
-    .proc__list { padding-left: 28px; border-left: 1px solid var(--line-strong); }
-    .proc__step { border-top: 0; padding: 0 0 36px; }
-    .proc__step::before { left: -32px; top: 18px; }
-    .proc__num { font-size: 2.4rem; margin-bottom: 0; }
-  }
+  @media (min-width: 1100px) { .proc__list { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+  .proc__step { position: relative; display: grid; gap: 10px; align-content: start; padding: 28px; border-radius: var(--r-lg); background: var(--bg); transition: background .3s, transform .4s var(--ease), box-shadow .4s var(--ease); }
+  .proc__step:hover { background: #fff; box-shadow: var(--shadow-card); transform: translateY(-3px); }
+  .proc__step--last { background: var(--brand); color: rgba(255,255,255,.88); }
+  .proc__step--last:hover { background: var(--brand-hover); }
+  .proc__step--last h3 { color: #fff; }
+  .proc__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .proc__num { font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; letter-spacing: -0.04em; line-height: 1; color: var(--brand); }
+  .proc__step--last .proc__num { color: #fff; }
+  .proc__ic { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: var(--brand); box-shadow: var(--shadow-sm); }
+  .proc__step--last .proc__ic { background: rgba(255,255,255,.16); color: #fff; box-shadow: none; }
+  .proc__step h3 { font-size: 1.35rem; }
+  .proc__step p { color: var(--muted); }
+  .proc__step--last p { color: rgba(255,255,255,.86); }
+  .proc__cta { display: flex; justify-content: center; margin-top: 40px; }
 </style>

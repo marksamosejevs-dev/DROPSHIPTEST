@@ -1,46 +1,41 @@
 ---
 import LeadForm from '../LeadForm.astro';
-import Picture from '../Picture.astro';
 import Icon from '../Icon.astro';
 import PriceDisclaimer from '../PriceDisclaimer.astro';
 import { useT, type Locale } from '../../i18n';
-import { media } from '../../data/media';
 interface Props { lang: Locale; source?: string }
 const { lang, source = 'final-cta' } = Astro.props;
 const t = useT(lang);
 const f = t.final;
+const v = t.v2.final;
 ---
-<section class="section dark fcta" id="offer" aria-labelledby="fcta-title" data-hide-mobile-cta>
-  <div class="fcta__bg" aria-hidden="true">
-    <Picture src={media.homeNight.src} alt="" sizes="100vw" widths={[800, 1400, 2000]} />
-  </div>
-  <div class="container fcta__grid">
-    <div class="fcta__copy" data-reveal>
-      <p class="eyebrow">{f.eyebrow}</p>
-      <h2 id="fcta-title">{f.title}</h2>
-      <p class="lead">{f.lead}</p>
-      <ul class="fcta__points">
-        {f.points.map((p) => <li><Icon name="check" size={18} />{p}</li>)}
-      </ul>
-      <PriceDisclaimer lang={lang} />
-    </div>
-    <div class="fcta__form" data-reveal style="--d:.1s">
-      <LeadForm lang={lang} id={`lead-${source}`} source={source} />
+<section class="section fcta" id="offer" aria-labelledby="fcta-title" data-hide-mobile-cta>
+  <div class="container">
+    <div class="fcta__card">
+      <div class="fcta__copy" data-reveal>
+        <h2 id="fcta-title">{v.title}</h2>
+        <p class="lead">{v.lead}</p>
+        <ul class="fcta__points">{f.points.map((p) => <li><Icon name="check" size={18} />{p}</li>)}</ul>
+        <PriceDisclaimer lang={lang} />
+      </div>
+      <div class="fcta__form" data-reveal style="--d:.1s">
+        <LeadForm lang={lang} id={`lead-${source}`} source={source} />
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  .fcta { overflow: hidden; isolation: isolate; background: #070c0a; }
-  .fcta__bg { position: absolute; inset: 0; z-index: -1; opacity: .55; }
-  .fcta__bg :global(picture), .fcta__bg :global(img) { width: 100%; height: 100%; object-fit: cover; }
-  .fcta__bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,12,10,.94) 0%, rgba(7,12,10,.7) 55%, rgba(7,12,10,.5) 100%); }
-  .fcta__grid { display: grid; gap: 48px; align-items: center; }
-  @media (min-width: 1000px) { .fcta__grid { grid-template-columns: 1fr minmax(420px, 520px); gap: 80px; } }
+  .fcta { background: var(--bg); }
+  .fcta__card { position: relative; isolation: isolate; overflow: hidden; display: grid; gap: 40px; align-items: center; padding: clamp(28px, 5vw, 72px); border-radius: var(--r-xl); background: radial-gradient(70% 90% at 100% 0%, #1d5242 0%, var(--deep) 58%); color: rgba(236,243,240,.84); box-shadow: var(--shadow-card); }
+  .fcta__card::before { content: ''; position: absolute; inset: 0; z-index: -1; background: repeating-linear-gradient(120deg, rgba(255,255,255,.03) 0 2px, transparent 2px 140px); }
+  @media (min-width: 1000px) { .fcta__card { grid-template-columns: 1fr minmax(420px, 500px); gap: 72px; } }
   .fcta__copy { display: grid; gap: 22px; }
-  .fcta__copy h2 { font-size: clamp(2.2rem, 4.6vw, 4rem); color: #fff; }
-  .fcta__copy .lead { color: rgba(238,241,236,.76); max-width: 48ch; }
-  .fcta__points { list-style: none; display: grid; gap: 12px; margin: 6px 0 10px; }
-  .fcta__points li { display: flex; gap: 12px; align-items: center; color: #fff; }
-  .fcta__points :global(svg) { color: var(--volt); }
+  .fcta__copy h2 { font-size: clamp(2rem, 4.2vw, 3.4rem); color: #fff; }
+  .fcta__copy .lead { color: rgba(236,243,240,.78); max-width: 46ch; }
+  .fcta__points { list-style: none; display: grid; gap: 12px; }
+  .fcta__points li { display: flex; gap: 12px; align-items: center; color: #fff; font-weight: 500; }
+  .fcta__points :global(svg) { color: #7fd6a8; }
+  .fcta :global(.disclaimer) { color: rgba(236,243,240,.6); }
+  @media (max-width: 719px) { .fcta__card { border-radius: var(--r-lg); padding: 24px 16px 16px; } .fcta__copy { padding: 0 6px; } }
 </style>

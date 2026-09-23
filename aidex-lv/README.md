@@ -16,9 +16,25 @@ Hosting: any static host (Netlify, Vercel, Cloudflare Pages, S3 + CDN). `/` redi
 
 ---
 
+## Development markers
+
+Temporary content (benchmark prices, placeholder company fields, unverified support data) is flagged in the data files, but the markers are **hidden from visitors** by default. To see every "Demo data / Placeholder / [to be confirmed]" marker while reviewing:
+
+```bash
+PUBLIC_DEV_MARKERS=1 npm run build && npm run preview
+```
+
+Placeholder projects and reviews are not rendered at all until real entries exist.
+
+## Temporary imagery
+
+All images in `src/assets/img` are original renders made with the offline three.js pipeline in `render/` (`render/scenes.js`, `render/batch2.sh`). Replace them with real AIDEX photography via `src/data/media.ts`. Hotspot positions for the system image are in `src/data/hotspots.ts`.
+
+`design-review/` contains the before/after screenshots and the Energum reference screenshots used for the redesign (internal only, not deployed).
+
 ## Before public launch
 
-Every item below is visible on the site as a yellow **Demo data / Placeholder / [to be confirmed]** marker until it is replaced.
+Every item below is still temporary (visible as a marker with `PUBLIC_DEV_MARKERS=1`).
 
 | What | Where | Action |
 |---|---|---|
@@ -82,4 +98,4 @@ Per-language titles and descriptions. JSON-LD covers Organization/LocalBusiness 
 ### Performance
 Images are AVIF/WebP with responsive `srcset` and art direction for the portrait mobile hero. Everything below the fold is lazy-loaded. Fonts are self-hosted (no Google Fonts request) and split by subset, including Latvian and Cyrillic. JavaScript totals roughly 15 KB. Motion respects `prefers-reduced-motion`.
 
-Lighthouse on the dev build (`/lv/`): mobile 91 / 97–100 / 100 / 100, desktop 100 / 97–100 / 100 / 100.
+Lighthouse (`/lv/`, after the v2 redesign): mobile 91 / 100 / 100 / 100, desktop 100 / 100 / 100 / 100.
