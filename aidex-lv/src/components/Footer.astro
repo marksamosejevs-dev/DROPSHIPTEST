@@ -1,0 +1,109 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import Field from './Field.astro';
+import { useT, path, type Locale } from '../i18n';
+import { company, group, known } from '../config/company';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const f = t.footer;
+const year = new Date().getFullYear();
+const phoneHref = known(company.phoneHref);
+const email = known(company.email);
+---
+<footer class="ftr dark" aria-labelledby="footer-title">
+  <h2 id="footer-title" class="sr-only">AIDEX</h2>
+  <div class="container">
+    <div class="ftr__top">
+      <div class="ftr__brand">
+        <Logo tone="light" />
+        <p class="ftr__tag">{f.tagline}</p>
+        <a href={path('offer', lang)} class="btn btn--volt">{t.cta.offer}<Icon name="arrow" /></a>
+      </div>
+
+      <nav class="ftr__cols" aria-label={t.nav.footerNav}>
+        <div>
+          <h3>{f.cols.aidex}</h3>
+          <ul>
+            <li><a href={path('solar', lang)}>{t.nav.solar}</a></li>
+            <li><a href={path('batteries', lang)}>{t.nav.batteries}</a></li>
+            <li><a href={path('packages', lang)}>{t.nav.packages}</a></li>
+            <li><a href={path('projects', lang)}>{t.nav.projects}</a></li>
+            <li><a href={path('support', lang)}>{t.nav.support}</a></li>
+            <li><a href={path('calculator', lang)}>{t.nav.calculator}</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>{f.cols.business}</h3>
+          <ul>
+            <li><a href={path('business', lang, 'commercial')}>{f.commercialSolar}</a></li>
+            <li><a href={path('business', lang, 'bess')}>{f.storage}</a></li>
+            <li><a href={group.url} rel="noopener" target="_blank">{group.name}<Icon name="external" size={14} class="ext" /></a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>{f.cols.company}</h3>
+          <ul>
+            <li><a href={path('about', lang)}>{t.nav.about}</a></li>
+            <li><a href={path('contact', lang)}>{t.nav.contact}</a></li>
+            <li><a href={path('faq', lang)}>{t.faq.title}</a></li>
+            <li><a href={path('legal', lang)}>{t.legalNav.legal}</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>{f.cols.legal}</h3>
+          <ul>
+            <li><a href={path('privacy', lang)}>{t.legalNav.privacy}</a></li>
+            <li><a href={path('cookies', lang)}>{t.legalNav.cookies}</a></li>
+            <li><a href={path('terms', lang)}>{t.legalNav.terms}</a></li>
+            <li><button type="button" class="ftr__linkbtn" data-cookie-settings>{f.cookieSettings}</button></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="ftr__legal">
+      <p class="ftr__op">{f.operatedBy}</p>
+      <dl class="ftr__facts">
+        <div><dt>{f.regNo}</dt><dd><Field value={company.registrationNumber} lang={lang} /></dd></div>
+        <div><dt>{f.vat}</dt><dd><Field value={company.vatNumber} lang={lang} /></dd></div>
+        <div><dt>{f.address}</dt><dd><Field value={company.registeredAddress} lang={lang} /></dd></div>
+        <div><dt>{f.email}</dt><dd>{email ? <a href={`mailto:${email}`}>{email}</a> : <Field value={company.email} lang={lang} />}</dd></div>
+        <div><dt>{f.phone}</dt><dd>{phoneHref ? <a href={`tel:${phoneHref}`}><Field value={company.phone} lang={lang} /></a> : <Field value={company.phone} lang={lang} />}</dd></div>
+      </dl>
+    </div>
+
+    <div class="ftr__bottom">
+      <span>© {year} {company.legalName}. {f.rights}</span>
+      <span class="ftr__group">AIDEX.lv · <a href={group.url} rel="noopener" target="_blank">{group.name}</a></span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr { background: var(--ink); color: rgba(238, 241, 236, 0.86); padding: clamp(64px, 8vw, 112px) 0 calc(28px + env(safe-area-inset-bottom)); position: relative; }
+  .ftr__top { display: grid; gap: 56px; padding-bottom: 56px; border-bottom: 1px solid var(--line-inv); }
+  @media (min-width: 1000px) { .ftr__top { grid-template-columns: 0.9fr 1.6fr; gap: 80px; } }
+  .ftr__brand { display: grid; gap: 24px; align-content: start; justify-items: start; }
+  .ftr__tag { max-width: 34ch; color: rgba(238, 241, 236, 0.62); font-size: 1rem; }
+  .ftr__cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px 24px; }
+  @media (min-width: 720px) { .ftr__cols { grid-template-columns: repeat(4, 1fr); } }
+  .ftr h3 { font-family: var(--font-body); font-size: .75rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(238, 241, 236, 0.6); margin-bottom: 18px; }
+  .ftr ul { list-style: none; display: grid; gap: 12px; }
+  .ftr ul a, .ftr__linkbtn { font-size: .9375rem; text-decoration: none; color: rgba(238, 241, 236, 0.86); display: inline-flex; align-items: center; gap: 6px; transition: color .2s; }
+  .ftr ul a:hover, .ftr__linkbtn:hover { color: #fff; text-decoration: underline; }
+  .ftr__linkbtn { background: none; border: 0; padding: 0; text-align: left; }
+  .ftr__legal { display: grid; gap: 18px; padding: 36px 0; border-bottom: 1px solid var(--line-inv); }
+  .ftr__op { font-family: var(--font-display); font-size: 1.125rem; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
+  .ftr__facts { display: grid; gap: 14px 32px; margin: 0; grid-template-columns: 1fr; font-size: .875rem; }
+  @media (min-width: 720px) { .ftr__facts { grid-template-columns: repeat(3, auto); justify-content: start; } }
+  @media (min-width: 1100px) { .ftr__facts { grid-template-columns: repeat(5, auto); } }
+  .ftr__facts div { display: grid; gap: 2px; }
+  .ftr__facts dt { color: rgba(238, 241, 236, 0.6); font-size: .75rem; }
+  .ftr__facts dd { margin: 0; }
+  .ftr__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 24px; font-size: .8125rem; color: rgba(238, 241, 236, 0.6); }
+  .ftr__bottom a { color: inherit; }
+  @media (max-width: 719px) { .ftr { padding-bottom: calc(96px + env(safe-area-inset-bottom)); } }
+</style>

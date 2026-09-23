@@ -1,0 +1,39 @@
+---
+/**
+ * Single router for every localized page: /{lang}/{localized-slug}/
+ * Slugs are defined in src/i18n/routes.ts; each page's markup lives in src/views.
+ */
+import { locales, routes, type Locale, type RouteKey } from '../../i18n/routes';
+import Home from '../../views/Home.astro';
+import Solar from '../../views/Solar.astro';
+import Batteries from '../../views/Batteries.astro';
+import Packages from '../../views/Packages.astro';
+import Calculator from '../../views/Calculator.astro';
+import Support from '../../views/Support.astro';
+import Projects from '../../views/Projects.astro';
+import Business from '../../views/Business.astro';
+import About from '../../views/About.astro';
+import Faq from '../../views/Faq.astro';
+import Contact from '../../views/Contact.astro';
+import Offer from '../../views/Offer.astro';
+import Legal from '../../views/Legal.astro';
+
+export function getStaticPaths() {
+  return locales.flatMap((lang) =>
+    (Object.keys(routes) as RouteKey[]).map((key) => ({
+      params: { lang, slug: routes[key][lang] || undefined },
+      props: { lang, key },
+    })),
+  );
+}
+
+interface Props { lang: Locale; key: RouteKey }
+const { lang, key } = Astro.props;
+const views = {
+  home: Home, solar: Solar, batteries: Batteries, packages: Packages, calculator: Calculator,
+  support: Support, projects: Projects, business: Business, about: About, faq: Faq,
+  contact: Contact, offer: Offer, privacy: Legal, cookies: Legal, terms: Legal, legal: Legal,
+} satisfies Record<RouteKey, unknown>;
+const View = views[key];
+---
+<View lang={lang} route={key} />

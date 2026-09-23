@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Icon from '../components/Icon.astro';
+import PriceDisclaimer from '../components/PriceDisclaimer.astro';
+import { useT, path, type Locale, type RouteKey } from '../i18n';
+import { breadcrumbLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const o = t.pages.offer;
+---
+<Base lang={lang} route={route} title={t.meta.offer.title} description={t.meta.offer.description} headerTone="light" mobileCta={false}
+  jsonLd={[breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.cta.offer, key: 'offer' }])]}>
+  <section class="of" aria-labelledby="page-title">
+    <div class="container of__grid">
+      <div class="of__copy">
+        <nav class="of__crumbs" aria-label={t.nav.breadcrumb}><ol><li><a href={path('home', lang)}>{t.nav.home}</a></li><li aria-current="page">{t.cta.offer}</li></ol></nav>
+        <p class="eyebrow">{o.eyebrow}</p>
+        <h1 id="page-title">{o.title}</h1>
+        <p class="lead muted">{o.lead}</p>
+        <div class="of__next">
+          <p class="of__nexth">{o.next}</p>
+          <ol>{o.nextSteps.map((s, i) => <li><span class="tnum">{i + 1}</span>{s}</li>)}</ol>
+        </div>
+        <ul class="of__points">
+          {t.final.points.map((p) => <li><Icon name="check" size={18} />{p}</li>)}
+        </ul>
+        <PriceDisclaimer lang={lang} />
+      </div>
+      <div class="of__form">
+        <LeadForm lang={lang} id="lead-offer" source="offer-page" />
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .of { padding: calc(var(--header-h) + clamp(32px, 5vw, 72px)) 0 clamp(64px, 8vw, 120px); background: linear-gradient(180deg, var(--paper), var(--sand)); min-height: 100svh; }
+  .of__grid { display: grid; gap: 40px; align-items: start; }
+  @media (min-width: 1000px) { .of__grid { grid-template-columns: 1fr minmax(440px, 560px); gap: 80px; } .of__form { position: sticky; top: calc(var(--header-h) + 24px); } }
+  .of__copy { display: grid; gap: 22px; }
+  .of__copy h1 { font-size: clamp(2.2rem, 4.6vw, 3.9rem); letter-spacing: -0.04em; }
+  .of__crumbs ol { list-style: none; display: flex; gap: 8px; font-size: .8125rem; color: var(--muted); }
+  .of__crumbs li + li::before { content: '/'; margin-right: 8px; opacity: .5; }
+  .of__next { border-top: 1px solid var(--line-strong); padding-top: 22px; display: grid; gap: 14px; }
+  .of__nexth { font-weight: 600; }
+  .of__next ol { list-style: none; display: grid; gap: 12px; }
+  .of__next li { display: flex; gap: 14px; align-items: baseline; }
+  .of__next li span { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; font-size: .75rem; font-weight: 600; transform: translateY(-2px); }
+  .of__points { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 22px; }
+  .of__points li { display: flex; gap: 8px; align-items: center; font-weight: 500; font-size: .9375rem; }
+  .of__points :global(svg) { color: var(--moss); }
+  @media (max-width: 999px) { .of__copy h1 { font-size: 2rem; } .of__next, .of__points, .of__copy .lead { display: none; } }
+</style>

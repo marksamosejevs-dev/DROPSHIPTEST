@@ -1,0 +1,1 @@
+{ "name": "AIDEX", "short_name": "AIDEX", "icons": [{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }], "theme_color": "#0b1410", "background_color": "#f4f2ed", "display": "browser", "start_url": "/lv/" }

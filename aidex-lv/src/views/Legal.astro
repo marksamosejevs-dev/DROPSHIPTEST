@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import { useT, path, fmtDate, type Locale, type RouteKey } from '../i18n';
+import { legalDoc, type LegalKey } from '../content/legal';
+import { LEGAL_UPDATED } from '../config/company';
+import { breadcrumbLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const key = route as LegalKey;
+const doc = legalDoc(key, { lang, links: { privacy: path('privacy', lang), cookies: path('cookies', lang), settings: `${path(key, lang)}#cookie-settings` } });
+const meta = t.meta[key];
+const nav: { key: LegalKey; label: string }[] = [
+  { key: 'privacy', label: t.legalNav.privacy },
+  { key: 'cookies', label: t.legalNav.cookies },
+  { key: 'terms', label: t.legalNav.terms },
+  { key: 'legal', label: t.legalNav.legal },
+];
+---
+<Base lang={lang} route={route} title={meta.title} description={meta.description} headerTone="light"
+  jsonLd={[breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: doc.title, key: route }])]}>
+  <div class="lg">
+    <div class="container lg__grid">
+      <aside class="lg__nav">
+        <nav aria-label={t.footer.cols.legal}>
+          <ul>
+            {nav.map((n) => <li><a href={path(n.key, lang)} aria-current={n.key === key ? 'page' : undefined}>{n.label}</a></li>)}
+            <li><button type="button" data-cookie-settings>{t.footer.cookieSettings}</button></li>
+          </ul>
+        </nav>
+      </aside>
+      <article class="lg__doc">
+        <header class="lg__head">
+          <p class="eyebrow">AIDEX.lv · GREEN ENERGY SIA</p>
+          <h1>{doc.title}</h1>
+          <p class="lg__meta">{t.legalNav.updated}: {fmtDate(LEGAL_UPDATED, lang)}</p>
+          <p class="dev-note">{t.legalNav.draft}</p>
+          <p class="lead">{doc.intro}</p>
+        </header>
+        <div class="prose">
+          {doc.sections.map((s) => (<><h2>{s.h}</h2><Fragment set:html={s.html} /></>))}
+        </div>
+      </article>
+    </div>
+  </div>
+</Base>
+<style>
+  .lg { padding: calc(var(--header-h) + clamp(40px, 6vw, 88px)) 0 clamp(64px, 8vw, 120px); background: var(--white); }
+  .lg__grid { display: grid; gap: 40px; }
+  .lg__grid > * { min-width: 0; }
+  @media (min-width: 1000px) { .lg__grid { grid-template-columns: 240px 1fr; gap: 80px; } .lg__nav { position: sticky; top: calc(var(--header-h) + 32px); align-self: start; } }
+  .lg__nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+  @media (min-width: 1000px) { .lg__nav ul { display: grid; gap: 2px; } }
+  .lg__nav a, .lg__nav button { display: block; padding: 10px 14px; border-radius: 8px; text-decoration: none; font-size: .9375rem; font-weight: 500; color: var(--muted); background: none; border: 0; text-align: left; width: 100%; }
+  .lg__nav a:hover, .lg__nav button:hover { background: var(--paper); color: var(--ink); }
+  .lg__nav a[aria-current='page'] { background: var(--ink); color: #fff; }
+  .lg__head { display: grid; gap: 16px; margin-bottom: 24px; max-width: 760px; }
+  .lg__head h1 { font-size: clamp(2.2rem, 4.4vw, 3.6rem); }
+  .lg__meta { font-size: .875rem; color: var(--muted); }
+  .lg__head .lead { color: var(--muted); }
+  @media (max-width: 999px) { .lg__nav ul { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); scrollbar-width: none; } .lg__nav a, .lg__nav button { white-space: nowrap; background: var(--paper); } }
+</style>

@@ -1,0 +1,225 @@
+---
+/**
+ * Solar package cards. Renders ONLY what src/data/packages.ts defines.
+ * Both variants (with / without battery) are server-rendered; a small script
+ * switches between them.
+ */
+import SectionHead from '../SectionHead.astro';
+import Icon from '../Icon.astro';
+import PriceDisclaimer from '../PriceDisclaimer.astro';
+import { useT, path, fmtEur, fmtNum, units, type Locale } from '../../i18n';
+import { packages, panels, inverters, batteries, warranties, BENCHMARK_MODE, type PackagePricing } from '../../data/packages';
+
+interface Props { lang: Locale; headingLevel?: 1 | 2; showHead?: boolean }
+const { lang, headingLevel = 2, showHead = true } = Astro.props;
+const t = useT(lang);
+const pk = t.packages;
+const u = units[lang];
+const variants = [
+  { id: 'with', key: 'withBattery' as const },
+  { id: 'without', key: 'withoutBattery' as const },
+];
+const net = (p: PackagePricing) => (p.promo ?? p.standard) - p.supportPv - p.supportBattery;
+const offerHref = (id: string, battery: boolean) => `${path('offer', lang)}?package=${id}&battery=${battery ? 1 : 0}`;
+---
+<section class="section section--white pk" id="packages" aria-labelledby="packages-title" data-packages data-mode="with">
+  <div class="container">
+    {showHead && (
+      <SectionHead eyebrow={pk.eyebrow} title={pk.title} lead={pk.lead} split id="packages-title" level={headingLevel}>
+        <div class="seg" role="radiogroup" aria-label={pk.toggleLabel}>
+          <button type="button" role="radio" aria-checked="true" data-mode-btn="with"><Icon name="battery" size={18} />{pk.withBattery}</button>
+          <button type="button" role="radio" aria-checked="false" data-mode-btn="without"><Icon name="panel" size={18} />{pk.withoutBattery}</button>
+        </div>
+      </SectionHead>
+    )}
+
+    {BENCHMARK_MODE && <p class="dev-note pk__dev" data-reveal><strong>{t.demo}.</strong> {pk.demoNote}</p>}
+
+    <div class="pk__rail" data-reveal>
+      <ul class="pk__grid">
+        {packages.map((p) => {
+          const panel = panels[p.panel];
+          const inv = p.inverter ? inverters[p.inverter] : null;
+          const bat = p.battery ? batteries[p.battery] : null;
+          if (p.kw === null) {
+            return (
+              <li class="card card--custom">
+                <div class="card__top">
+                  <p class="card__name">{p.name}</p>
+                  <p class="card__kw"><span>{pk.custom.kw}</span></p>
+                  <p class="card__title">{pk.custom.title}</p>
+                </div>
+                <p class="card__text">{pk.custom.text}</p>
+                <ul class="card__points">
+                  {pk.custom.points.map((pt) => <li><Icon name="check" size={18} />{pt}</li>)}
+                </ul>
+                <div class="card__foot">
+                  <p class="card__custom-price">{pk.custom.price}</p>
+                  <a href={`${path('offer', lang)}?package=${p.id}`} class="btn btn--ghost btn--block">{t.cta.consult}<Icon name="arrow" /></a>
+                </div>
+              </li>
+            );
+          }
+          return (
+            <li class:list={['card', p.featured && 'card--featured']}>
+              <div class="card__top">
+                <div class="card__row">
+                  <p class="card__name">{p.name}</p>
+                  {p.featured && <span class="badge badge--volt">{pk.featured}</span>}
+                  {!p.featured && p.withBattery?.promo && <span class="badge badge--dark">{pk.promo}</span>}
+                </div>
+                <p class="card__kw"><span class="tnum">{fmtNum(p.kw, lang)}</span><small>{u.kw}</small></p>
+                <p class="card__sub">
+                  {p.panelCount} × {fmtNum(panel.watt, lang)} {u.w}
+                  <span data-variant="with"> · {bat && `${fmtNum(bat.kwh, lang)} ${u.kwh}`}</span>
+                </p>
+                {p.fitsConsumption && (
+                  <p class="card__fits">{pk.fits} <span class="tnum">{fmtNum(p.fitsConsumption[0], lang)}–{fmtNum(p.fitsConsumption[1], lang)}</span> {pk.perYear}</p>
+                )}
+              </div>
+
+              {variants.map((v) => {
+                const pr = p[v.key];
+                if (!pr) return null;
+                const support = pr.supportPv + pr.supportBattery;
+                return (
+                  <div class="price" data-variant={v.id}>
+                    <dl class="price__rows">
+                      <div class="price__row">
+                        <dt>{pr.promo ? pk.price.promo : pk.price.standard}</dt>
+                        <dd class="tnum">
+                          {pr.promo && <s aria-label={pk.price.standard}>{fmtEur(pr.standard, lang)}</s>}
+                          {fmtEur(pr.promo ?? pr.standard, lang)}
+                        </dd>
+                      </div>
+                      {support > 0 && (
+                        <div class="price__row price__row--support">
+                          <dt>{pk.price.support}</dt>
+                          <dd class="tnum">− {pk.price.upTo} {fmtEur(support, lang)}</dd>
+                        </div>
+                      )}
+                    </dl>
+                    <div class="price__net">
+                      <p class="price__label">{pk.price.estimate}</p>
+                      <p class="price__value"><small>{pk.price.from}</small> <span class="tnum">{fmtEur(net(pr), lang)}</span></p>
+                      <p class="price__vat">{pk.price.vat}</p>
+                    </div>
+                    <a href={offerHref(p.id, v.id === 'with')} class:list={['btn btn--block', p.featured ? 'btn--volt' : 'btn--primary']} data-cta={`package-${p.id}`}>
+                      {t.cta.offer}<Icon name="arrow" />
+                    </a>
+                  </div>
+                );
+              })}
+
+              <dl class="card__specs">
+                <div><dt>{pk.specs.panels}</dt><dd>{p.panelCount} × {panel.manufacturer} {fmtNum(panel.watt, lang)} {u.w}</dd></div>
+                <div><dt>{pk.specs.power}</dt><dd>{fmtNum(p.kw, lang)} {u.kw}</dd></div>
+                {inv && <div><dt>{pk.specs.inverter}</dt><dd>{inv.manufacturer} {inv.model}</dd></div>}
+                <div>
+                  <dt>{pk.specs.battery}</dt>
+                  <dd><span data-variant="with">{bat ? `${bat.manufacturer} ${bat.model}` : '—'}</span><span data-variant="without">{pk.specs.noBattery}</span></dd>
+                </div>
+                <div><dt>{pk.specs.installation}</dt><dd>{pk.specs.installationValue}</dd></div>
+                <div><dt>{pk.specs.warranty}</dt><dd>{pk.specs.warrantyValue(warranties.panelPowerYears, warranties.inverterYears, warranties.installationYears)}</dd></div>
+              </dl>
+              {BENCHMARK_MODE && <span class="dev-flag card__flag">{t.demo}</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+
+    <div class="pk__foot">
+      <PriceDisclaimer lang={lang} />
+      <a href={path('support', lang)} class="link-arrow">{t.cta.support}<Icon name="arrow" /></a>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-packages]').forEach((root) => {
+    const btns = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+    const set = (mode: string) => {
+      root.dataset.mode = mode;
+      btns.forEach((b) => b.setAttribute('aria-checked', String(b.dataset.modeBtn === mode)));
+    };
+    btns.forEach((b) => {
+      b.addEventListener('click', () => set(b.dataset.modeBtn!));
+      b.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          const next = b.dataset.modeBtn === 'with' ? 'without' : 'with';
+          set(next);
+          root.querySelector<HTMLButtonElement>(`[data-mode-btn="${next}"]`)?.focus();
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .pk[data-mode='with'] [data-variant='without'], .pk[data-mode='without'] [data-variant='with'] { display: none !important; }
+  .pk__dev { margin: -24px 0 28px; }
+
+  .seg { display: inline-flex; padding: 4px; border-radius: 10px; background: var(--sand); gap: 4px; }
+  .seg button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 7px; background: transparent; font-weight: 600; font-size: .9375rem; color: var(--muted); transition: background .25s, color .25s, box-shadow .25s; }
+  @media (max-width: 559px) { .seg { display: flex; width: 100%; } .seg button { flex: 1; justify-content: center; padding: 0 10px; font-size: .875rem; } .seg button :global(svg) { display: none; } }
+  .seg button[aria-checked='true'] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 12px -4px rgba(0,0,0,.12); }
+
+  .pk__rail { margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; padding-bottom: 8px; padding-top: 14px; }
+  .pk__rail::-webkit-scrollbar { display: none; }
+  .pk__grid { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: min(86%, 360px); gap: 14px; }
+  @media (min-width: 760px) { .pk__grid { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); } .pk__rail { overflow: visible; } }
+  @media (min-width: 1280px) { .pk__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+
+  .card { position: relative; scroll-snap-align: start; display: flex; flex-direction: column; gap: 22px; padding: 26px 24px 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; transition: transform .5s var(--ease), box-shadow .5s var(--ease), border-color .3s; }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); border-color: var(--line-strong); }
+  .card--featured { background: var(--ink); color: #eef1ec; border-color: var(--ink); }
+  @media (min-width: 1280px) { .card--featured { transform: translateY(-12px); } .card--featured:hover { transform: translateY(-16px); } }
+  .card__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 26px; }
+  .card__name { font-size: .8125rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .card--featured .card__name { color: rgba(238,241,236,.6); }
+  .card__top { display: grid; gap: 6px; }
+  .card__kw { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.05em; line-height: .9; font-size: clamp(3.8rem, 5vw, 4.6rem); margin-top: 10px; display: flex; align-items: baseline; gap: 6px; }
+  .card__kw small { font-size: .38em; letter-spacing: -0.01em; font-weight: 500; opacity: .6; }
+  .card__sub { font-size: .9375rem; font-weight: 500; }
+  .card__fits { font-size: .8125rem; color: var(--muted); }
+  .card--featured .card__fits { color: rgba(238,241,236,.56); }
+
+  .price { display: grid; gap: 18px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .card--featured .price { border-color: var(--line-inv); }
+  .price__rows { display: grid; gap: 8px; margin: 0; }
+  .price__row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: .875rem; }
+  .price__row dt { color: var(--muted); line-height: 1.3; }
+  .card--featured .price__row dt { color: rgba(238,241,236,.6); }
+  .price__row dd { margin: 0; font-weight: 600; display: flex; gap: 8px; align-items: baseline; white-space: nowrap; }
+  .price__row s { font-weight: 400; color: var(--muted-2); font-size: .8125rem; }
+  .price__row--support dd { color: var(--moss); }
+  .card--featured .price__row--support dd { color: var(--volt); }
+  .price__net { display: grid; gap: 2px; padding: 16px 16px 14px; border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+  .card--featured .price__net { background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px var(--line-inv); }
+  .price__label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .card--featured .price__label { color: rgba(238,241,236,.6); }
+  .price__value { font-family: var(--font-display); font-size: 2.35rem; font-weight: 600; letter-spacing: -0.035em; line-height: 1.1; }
+  .price__value small { font-size: .9rem; font-weight: 500; letter-spacing: 0; opacity: .6; }
+  .price__vat { font-size: .75rem; color: var(--muted-2); }
+
+  .card__specs { display: grid; gap: 0; margin: 0; font-size: .8125rem; margin-top: auto; }
+  .card__specs div { display: grid; grid-template-columns: 96px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .card--featured .card__specs div { border-color: var(--line-inv); }
+  .card__specs dt { color: var(--muted); }
+  .card--featured .card__specs dt { color: rgba(238,241,236,.5); }
+  .card__specs dd { margin: 0; font-weight: 500; }
+  .card__flag { position: absolute; top: -11px; right: 16px; }
+
+  .card--custom { background: transparent; border-style: dashed; border-color: var(--line-strong); }
+  .card__title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px; }
+  .card--custom .card__kw { font-size: clamp(2.6rem, 3.6vw, 3.4rem); flex-wrap: wrap; }
+  .card__text { color: var(--muted); font-size: .9375rem; }
+  .card__points { list-style: none; display: grid; gap: 10px; font-size: .9375rem; }
+  .card__points li { display: flex; gap: 10px; }
+  .card__points :global(svg) { color: var(--moss); flex: none; margin-top: 2px; }
+  .card__foot { margin-top: auto; display: grid; gap: 14px; }
+  .card__custom-price { font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; }
+
+  .pk__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px 40px; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
+</style>

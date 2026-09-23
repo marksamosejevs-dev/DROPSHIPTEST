@@ -1,0 +1,110 @@
+---
+import { useT, path, type Locale } from '../i18n';
+import { company } from '../config/company';
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const c = t.cookie;
+const cats = [
+  { id: 'necessary', locked: true, ...c.categories.necessary },
+  { id: 'analytics', locked: false, ...c.categories.analytics },
+  { id: 'marketing', locked: false, ...c.categories.marketing },
+];
+---
+<section class="cc" data-cc-banner hidden aria-labelledby="cc-title" aria-describedby="cc-text">
+  <div class="cc__body">
+    <h2 id="cc-title" class="cc__title">{c.title}</h2>
+    <p id="cc-text" class="cc__text">{c.text}</p>
+    <p class="cc__links">
+      <a href={path('cookies', lang)}>{c.policy}</a>
+      <a href={path('privacy', lang)}>{c.privacy}</a>
+    </p>
+  </div>
+  <div class="cc__actions">
+    <button type="button" class="btn btn--primary btn--sm" data-cc="accept">{c.acceptAll}</button>
+    <button type="button" class="btn btn--primary btn--sm" data-cc="reject">{c.rejectAll}</button>
+    <button type="button" class="btn btn--ghost btn--sm" data-cc="manage">{c.manage}</button>
+  </div>
+</section>
+
+<dialog class="ccp" data-cc-prefs aria-labelledby="ccp-title">
+  <form method="dialog" class="ccp__inner" data-cc-form>
+    <header class="ccp__head">
+      <h2 id="ccp-title">{c.settingsTitle}</h2>
+      <p>{c.settingsLead}</p>
+      <p class="ccp__op">{company.legalName} · AIDEX.lv</p>
+    </header>
+    <ul class="ccp__list">
+      {cats.map((cat) => (
+        <li class="ccp__cat">
+          <div class="ccp__row">
+            <label for={`cc-${cat.id}`} class="ccp__label">{cat.title}</label>
+            {cat.locked ? (
+              <span class="ccp__always">{c.alwaysOn}</span>
+            ) : (
+              <span class="switch">
+                <input type="checkbox" role="switch" id={`cc-${cat.id}`} name={cat.id} data-cc-cat={cat.id} />
+                <span class="switch__ui" aria-hidden="true"></span>
+              </span>
+            )}
+          </div>
+          <p class="ccp__desc">{cat.text}</p>
+        </li>
+      ))}
+    </ul>
+    <footer class="ccp__foot">
+      <button type="button" class="btn btn--ghost btn--sm" data-cc="reject">{c.rejectAll}</button>
+      <button type="button" class="btn btn--ghost btn--sm" data-cc="accept">{c.acceptAll}</button>
+      <button type="button" class="btn btn--primary btn--sm" data-cc="save">{c.save}</button>
+    </footer>
+    <p class="ccp__links"><a href={path('cookies', lang)}>{c.policy}</a> · <a href={path('privacy', lang)}>{c.privacy}</a></p>
+  </form>
+</dialog>
+<p class="sr-only" role="status" aria-live="polite" data-cc-status data-msg={c.saved}></p>
+
+<script>
+  import '../scripts/consent';
+</script>
+
+<style>
+  .cc {
+    position: fixed; z-index: 90; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
+    background: #fff; color: var(--ink); border-radius: 12px; padding: 22px;
+    box-shadow: 0 30px 80px -20px rgba(11, 20, 16, 0.45), 0 0 0 1px var(--line);
+    display: grid; gap: 18px; max-width: 460px;
+    animation: ccIn .7s var(--ease) both .4s;
+  }
+  @media (min-width: 720px) { .cc { left: 24px; bottom: 24px; right: auto; padding: 26px; } }
+  @keyframes ccIn { from { opacity: 0; transform: translateY(16px); } }
+  .cc__title { font-size: 1.125rem; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .cc__text { font-size: .9375rem; color: var(--muted); line-height: 1.5; }
+  .cc__links { display: flex; gap: 16px; margin-top: 10px; font-size: .8125rem; }
+  .cc__links a { color: var(--ink); }
+  .cc__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cc__actions .btn { white-space: normal; text-align: center; line-height: 1.2; padding-inline: 12px; }
+  .cc__actions [data-cc='manage'] { grid-column: 1 / -1; }
+
+  .ccp { border: 0; padding: 0; border-radius: 14px; width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); color: var(--ink); box-shadow: 0 40px 100px -20px rgba(0,0,0,.5); }
+  .ccp::backdrop { background: rgba(11, 20, 16, 0.55); backdrop-filter: blur(4px); }
+  .ccp__inner { padding: clamp(22px, 4vw, 34px); display: grid; gap: 22px; }
+  .ccp__head h2 { font-size: 1.5rem; margin-bottom: 10px; }
+  .ccp__head p { font-size: .9375rem; color: var(--muted); line-height: 1.5; }
+  .ccp__op { margin-top: 8px; font-size: .8125rem !important; }
+  .ccp__list { list-style: none; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .ccp__cat { padding: 16px 0; border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+  .ccp__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .ccp__label { font-weight: 600; font-size: 1rem; }
+  .ccp__always { font-size: .8125rem; color: var(--moss); font-weight: 600; }
+  .ccp__desc { font-size: .875rem; color: var(--muted); line-height: 1.5; }
+  .ccp__foot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ccp__foot [data-cc='save'] { grid-column: 1 / -1; }
+  @media (min-width: 560px) { .ccp__foot { grid-template-columns: auto auto 1fr; } .ccp__foot [data-cc='save'] { grid-column: auto; } }
+  .ccp__links { font-size: .8125rem; color: var(--muted); }
+  .switch { position: relative; display: inline-flex; flex: none; }
+  .switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+  .switch__ui { width: 46px; height: 28px; border-radius: 999px; background: var(--stone); transition: background .25s; position: relative; }
+  .switch__ui::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .3s var(--ease); }
+  .switch input:checked + .switch__ui { background: var(--moss); }
+  .switch input:checked + .switch__ui::after { transform: translateX(18px); }
+  .switch input:focus-visible + .switch__ui { outline: 2px solid var(--moss); outline-offset: 3px; }
+</style>

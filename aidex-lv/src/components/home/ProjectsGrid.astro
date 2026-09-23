@@ -1,0 +1,88 @@
+---
+import SectionHead from '../SectionHead.astro';
+import Picture from '../Picture.astro';
+import Icon from '../Icon.astro';
+import { useT, path, fmtNum, units, type Locale } from '../../i18n';
+import { projects } from '../../data/projects';
+import { media } from '../../data/media';
+interface Props { lang: Locale; limit?: number; headingLevel?: 1 | 2; filter?: boolean }
+const { lang, limit, headingLevel = 2, filter = false } = Astro.props;
+const t = useT(lang);
+const p = t.projects;
+const u = units[lang];
+const list = limit ? projects.slice(0, limit) : projects;
+const hasPlaceholders = list.some((x) => x.placeholder);
+---
+<section class="section section--white prj" aria-labelledby="prj-title" data-projects>
+  <div class="container">
+    <SectionHead eyebrow={p.eyebrow} title={p.title} lead={p.lead} split id="prj-title" level={headingLevel}>
+      {limit && <a href={path('projects', lang)} class="link-arrow">{t.cta.allProjects}<Icon name="arrow" /></a>}
+      {filter && (
+        <div class="prj__filter" role="group">
+          {(['all', 'home', 'business'] as const).map((k, i) => <button type="button" aria-pressed={i === 0 ? 'true' : 'false'} data-filter={k}>{p.segments[k]}</button>)}
+        </div>
+      )}
+    </SectionHead>
+    {hasPlaceholders && <p class="dev-note prj__dev" data-reveal>{p.placeholderNote}</p>}
+    <ul class="prj__grid">
+      {list.map((x, i) => {
+        const m = media[x.images[0]];
+        return (
+          <li class:list={['prj__item', i === 0 && 'prj__item--lead']} data-segment={x.segment} data-reveal style={`--d:${(i % 3) * 0.06}s`}>
+            <article>
+              <figure class="media media--zoom prj__media">
+                <Picture src={m.src} alt={m.alt[lang]} sizes={i === 0 ? '(min-width: 1000px) 60vw, 100vw' : '(min-width: 1000px) 30vw, 100vw'} widths={[480, 800, 1200, 1600]} />
+                {x.placeholder && <span class="dev-flag prj__flag">{t.example}</span>}
+              </figure>
+              <div class="prj__body">
+                <p class="prj__loc"><Icon name="pin" size={16} />{x.location[lang]}</p>
+                <h3 class="prj__title">{x.capacityKw ? `${fmtNum(x.capacityKw, lang, 1)} ${u.kw}` : t.placeholder}</h3>
+                <dl class="prj__specs">
+                  <div><dt>{p.labels.panel}</dt><dd>{x.panel}</dd></div>
+                  <div><dt>{p.labels.inverter}</dt><dd>{x.inverter}</dd></div>
+                  {x.battery !== null && <div><dt>{p.labels.battery}</dt><dd>{x.battery}</dd></div>}
+                  <div><dt>{p.labels.production}</dt><dd>{x.annualProductionKwh ? `${fmtNum(x.annualProductionKwh, lang)} ${u.kwh}` : '—'}</dd></div>
+                </dl>
+                {i === 0 && <p class="prj__desc">{x.description[lang]}</p>}
+              </div>
+            </article>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-projects]').forEach((root) => {
+    const btns = root.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    btns.forEach((b) => b.addEventListener('click', () => {
+      btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      root.querySelectorAll<HTMLElement>('[data-segment]').forEach((it) => {
+        it.hidden = b.dataset.filter !== 'all' && it.dataset.segment !== b.dataset.filter;
+      });
+    }));
+  });
+</script>
+
+<style>
+  .prj__dev { margin: -24px 0 28px; }
+  .prj__grid { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .prj__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .prj__grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: auto; } .prj__item--lead { grid-column: span 2; grid-row: span 2; } }
+  .prj__item article { height: 100%; display: grid; grid-template-rows: auto 1fr; gap: 16px; }
+  .prj__media { margin: 0; aspect-ratio: 4 / 3; }
+  @media (min-width: 1100px) { .prj__item--lead .prj__media { aspect-ratio: auto; height: 100%; min-height: 520px; } .prj__item--lead article { grid-template-rows: 1fr auto; } }
+  .prj__flag { position: absolute; top: 14px; left: 14px; z-index: 2; }
+  .prj__body { display: grid; gap: 8px; align-content: start; }
+  .prj__loc { display: flex; align-items: center; gap: 6px; font-size: .8125rem; color: var(--muted); }
+  .prj__title { font-size: 1.35rem; letter-spacing: -0.02em; }
+  .prj__specs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 0; }
+  .prj__specs div { display: flex; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--paper); font-size: .75rem; }
+  .prj__specs dt { color: var(--muted); }
+  .prj__specs dd { margin: 0; font-weight: 600; }
+  .prj__desc { color: var(--muted); font-size: .9375rem; }
+  .prj__filter { display: inline-flex; gap: 4px; padding: 4px; border-radius: 10px; background: var(--sand); }
+  .prj__filter button { border: 0; background: transparent; min-height: 40px; padding: 0 16px; border-radius: 7px; font-weight: 600; font-size: .9375rem; color: var(--muted); }
+  .prj__filter button[aria-pressed='true'] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+</style>

@@ -1,0 +1,83 @@
+---
+import SectionHead from '../SectionHead.astro';
+import Icon from '../Icon.astro';
+import { useT, path, fmtEur, fmtDate, type Locale } from '../../i18n';
+import { supportProgrammes } from '../../data/support';
+interface Props { lang: Locale; headingLevel?: 1 | 2; cta?: boolean }
+const { lang, headingLevel = 2, cta = true } = Astro.props;
+const t = useT(lang);
+const s = t.support;
+const active = supportProgrammes.filter((p) => p.active);
+---
+<section class="section section--sand sup" id="support" aria-labelledby="sup-title">
+  <div class="container sup__grid">
+    <div class="sup__copy">
+      <SectionHead eyebrow={s.eyebrow} title={s.title} lead={s.lead} id="sup-title" level={headingLevel} />
+      <ol class="sup__steps" data-reveal>
+        {s.steps.map((st, i) => <li><span class="tnum">{i + 1}</span>{st}</li>)}
+      </ol>
+      {cta && <a href={path('support', lang)} class="btn btn--primary" data-reveal>{t.cta.support}<Icon name="arrow" /></a>}
+    </div>
+
+    <div class="sup__cards">
+      {active.map((p) => (
+        <article class="prog" data-reveal>
+          <header class="prog__head">
+            <span class="badge badge--dark">{p.shortName}</span>
+            {!p.verified && <span class="dev-flag">{t.placeholder}</span>}
+          </header>
+          <h3 class="prog__name">{p.name[lang]}</h3>
+          {p.maxTotal && (
+            <p class="prog__total">
+              <span class="prog__tl">{s.total}</span>
+              <span class="prog__tv tnum"><small>{s.upTo}</small> {fmtEur(p.maxTotal, lang)}</span>
+            </p>
+          )}
+          <ul class="prog__items">
+            {p.items.map((it) => (
+              <li>
+                <div><strong>{it.label[lang]}</strong><span>{it.condition[lang]}</span></div>
+                {it.maxAmount !== null && <span class="prog__amt tnum">{s.upTo} {fmtEur(it.maxAmount, lang)}</span>}
+              </li>
+            ))}
+          </ul>
+          <dl class="prog__meta">
+            {p.deadline && <div><dt>{s.deadline}</dt><dd>{fmtDate(p.deadline, lang)}</dd></div>}
+            <div><dt>{s.checked}</dt><dd>{fmtDate(p.lastChecked, lang)}</dd></div>
+            <div><dt>{s.source}</dt><dd>{p.sources.map((src) => <a href={src.url} rel="noopener" target="_blank">{src.label}</a>)}</dd></div>
+          </dl>
+          <p class="prog__note">{s.verifyNote}</p>
+          {!p.verified && <p class="dev-note">{s.unverified}</p>}
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .sup__grid { display: grid; gap: 48px; }
+  @media (min-width: 1000px) { .sup__grid { grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; } }
+  .sup__copy { display: grid; gap: 0; justify-items: start; }
+  .sup__steps { list-style: none; display: grid; gap: 0; margin-bottom: 36px; width: 100%; border-top: 1px solid var(--line-strong); }
+  .sup__steps li { display: flex; gap: 16px; align-items: baseline; padding: 16px 0; border-bottom: 1px solid var(--line-strong); font-size: 1.0625rem; }
+  .sup__steps span { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--ink); font-size: .8125rem; font-weight: 600; transform: translateY(-2px); }
+  .sup__cards { display: grid; gap: 16px; }
+  .prog { background: #fff; border-radius: 16px; padding: clamp(24px, 3vw, 36px); display: grid; gap: 20px; box-shadow: var(--shadow-card); }
+  .prog__head { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+  .prog__name { font-size: 1.3rem; letter-spacing: -0.02em; line-height: 1.2; }
+  .prog__total { display: grid; gap: 4px; padding: 20px; border-radius: 12px; background: var(--ink); color: #fff; }
+  .prog__tl { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(238,241,236,.6); font-weight: 600; }
+  .prog__tv { font-family: var(--font-display); font-size: clamp(2.6rem, 5vw, 3.6rem); font-weight: 600; letter-spacing: -0.045em; line-height: 1; color: var(--volt); }
+  .prog__tv small { font-size: .35em; letter-spacing: 0; color: rgba(238,241,236,.7); font-weight: 500; }
+  .prog__items { list-style: none; display: grid; }
+  .prog__items li { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .prog__items li div { display: grid; gap: 2px; }
+  .prog__items strong { font-weight: 600; }
+  .prog__items span { font-size: .8125rem; color: var(--muted); }
+  .prog__items .prog__amt { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); white-space: nowrap; letter-spacing: -0.02em; }
+  .prog__meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 0; font-size: .8125rem; }
+  .prog__meta dt { color: var(--muted); }
+  .prog__meta dd { margin: 0; font-weight: 500; }
+  .prog__meta a { color: var(--moss); }
+  .prog__note { font-size: .8125rem; color: var(--muted); }
+</style>

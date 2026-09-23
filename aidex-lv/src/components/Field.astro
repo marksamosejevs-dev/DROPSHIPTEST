@@ -1,0 +1,9 @@
+---
+/** Renders a company config value, or a visible placeholder marker when not yet supplied. */
+import { isPlaceholder, type Field } from '../config/company';
+import { useT, type Locale } from '../i18n';
+interface Props { value: Field; lang: Locale }
+const { value, lang } = Astro.props;
+const t = useT(lang);
+---
+{isPlaceholder(value) ? <span class="ph" title={value.note} data-placeholder>[{t.tbc}]</span> : <>{value}</>}

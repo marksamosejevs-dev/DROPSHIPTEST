@@ -1,0 +1,88 @@
+---
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CookieConsent from '../components/CookieConsent.astro';
+import MobileCta from '../components/MobileCta.astro';
+import { useT, localeMeta, locales, path, type Locale, type RouteKey } from '../i18n';
+import { abs, alternates, organizationLd, websiteLd } from '../lib/seo';
+import { media } from '../data/media';
+import { integrations, CONSENT_VERSION } from '../config/company';
+
+interface Props {
+  lang: Locale;
+  route: RouteKey | null;
+  title: string;
+  description: string;
+  jsonLd?: object[];
+  noindex?: boolean;
+  headerTone?: 'light' | 'dark';
+  mobileCta?: boolean;
+}
+const { lang, route, title, description, jsonLd = [], noindex = false, headerTone = 'dark', mobileCta = true } = Astro.props;
+const t = useT(lang);
+const canonical = route ? abs(path(route, lang)) : undefined;
+const og = await getImage({ src: media.hero.src, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 82 });
+const ld = [organizationLd(lang), websiteLd(lang), ...jsonLd];
+const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, meta: integrations.metaPixelId };
+---
+<!doctype html>
+<html lang={localeMeta[lang].htmlLang} class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex, follow" /> : <meta name="robots" content="index, follow, max-image-preview:large" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    {route && alternates(route).map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    <meta name="theme-color" content="#0b1410" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AIDEX" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={abs(og.src)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={media.hero.alt[lang]} />
+    <meta property="og:locale" content={localeMeta[lang].ogLocale} />
+    {locales.filter((x) => x !== lang).map((x) => <meta property="og:locale:alternate" content={localeMeta[x].ogLocale} />)}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={abs(og.src)} />
+
+    <slot name="head" />
+
+    <!-- Google Consent Mode v2 defaults: everything non-essential denied until consent. -->
+    <script is:inline define:vars={{ consentConfig }}>
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+      window.__AIDEX_CONSENT_CFG = consentConfig;
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500 });
+    </script>
+    {ld.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o)} />)}
+  </head>
+  <body data-lang={lang}>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <Header lang={lang} route={route} tone={headerTone} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    {mobileCta && <MobileCta lang={lang} />}
+    <CookieConsent lang={lang} />
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

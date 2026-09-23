@@ -1,0 +1,56 @@
+---
+import SectionHead from '../SectionHead.astro';
+import Icon from '../Icon.astro';
+import Picture from '../Picture.astro';
+import { useT, path, type Locale } from '../../i18n';
+import { media } from '../../data/media';
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const w = t.why;
+const icons = ['layers', 'shield', 'tool', 'battery', 'chart', 'doc'];
+---
+<section class="section why" aria-labelledby="why-title">
+  <div class="container">
+    <SectionHead eyebrow={w.eyebrow} title={w.title} lead={w.lead} split id="why-title">
+      <a href={path('about', lang)} class="link-arrow">{t.cta.more}<Icon name="arrow" /></a>
+    </SectionHead>
+
+    <div class="why__grid">
+      <figure class="why__media media media--zoom" data-reveal>
+        <Picture src={media.roofDetail.src} alt={media.roofDetail.alt[lang]} sizes="(min-width: 1000px) 40vw, 100vw" widths={[600, 900, 1300, 1800]} />
+        {media.roofDetail.temporary && <figcaption class="dev-flag why__flag">{t.placeholder}</figcaption>}
+      </figure>
+      <ol class="why__list">
+        {w.pillars.map((p, i) => (
+          <li class="why__item" data-reveal style={`--d:${(i % 2) * 0.08}s`}>
+            <span class="why__icon"><Icon name={icons[i]} size={22} /></span>
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .why { background: var(--paper); }
+  .why__grid { display: grid; gap: clamp(32px, 4vw, 64px); }
+  @media (min-width: 1000px) { .why__grid { grid-template-columns: 0.8fr 1.2fr; align-items: stretch; } }
+  .why__media { aspect-ratio: 16 / 10; margin: 0; }
+  .why__media :global(img) { object-position: 70% 60%; }
+  @media (min-width: 1000px) { .why__media { aspect-ratio: auto; min-height: 100%; } }
+  .why__media :global(picture), .why__media :global(img) { height: 100%; }
+  .why__flag { position: absolute; left: 14px; top: 14px; z-index: 2; }
+  .why__list { list-style: none; display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+  @media (min-width: 640px) { .why__list { grid-template-columns: 1fr 1fr; } }
+  .why__item { display: grid; gap: 10px; align-content: start; padding: 28px 0 32px; border-bottom: 1px solid var(--line); }
+  @media (min-width: 640px) {
+    .why__item { padding: 32px 28px 36px 0; }
+    .why__item:nth-child(even) { padding-left: 28px; padding-right: 0; border-left: 1px solid var(--line); }
+  }
+  .why__icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--white); color: var(--moss); box-shadow: inset 0 0 0 1px var(--line); margin-bottom: 8px; }
+  .why__item h3 { font-size: 1.25rem; letter-spacing: -0.02em; }
+  .why__item p { color: var(--muted); font-size: .98rem; }
+</style>

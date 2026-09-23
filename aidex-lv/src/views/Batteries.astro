@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureSplit from '../components/FeatureSplit.astro';
+import EnergyFlow from '../components/home/EnergyFlow.astro';
+import Packages from '../components/home/Packages.astro';
+import SupportSection from '../components/home/SupportSection.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+import { useT, path, type Locale, type RouteKey } from '../i18n';
+import { media } from '../data/media';
+import { breadcrumbLd, serviceLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const p = t.pages.batteries;
+---
+<Base lang={lang} route={route} title={t.meta.batteries.title} description={t.meta.batteries.description}
+  jsonLd={[serviceLd(lang, p.title, t.meta.batteries.description, 'batteries'), breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.batteries, key: 'batteries' }])]}>
+  <PageHero lang={lang} eyebrow={p.eyebrow} title={p.title} lead={p.lead} crumb={t.nav.batteries} image={media.homeNight.src} imageAlt={media.homeNight.alt[lang]} secondary={{ href: path('packages', lang), label: t.cta.allPackages }} />
+  <FeatureSplit lang={lang} items={p.sections} image={media.batteryRoom} checklistTitle={p.sizingTitle} checklist={p.sizing} icons={['chart', 'shield', 'plus', 'doc']} />
+  <EnergyFlow lang={lang} />
+  <Packages lang={lang} />
+  <SupportSection lang={lang} />
+  <FinalCta lang={lang} source="batteries" />
+</Base>

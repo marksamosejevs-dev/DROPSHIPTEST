@@ -1,0 +1,44 @@
+---
+import SectionHead from '../SectionHead.astro';
+import Icon from '../Icon.astro';
+import { useT, path, type Locale } from '../../i18n';
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const p = t.process;
+---
+<section class="section proc" aria-labelledby="proc-title">
+  <div class="container">
+    <SectionHead eyebrow={p.eyebrow} title={p.title} split id="proc-title">
+      <a href={path('offer', lang)} class="btn btn--primary">{t.cta.offer}<Icon name="arrow" /></a>
+    </SectionHead>
+    <ol class="proc__list">
+      {p.steps.map((s, i) => (
+        <li class="proc__step" data-reveal style={`--d:${(i % 3) * 0.08}s`}>
+          <span class="proc__num tnum">{String(i + 1).padStart(2, '0')}</span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .proc__list { list-style: none; display: grid; grid-template-columns: 1fr; position: relative; }
+  @media (min-width: 720px) { .proc__list { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .proc__list { grid-template-columns: repeat(3, 1fr); } }
+  .proc__step { position: relative; display: grid; gap: 10px; align-content: start; padding: 28px 28px 40px 0; border-top: 1px solid var(--line-strong); }
+  .proc__step::before { content: ''; position: absolute; top: -4px; left: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+  .proc__step:last-child::before { background: var(--volt); box-shadow: 0 0 0 4px rgba(200, 238, 98, .35); }
+  .proc__num { font-family: var(--font-display); font-size: clamp(3rem, 5vw, 4.25rem); font-weight: 500; letter-spacing: -0.05em; line-height: 1; color: var(--stone); margin-bottom: 10px; transition: color .4s; }
+  .proc__step:hover .proc__num { color: var(--moss); }
+  .proc__step h3 { font-size: 1.35rem; letter-spacing: -0.02em; }
+  .proc__step p { color: var(--muted); max-width: 34ch; }
+  @media (max-width: 719px) {
+    .proc__list { padding-left: 28px; border-left: 1px solid var(--line-strong); }
+    .proc__step { border-top: 0; padding: 0 0 36px; }
+    .proc__step::before { left: -32px; top: 18px; }
+    .proc__num { font-size: 2.4rem; margin-bottom: 0; }
+  }
+</style>

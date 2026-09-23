@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SupportSection from '../components/home/SupportSection.astro';
+import Packages from '../components/home/Packages.astro';
+import FaqList from '../components/home/FaqList.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+import { useT, type Locale, type RouteKey } from '../i18n';
+import { breadcrumbLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+---
+<Base lang={lang} route={route} title={t.meta.support.title} description={t.meta.support.description}
+  jsonLd={[breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.support, key: 'support' }])]}>
+  <PageHero lang={lang} eyebrow={t.support.eyebrow} title={t.pages.h1.support} lead={t.support.lead} crumb={t.nav.support} />
+  <SupportSection lang={lang} cta={false} />
+  <Packages lang={lang} />
+  <FaqList lang={lang} limit={6} />
+  <FinalCta lang={lang} source="support" />
+</Base>

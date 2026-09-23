@@ -1,0 +1,45 @@
+---
+import Picture from './Picture.astro';
+import Icon from './Icon.astro';
+import type { MediaItem } from '../data/media';
+import type { Locale } from '../i18n';
+interface Props { lang: Locale; items: { title: string; text: string }[]; image: MediaItem; checklistTitle: string; checklist: string[]; icons?: string[] }
+const { lang, items, image, checklistTitle, checklist, icons = ['layers', 'home', 'doc', 'chart'] } = Astro.props;
+---
+<section class="section fs">
+  <div class="container fs__grid">
+    <ul class="fs__list">
+      {items.map((it, i) => (
+        <li data-reveal style={`--d:${(i % 2) * 0.06}s`}>
+          <span class="fs__icon"><Icon name={icons[i] ?? 'check'} size={22} /></span>
+          <h2>{it.title}</h2>
+          <p>{it.text}</p>
+        </li>
+      ))}
+    </ul>
+    <aside class="fs__aside" data-reveal>
+      <figure class="media fs__media"><Picture src={image.src} alt={image.alt[lang]} sizes="(min-width: 1000px) 40vw, 100vw" widths={[600, 900, 1300]} /></figure>
+      <div class="fs__check">
+        <h2>{checklistTitle}</h2>
+        <ul>{checklist.map((c) => <li><Icon name="check" size={18} />{c}</li>)}</ul>
+      </div>
+    </aside>
+  </div>
+</section>
+<style>
+  .fs__grid { display: grid; gap: 48px; }
+  @media (min-width: 1000px) { .fs__grid { grid-template-columns: 1.2fr 0.8fr; gap: 72px; align-items: start; } .fs__aside { position: sticky; top: calc(var(--header-h) + 24px); } }
+  .fs__list { list-style: none; display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+  @media (min-width: 640px) { .fs__list { grid-template-columns: 1fr 1fr; } .fs__list li:nth-child(even) { padding-left: 28px; border-left: 1px solid var(--line); } .fs__list li:nth-child(odd) { padding-right: 28px; } }
+  .fs__list li { padding: 32px 0 36px; border-bottom: 1px solid var(--line); display: grid; gap: 10px; align-content: start; }
+  .fs__icon { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--moss); box-shadow: inset 0 0 0 1px var(--line); margin-bottom: 8px; }
+  .fs__list h2 { font-size: 1.4rem; letter-spacing: -0.02em; }
+  .fs__list p { color: var(--muted); }
+  .fs__aside { display: grid; gap: 16px; }
+  .fs__media { margin: 0; aspect-ratio: 4 / 3; }
+  .fs__check { padding: 28px; border-radius: 14px; background: var(--ink); color: #fff; display: grid; gap: 16px; }
+  .fs__check h2 { font-size: 1.25rem; letter-spacing: -0.02em; }
+  .fs__check ul { list-style: none; display: grid; gap: 12px; }
+  .fs__check li { display: flex; gap: 12px; color: rgba(238,241,236,.84); }
+  .fs__check :global(svg) { color: var(--volt); flex: none; margin-top: 3px; }
+</style>

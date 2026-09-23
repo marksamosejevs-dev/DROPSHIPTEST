@@ -1,0 +1,110 @@
+---
+import Icon from '../Icon.astro';
+import { useT, path, fmtEur, type Locale } from '../../i18n';
+import { media } from '../../data/media';
+import { responsive } from '../../lib/images';
+import { BENCHMARK_MODE, packages, netPrice } from '../../data/packages';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const h = t.hero;
+const wide = await responsive(media.hero.src, [960, 1440, 1920, 2400], 70);
+const tall = await responsive(media.heroPortrait.src, [540, 810, 1080], 70);
+const fromBattery = Math.min(...packages.map((p) => p.withBattery).filter(Boolean).map((p) => netPrice(p!)));
+const trustIcons = ['layers', 'battery', 'doc', 'globe'];
+---
+<section class="hero dark" aria-labelledby="hero-title">
+  <div class="hero__media" aria-hidden="false">
+    <picture>
+      <source media="(max-width: 719px)" type="image/avif" srcset={tall.avif} sizes="100vw" />
+      <source media="(max-width: 719px)" type="image/webp" srcset={tall.webp} sizes="100vw" />
+      <source type="image/avif" srcset={wide.avif} sizes="100vw" />
+      <source type="image/webp" srcset={wide.webp} sizes="100vw" />
+      <img src={wide.fallback} alt={media.hero.alt[lang]} width={wide.width} height={wide.height} fetchpriority="high" decoding="async" />
+    </picture>
+  </div>
+  <div class="hero__shade" aria-hidden="true"></div>
+
+  <div class="hero__content container">
+    <div class="hero__copy">
+      <p class="eyebrow hero__in" style="--d:.05s">{h.eyebrow}</p>
+      <h1 id="hero-title" class="hero__title">
+        <span class="hero__line hero__in" style="--d:.12s">{h.title}</span>
+        <span class="hero__line hero__line--accent hero__in" style="--d:.22s">{h.titleAccent}</span>
+      </h1>
+      <p class="hero__lead hero__in" style="--d:.34s">{h.lead}</p>
+      <div class="hero__ctas hero__in" style="--d:.44s">
+        <a href={path('offer', lang)} class="btn btn--volt" data-cta="hero-offer">{t.cta.offer}<Icon name="arrow" /></a>
+        <a href={path('home', lang, 'calculator')} class="btn btn--ghost-inv" data-cta="hero-calc">{t.cta.calc}</a>
+      </div>
+      <p class="hero__price hero__in" style="--d:.54s">
+        <span>{h.priceFrom}</span>
+        <strong class="tnum">{fmtEur(fromBattery, lang)}</strong>
+        <span class="hero__pnote">{h.priceNote}</span>
+        {BENCHMARK_MODE && <span class="dev-flag">{t.demo}</span>}
+      </p>
+    </div>
+  </div>
+
+  <div class="hero__trust container">
+    <ul>
+      {h.trust.map((item, i) => (
+        <li class="hero__in" style={`--d:${0.6 + i * 0.08}s`}>
+          <Icon name={trustIcons[i]} size={22} />
+          <div><strong>{item.title}</strong><span>{item.text}</span></div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; min-height: max(680px, min(100svh, 1000px)); display: grid; grid-template-rows: 1fr auto; overflow: hidden; background: #0d1512; isolation: isolate; }
+  .hero__media, .hero__shade { position: absolute; inset: 0; z-index: -1; }
+  .hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__media img { animation: heroZoom 2.8s var(--ease) both; }
+    @keyframes heroZoom { from { transform: scale(1.08); filter: brightness(.7); } }
+    .hero__in { animation: heroIn 1.1s var(--ease) both; animation-delay: var(--d, 0s); }
+    @keyframes heroIn { from { opacity: 0; transform: translateY(22px); } }
+  }
+  .hero__shade {
+    background:
+      linear-gradient(90deg, rgba(8, 14, 11, 0.86) 0%, rgba(8, 14, 11, 0.62) 34%, rgba(8, 14, 11, 0.12) 64%, rgba(8, 14, 11, 0) 100%),
+      linear-gradient(180deg, rgba(8, 14, 11, 0.55) 0%, rgba(8, 14, 11, 0) 22%, rgba(8, 14, 11, 0) 58%, rgba(8, 14, 11, 0.85) 100%);
+  }
+  .hero__content { display: flex; align-items: center; padding-top: calc(var(--header-h) + 48px); padding-bottom: 48px; }
+  .hero__copy { max-width: 900px; display: grid; gap: 24px; }
+  .hero__title { font-size: clamp(2.6rem, 5.4vw, 5.25rem); line-height: 0.98; letter-spacing: -0.042em; font-weight: 600; }
+  .hero__line { display: block; }
+  .hero__line--accent { color: rgba(255, 255, 255, 0.58); font-weight: 500; }
+  .hero__lead { font-size: clamp(1.06rem, 1.35vw, 1.25rem); line-height: 1.55; color: rgba(238, 241, 236, 0.82); max-width: 50ch; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+  .hero__ctas .btn { min-height: 56px; padding-inline: 26px; font-size: 1.0625rem; }
+  .hero__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; font-size: .9375rem; color: rgba(238, 241, 236, 0.7); }
+  .hero__price strong { font-family: var(--font-display); font-size: 1.5rem; color: #fff; letter-spacing: -0.02em; }
+  .hero__pnote { font-size: .8125rem; }
+  .hero__trust { padding-bottom: 28px; }
+  .hero__trust ul { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid rgba(255, 255, 255, 0.18); }
+  .hero__trust li { display: flex; gap: 12px; padding: 18px 12px 4px 0; color: #fff; }
+  .hero__trust li :global(svg) { flex: none; color: var(--volt); margin-top: 2px; }
+  .hero__trust li div { display: grid; gap: 2px; }
+  .hero__trust strong { font-family: var(--font-display); font-weight: 600; font-size: .9375rem; letter-spacing: -0.005em; }
+  .hero__trust span { font-size: .8125rem; color: rgba(238, 241, 236, 0.62); line-height: 1.4; }
+  @media (min-width: 960px) {
+    .hero__trust ul { grid-template-columns: repeat(4, 1fr); }
+    .hero__trust li { padding: 22px 24px 8px 0; }
+    .hero__trust li + li { padding-left: 24px; border-left: 1px solid rgba(255, 255, 255, 0.12); }
+  }
+  @media (max-width: 719px) {
+    .hero { min-height: 100svh; }
+    .hero__media img { object-position: 50% 50%; }
+    .hero__shade { background: linear-gradient(180deg, rgba(8,14,11,.72) 0%, rgba(8,14,11,.35) 30%, rgba(8,14,11,.35) 45%, rgba(8,14,11,.9) 78%, rgba(8,14,11,.96) 100%); }
+    .hero__content { align-items: flex-end; padding-top: calc(var(--header-h) + 24px); padding-bottom: 24px; }
+    .hero__copy { gap: 18px; }
+    .hero__ctas { display: grid; grid-template-columns: 1fr; }
+    .hero__trust li { padding-top: 14px; }
+    .hero__trust span { display: none; }
+  }
+</style>

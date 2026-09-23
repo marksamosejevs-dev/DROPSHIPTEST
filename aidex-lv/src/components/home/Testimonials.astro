@@ -1,0 +1,56 @@
+---
+import SectionHead from '../SectionHead.astro';
+import { useT, type Locale } from '../../i18n';
+import { testimonials } from '../../data/testimonials';
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const t = useT(lang);
+const s = t.testimonials;
+const anyPlaceholder = testimonials.some((x) => x.placeholder);
+---
+<section class="section section--tight tst" aria-labelledby="tst-title">
+  <div class="container">
+    <SectionHead eyebrow={s.eyebrow} title={s.title} id="tst-title" />
+    {anyPlaceholder && <p class="dev-note tst__dev" data-reveal>{s.placeholderNote}</p>}
+    <ul class="tst__grid">
+      {testimonials.map((x, i) => (
+        <li class:list={['tst__card', x.placeholder && 'is-placeholder']} data-reveal style={`--d:${i * 0.06}s`}>
+          <figure>
+            <svg class="tst__q" viewBox="0 0 32 24" aria-hidden="true"><path d="M0 24V14C0 6 4.5 1.3 12 0l1.3 3.4C8.8 4.8 6.9 7.6 6.7 11H12v13H0Zm19 0V14c0-8 4.5-12.7 12-14l1 3.4c-4.5 1.4-6.4 4.2-6.6 7.6H31v13H19Z" fill="currentColor" /></svg>
+            {x.rating !== null && (
+              <p class="tst__stars" aria-label={`${x.rating}/5`}>{'★'.repeat(x.rating)}<span>{'★'.repeat(5 - x.rating)}</span></p>
+            )}
+            <blockquote><p>{x.text[lang]}</p></blockquote>
+            <figcaption>
+              <span class="tst__avatar" aria-hidden="true">{x.name.slice(0, 1)}</span>
+              <span class="tst__who">
+                <strong>{x.placeholder ? t.placeholder : x.name}</strong>
+                <span>{x.location[lang]} · {x.system[lang]}</span>
+                {x.source && <span class="tst__src">{s.source[x.source]}</span>}
+              </span>
+            </figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .tst { background: var(--paper); }
+  .tst__dev { margin: -24px 0 28px; }
+  .tst__grid { list-style: none; display: grid; gap: 16px; }
+  @media (min-width: 900px) { .tst__grid { grid-template-columns: repeat(3, 1fr); } }
+  .tst__card figure { margin: 0; height: 100%; display: grid; gap: 18px; align-content: start; padding: 28px; border-radius: 14px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
+  .tst__card.is-placeholder figure { background: transparent; box-shadow: none; border: 1px dashed var(--line-strong); }
+  .tst__q { width: 30px; color: var(--moss); }
+  .tst__stars { color: var(--amber); letter-spacing: 2px; }
+  .tst__stars span { color: var(--stone); }
+  .tst__card blockquote { margin: 0; font-size: 1.0625rem; line-height: 1.55; }
+  .tst__card.is-placeholder blockquote { color: var(--muted); }
+  .tst__card figcaption { display: flex; gap: 12px; align-items: center; margin-top: auto; padding-top: 8px; }
+  .tst__avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--sand); display: grid; place-items: center; font-weight: 600; color: var(--muted); }
+  .tst__who { display: grid; gap: 2px; font-size: .8125rem; color: var(--muted); }
+  .tst__who strong { color: var(--ink); font-size: .9375rem; }
+  .tst__src { font-size: .75rem; }
+</style>

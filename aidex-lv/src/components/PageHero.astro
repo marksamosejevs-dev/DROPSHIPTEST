@@ -1,0 +1,62 @@
+---
+import Icon from './Icon.astro';
+import Picture from './Picture.astro';
+import type { ImageMetadata } from 'astro';
+import { useT, path, type Locale } from '../i18n';
+interface Props {
+  lang: Locale;
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  crumb: string;
+  image?: ImageMetadata;
+  imageAlt?: string;
+  cta?: boolean;
+  secondary?: { href: string; label: string; external?: boolean };
+}
+const { lang, eyebrow, title, lead, crumb, image, imageAlt = '', cta = true, secondary } = Astro.props;
+const t = useT(lang);
+---
+<section class:list={['ph dark', image && 'ph--img']} aria-labelledby="page-title">
+  {image && (
+    <div class="ph__bg"><Picture src={image} alt={imageAlt} sizes="100vw" widths={[800, 1400, 2000]} eager /></div>
+  )}
+  <div class="container ph__inner">
+    <nav class="ph__crumbs" aria-label={t.nav.breadcrumb}>
+      <ol>
+        <li><a href={path('home', lang)}>{t.nav.home}</a></li>
+        <li aria-current="page">{crumb}</li>
+      </ol>
+    </nav>
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 id="page-title">{title}</h1>
+    {lead && <p class="ph__lead">{lead}</p>}
+    {(cta || secondary) && (
+      <div class="ph__ctas">
+        {cta && <a href={path('offer', lang)} class="btn btn--volt">{t.cta.offer}<Icon name="arrow" /></a>}
+        {secondary && (
+          <a href={secondary.href} class="btn btn--ghost-inv" {...(secondary.external ? { target: '_blank', rel: 'noopener' } : {})}>
+            {secondary.label}<Icon name={secondary.external ? 'external' : 'arrow'} />
+          </a>
+        )}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .ph { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(80% 90% at 90% 0%, #1b3829 0%, var(--ink) 60%); padding: calc(var(--header-h) + clamp(48px, 7vw, 104px)) 0 clamp(56px, 7vw, 104px); }
+  .ph--img { min-height: min(78svh, 760px); display: flex; align-items: flex-end; }
+  .ph__bg { position: absolute; inset: 0; z-index: -1; }
+  .ph__bg :global(picture), .ph__bg :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .ph__bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,14,11,.6) 0%, rgba(8,14,11,.35) 40%, rgba(8,14,11,.92) 100%), linear-gradient(90deg, rgba(8,14,11,.7) 0%, rgba(8,14,11,0) 70%); }
+  .ph__inner { display: grid; gap: 22px; justify-items: start; }
+  .ph h1 { font-size: clamp(2.3rem, 5.2vw, 4.6rem); max-width: 18ch; color: #fff; letter-spacing: -0.04em; line-height: 1.02; }
+  .ph__lead { font-size: clamp(1.06rem, 1.4vw, 1.25rem); color: rgba(238,241,236,.78); max-width: 56ch; }
+  .ph__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+  .ph__crumbs ol { list-style: none; display: flex; gap: 8px; font-size: .8125rem; color: rgba(238,241,236,.55); }
+  .ph__crumbs li + li::before { content: '/'; margin-right: 8px; opacity: .5; }
+  .ph__crumbs a { text-decoration: none; }
+  .ph__crumbs a:hover { color: #fff; }
+  @media (max-width: 519px) { .ph__ctas { display: grid; width: 100%; } }
+</style>

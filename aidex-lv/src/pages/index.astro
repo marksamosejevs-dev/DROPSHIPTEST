@@ -1,0 +1,18 @@
+---
+/** Root: Latvian is the default language. Static redirect to /lv/. */
+import { abs } from '../lib/seo';
+import { alternates } from '../lib/seo';
+---
+<!doctype html>
+<html lang="lv">
+  <head>
+    <meta charset="utf-8" />
+    <title>AIDEX — saules paneļi un akumulatori</title>
+    <meta http-equiv="refresh" content="0; url=/lv/" />
+    <link rel="canonical" href={abs('/lv/')} />
+    {alternates('home').map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    <meta name="robots" content="noindex, follow" />
+    <script is:inline>location.replace('/lv/' + location.hash);</script>
+  </head>
+  <body><a href="/lv/">AIDEX.lv</a></body>
+</html>

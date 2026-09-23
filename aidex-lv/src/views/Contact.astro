@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Field from '../components/Field.astro';
+import Icon from '../components/Icon.astro';
+import { useT, type Locale, type RouteKey } from '../i18n';
+import { company, known } from '../config/company';
+import { breadcrumbLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const c = t.pages.contact;
+const f = t.footer;
+const email = known(company.email);
+const phoneHref = known(company.phoneHref);
+---
+<Base lang={lang} route={route} title={t.meta.contact.title} description={t.meta.contact.description}
+  jsonLd={[breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.contact, key: 'contact' }])]}>
+  <PageHero lang={lang} eyebrow={c.eyebrow} title={c.title} lead={c.lead} crumb={t.nav.contact} cta={false} />
+  <section class="section ct" aria-labelledby="ct-title" data-hide-mobile-cta>
+    <div class="container ct__grid">
+      <div class="ct__info" data-reveal>
+        <h2 id="ct-title">{c.details}</h2>
+        <ul class="ct__list">
+          <li><Icon name="phone" size={22} /><div><span>{f.phone}</span>{phoneHref ? <a href={`tel:${phoneHref}`}><Field value={company.phone} lang={lang} /></a> : <strong><Field value={company.phone} lang={lang} /></strong>}</div></li>
+          <li><Icon name="mail" size={22} /><div><span>{f.email}</span>{email ? <a href={`mailto:${email}`}>{email}</a> : <strong><Field value={company.email} lang={lang} /></strong>}</div></li>
+          <li><Icon name="pin" size={22} /><div><span>{f.address}</span><strong><Field value={company.registeredAddress} lang={lang} /></strong></div></li>
+          <li><Icon name="clock" size={22} /><div><span>&nbsp;</span><strong><Field value={company.openingHours} lang={lang} /></strong></div></li>
+        </ul>
+        <p class="ct__op">{f.operatedBy}</p>
+      </div>
+      <LeadForm lang={lang} id="lead-contact" source="contact" />
+    </div>
+  </section>
+</Base>
+<style>
+  .ct__grid { display: grid; gap: 48px; align-items: start; }
+  @media (min-width: 1000px) { .ct__grid { grid-template-columns: 1fr minmax(420px, 540px); gap: 80px; } }
+  .ct__info { display: grid; gap: 28px; }
+  .ct__info h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); }
+  .ct__list { list-style: none; display: grid; border-top: 1px solid var(--line); }
+  .ct__list li { display: flex; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .ct__list :global(svg) { color: var(--moss); flex: none; margin-top: 2px; }
+  .ct__list div { display: grid; gap: 2px; }
+  .ct__list span { font-size: .8125rem; color: var(--muted); }
+  .ct__list strong, .ct__list a { font-weight: 600; font-size: 1.0625rem; }
+  .ct__op { font-weight: 600; }
+</style>

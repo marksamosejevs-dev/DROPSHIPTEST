@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureSplit from '../components/FeatureSplit.astro';
+import Packages from '../components/home/Packages.astro';
+import Calculator from '../components/home/Calculator.astro';
+import Process from '../components/home/Process.astro';
+import FaqList from '../components/home/FaqList.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+import { useT, path, type Locale, type RouteKey } from '../i18n';
+import { media } from '../data/media';
+import { breadcrumbLd, serviceLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const p = t.pages.solar;
+---
+<Base lang={lang} route={route} title={t.meta.solar.title} description={t.meta.solar.description}
+  jsonLd={[serviceLd(lang, p.title, t.meta.solar.description, 'solar'), breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.solar, key: 'solar' }])]}>
+  <PageHero lang={lang} eyebrow={p.eyebrow} title={p.title} lead={p.lead} crumb={t.nav.solar} image={media.homeDay.src} imageAlt={media.homeDay.alt[lang]} secondary={{ href: path('solar', lang, 'calculator'), label: t.cta.calc }} />
+  <FeatureSplit lang={lang} items={p.sections} image={media.roofDetail} checklistTitle={p.specsTitle} checklist={p.specs} icons={['layers', 'home', 'doc', 'chart']} />
+  <Packages lang={lang} />
+  <Calculator lang={lang} />
+  <Process lang={lang} />
+  <FaqList lang={lang} limit={5} />
+  <FinalCta lang={lang} source="solar" />
+</Base>

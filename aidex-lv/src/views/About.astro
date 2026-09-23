@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import WhyAidex from '../components/home/WhyAidex.astro';
+import B2B from '../components/home/B2B.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+import Field from '../components/Field.astro';
+import Icon from '../components/Icon.astro';
+import { useT, path, type Locale, type RouteKey } from '../i18n';
+import { media } from '../data/media';
+import { company, group } from '../config/company';
+import { breadcrumbLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const a = t.about;
+const f = t.footer;
+---
+<Base lang={lang} route={route} title={t.meta.about.title} description={t.meta.about.description}
+  jsonLd={[breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.about, key: 'about' }])]}>
+  <PageHero lang={lang} eyebrow={a.eyebrow} title={a.title} lead={a.lead} crumb={t.nav.about} image={media.hero.src} imageAlt={media.hero.alt[lang]} />
+  <section class="section ab" aria-labelledby="ab-title">
+    <div class="container">
+      <h2 id="ab-title" class="sr-only">{a.eyebrow}</h2>
+      <ol class="ab__blocks">
+        {a.blocks.map((b, i) => (
+          <li data-reveal style={`--d:${i * 0.06}s`}>
+            <span class="ab__n tnum">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{b.title}</h3>
+            <p>{b.text}</p>
+          </li>
+        ))}
+      </ol>
+      <div class="ab__op" data-reveal>
+        <div>
+          <p class="eyebrow">{t.legalNav.legal}</p>
+          <p class="ab__opname">{a.operator}</p>
+          <p class="muted">{group.name} · <a href={group.url} target="_blank" rel="noopener">aidex-energy.com</a></p>
+        </div>
+        <dl class="ab__facts">
+          <div><dt>{f.regNo}</dt><dd><Field value={company.registrationNumber} lang={lang} /></dd></div>
+          <div><dt>{f.vat}</dt><dd><Field value={company.vatNumber} lang={lang} /></dd></div>
+          <div><dt>{f.address}</dt><dd><Field value={company.registeredAddress} lang={lang} /></dd></div>
+        </dl>
+        <a href={path('legal', lang)} class="link-arrow">{t.legalNav.legal}<Icon name="arrow" /></a>
+      </div>
+    </div>
+  </section>
+  <WhyAidex lang={lang} />
+  <B2B lang={lang} compact />
+  <FinalCta lang={lang} source="about" />
+</Base>
+<style>
+  .ab__blocks { list-style: none; display: grid; gap: 0; border-top: 1px solid var(--line-strong); }
+  @media (min-width: 900px) { .ab__blocks { grid-template-columns: repeat(3, 1fr); } .ab__blocks li + li { border-left: 1px solid var(--line); padding-left: 32px; } }
+  .ab__blocks li { padding: 32px 32px 40px 0; display: grid; gap: 12px; align-content: start; border-bottom: 1px solid var(--line); }
+  @media (min-width: 900px) { .ab__blocks li { border-bottom: 0; } }
+  .ab__n { font-family: var(--font-display); font-size: 3rem; color: var(--stone); letter-spacing: -0.05em; line-height: 1; }
+  .ab__blocks h3 { font-size: 1.5rem; letter-spacing: -0.02em; }
+  .ab__blocks p { color: var(--muted); }
+  .ab__op { margin-top: 64px; padding: clamp(24px, 4vw, 44px); border-radius: 16px; background: #fff; box-shadow: 0 0 0 1px var(--line); display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 1000px) { .ab__op { grid-template-columns: 1.1fr 1.4fr auto; } }
+  .ab__opname { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; margin: 10px 0 6px; }
+  .ab__facts { display: grid; gap: 14px; margin: 0; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); font-size: .9375rem; }
+  .ab__facts dt { font-size: .75rem; color: var(--muted); }
+  .ab__facts dd { margin: 0; font-weight: 500; }
+</style>

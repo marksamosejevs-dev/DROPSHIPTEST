@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import B2B from '../components/home/B2B.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { useT, type Locale, type RouteKey } from '../i18n';
+import { media } from '../data/media';
+import { group } from '../config/company';
+import { breadcrumbLd, serviceLd } from '../lib/seo';
+interface Props { lang: Locale; route: RouteKey }
+const { lang, route } = Astro.props;
+const t = useT(lang);
+const b = t.pages.business;
+---
+<Base lang={lang} route={route} title={t.meta.business.title} description={t.meta.business.description}
+  jsonLd={[serviceLd(lang, t.b2b.title, t.meta.business.description, 'business'), breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.business, key: 'business' }])]}>
+  <PageHero lang={lang} eyebrow={t.b2b.eyebrow} title={t.pages.h1.business} lead={t.b2b.lead} crumb={t.nav.business} image={media.solarField.src} imageAlt={media.solarField.alt[lang]} cta={false} secondary={{ href: group.url, label: t.cta.group, external: true }} />
+  <B2B lang={lang} />
+  <section class="section bz" aria-labelledby="bz-title" data-hide-mobile-cta>
+    <div class="container bz__grid">
+      <div class="bz__copy" data-reveal>
+        <p class="eyebrow">{t.b2b.eyebrow}</p>
+        <h2 id="bz-title">{b.contactTitle}</h2>
+        <p class="lead muted">{b.contactLead}</p>
+      </div>
+      <LeadForm lang={lang} id="lead-business" source="business" />
+    </div>
+  </section>
+</Base>
+<style>
+  .bz__grid { display: grid; gap: 40px; align-items: start; }
+  @media (min-width: 1000px) { .bz__grid { grid-template-columns: 1fr minmax(420px, 540px); gap: 80px; } }
+  .bz__copy { display: grid; gap: 20px; }
+  .bz__copy h2 { font-size: clamp(2rem, 4vw, 3.4rem); }
+</style>

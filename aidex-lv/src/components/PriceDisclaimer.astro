@@ -1,0 +1,15 @@
+---
+import { useT, type Locale } from '../i18n';
+interface Props { lang: Locale; class?: string }
+const { lang, class: cls } = Astro.props;
+const t = useT(lang);
+---
+<p class:list={['disclaimer', cls]}>
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" stroke-linecap="round" /></svg>
+  <span>{t.priceDisclaimer}</span>
+</p>
+<style>
+  .disclaimer { display: flex; gap: 10px; align-items: flex-start; font-size: .8125rem; line-height: 1.5; color: var(--muted); max-width: 80ch; }
+  .disclaimer svg { flex: none; margin-top: 2px; opacity: .7; }
+  :global(.dark) .disclaimer { color: rgba(238, 241, 236, 0.6); }
+</style>
