@@ -6,7 +6,7 @@
  * SEPARATE, optional, unticked checkbox — never pre-ticked, never required.
  */
 import Icon from './Icon.astro';
-import { useT, path, type Locale } from '../i18n';
+import { useT, path, units, type Locale } from '../i18n';
 import { integrations } from '../config/company';
 import { calculatorAssumptions as A } from '../data/calculator';
 
@@ -69,7 +69,7 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
       <label for={`${id}-usage`} data-usage-label data-kwh={f.usageLabelKwh} data-eur={f.usageLabelBill}>{f.usageLabelKwh}</label>
       <div class="lf__iconinput lf__iconinput--unit">
         <input class="input tnum" id={`${id}-usage`} name="usage" type="number" inputmode="decimal" min="1" max="100000" placeholder={String(A.defaultConsumption)} aria-describedby={`${id}-usage-err`} data-validate="usage" data-prefill="kwh" />
-        <span class="lf__unit" data-unit-label data-kwh="kWh" data-eur="€">kWh</span>
+        <span class="lf__unit" data-unit-label data-kwh={units[lang].kwh} data-eur="€">{units[lang].kwh}</span>
       </div>
       <p class="field-error" id={`${id}-usage-err`} data-error-for="usage"></p>
     </div>
@@ -149,7 +149,10 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
   .lf__pstep i { display: block; height: 3px; border-radius: 3px; background: var(--stone); overflow: hidden; position: relative; }
   .lf__pstep i::after { content: ''; position: absolute; inset: 0; background: var(--moss); transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ease); }
   .lf__pstep.is-done i::after, .lf__pstep.is-active i::after { transform: scaleX(1); }
-  .lf__pstep em { font-style: normal; font-size: .75rem; color: var(--muted-2); font-weight: 500; }
+  .lf__iconinput--unit .input { -moz-appearance: textfield; appearance: textfield; }
+  .lf__iconinput--unit .input::-webkit-inner-spin-button, .lf__iconinput--unit .input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .lf__pstep { min-width: 0; }
+  .lf__pstep em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-style: normal; font-size: .75rem; color: var(--muted-2); font-weight: 500; }
   .lf__pstep.is-active em, .lf__pstep.is-done em { color: var(--ink); }
   .lf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .lf__step { border: 0; margin: 0; padding: 0; display: grid; gap: 16px; min-width: 0; }

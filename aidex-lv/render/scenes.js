@@ -7,6 +7,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const params = new URLSearchParams(location.search);
@@ -507,11 +508,12 @@ function roundedBox(w, h, d, r, mat) {
 }
 
 // ---------- composer ----------
-function render({ bloom = 0.25, radius = 0.6, threshold = 0.85 } = {}) {
+function render({ bloom = 0.25, radius = 0.6, threshold = 0.85, focus = 0, aperture = 0.00006, maxblur = 0.006 } = {}) {
   const comp = new EffectComposer(renderer);
   comp.setSize(W, H);
   comp.addPass(new RenderPass(scene, camera));
   if (bloom > 0) comp.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), bloom, radius, threshold));
+  if (focus > 0) comp.addPass(new BokehPass(scene, camera, { focus, aperture, maxblur }));
   comp.addPass(new OutputPass());
   comp.render();
   document.title = 'done';
@@ -532,7 +534,7 @@ const scenes = {
     camera.fov = 30; camera.position.set(24, 2.0, 27); camera.lookAt(-1.5, 3.9, 0);
     if (H > W) { camera.fov = 46; camera.position.set(8, 1.8, 24); camera.lookAt(2, 3.8, 0); }
     camera.updateProjectionMatrix();
-    render({ bloom: 0 });
+    render({ bloom: 0, focus: H > W ? 25 : 35, aperture: 0.00014, maxblur: 0.01 });
   },
   roof() {
     seed = 7;
@@ -545,7 +547,7 @@ const scenes = {
     forest({ inner: 60, outer: 190, count: 1000, color: 0x13201a });
     camera.fov = 40; camera.position.set(10.5, 7.3, 7.2); camera.lookAt(-4, 5.2, 1.6);
     camera.updateProjectionMatrix();
-    render({ bloom: 0.2, threshold: 0.9 });
+    render({ bloom: 0.2, threshold: 0.9, focus: 9, aperture: 0.0004, maxblur: 0.012 });
   },
   night() {
     seed = 1337;
@@ -561,7 +563,7 @@ const scenes = {
     const pl = new THREE.PointLight(0xffb070, 30, 14, 2); pl.position.set(9.5, 1.2, 1); scene.add(pl);
     camera.fov = 32; camera.position.set(25, 1.7, 23); camera.lookAt(-3.2, 4.1, 0);
     camera.updateProjectionMatrix();
-    render({ bloom: 0.55, radius: 0.6, threshold: 0.6 });
+    render({ bloom: 0.55, radius: 0.6, threshold: 0.6, focus: 32, aperture: 0.00018, maxblur: 0.012 });
   },
   commercial() {
     seed = 99;
@@ -590,7 +592,7 @@ const scenes = {
     forest({ inner: 130, outer: 420, count: 1600, color: 0x1a2c20 });
     camera.fov = 34; camera.position.set(58, 14, 44); camera.lookAt(-10, 0, -20);
     camera.updateProjectionMatrix();
-    render({ bloom: 0.15, threshold: 0.92 });
+    render({ bloom: 0.15, threshold: 0.92, focus: 50, aperture: 0.00008, maxblur: 0.008 });
   },
   battery() {
     seed = 3;
@@ -659,7 +661,7 @@ const scenes = {
     if (portrait) { camera.fov = 44; camera.position.set(19, 1.6, 20); camera.lookAt(2.5, 3.6, 0); }
     else { camera.fov = 32; camera.position.set(25, 1.7, 23); camera.lookAt(-3.2, 4.1, 0); }
     camera.updateProjectionMatrix();
-    render({ bloom: 0.28, radius: 0.55, threshold: 0.92 });
+    render({ bloom: 0.28, radius: 0.55, threshold: 0.92, focus: H > W ? 27 : 32, aperture: 0.00018, maxblur: 0.012 });
   },
 };
 
