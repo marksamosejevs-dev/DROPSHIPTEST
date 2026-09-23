@@ -148,6 +148,9 @@ ul, ol { margin: 0; padding: 0; }
 .badge--volt { background: var(--volt); color: var(--ink); }
 .badge--dark { background: var(--ink); color: #fff; }
 .badge--outline { background: transparent; border: 1px solid var(--line-strong); }
+/* Development markers: visible only when built with PUBLIC_DEV_MARKERS=1 */
+html:not(.show-dev) :is(.dev-flag, .dev-note, [data-dev-only], [data-placeholder]) { display: none !important; }
+html:not(.show-dev) :is(.ftr__facts > div, .ab__facts > div, .ct__list > li):has([data-placeholder]) { display: none !important; }
 /* Visible development marker for temporary / placeholder content */
 .dev-flag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.68rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #8a5a00; background: #fff4d6; border: 1px dashed #d9a441; border-radius: 4px; padding: 3px 7px; white-space: nowrap; }
 .dev-note { display: flex; gap: 10px; align-items: flex-start; font-size: .85rem; line-height: 1.45; color: #6b4a00; background: #fff8e6; border: 1px dashed #e0b25a; border-radius: 8px; padding: 12px 14px; }

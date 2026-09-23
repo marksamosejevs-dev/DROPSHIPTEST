@@ -36,14 +36,14 @@ const hasPlaceholders = list.some((x) => x.placeholder);
               </figure>
               <div class="prj__body">
                 <p class="prj__loc"><Icon name="pin" size={16} />{x.location[lang]}</p>
-                <h3 class="prj__title">{x.capacityKw ? `${fmtNum(x.capacityKw, lang, 1)} ${u.kw}` : t.placeholder}</h3>
-                <dl class="prj__specs">
+                <h3 class="prj__title">{x.capacityKw ? `${fmtNum(x.capacityKw, lang, 1)} ${u.kw}` : p.segments[x.segment]}</h3>
+                <dl class="prj__specs" data-dev-only={x.placeholder ? '' : undefined}>
                   <div><dt>{p.labels.panel}</dt><dd>{x.panel}</dd></div>
                   <div><dt>{p.labels.inverter}</dt><dd>{x.inverter}</dd></div>
                   {x.battery !== null && <div><dt>{p.labels.battery}</dt><dd>{x.battery}</dd></div>}
                   <div><dt>{p.labels.production}</dt><dd>{x.annualProductionKwh ? `${fmtNum(x.annualProductionKwh, lang)} ${u.kwh}` : '—'}</dd></div>
                 </dl>
-                {i === 0 && <p class="prj__desc">{x.description[lang]}</p>}
+                {i === 0 && !x.placeholder && <p class="prj__desc">{x.description[lang]}</p>}
               </div>
             </article>
           </li>

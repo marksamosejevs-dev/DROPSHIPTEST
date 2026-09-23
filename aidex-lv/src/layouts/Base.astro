@@ -9,6 +9,7 @@ import { useT, localeMeta, locales, path, type Locale, type RouteKey } from '../
 import { abs, alternates, organizationLd, websiteLd } from '../lib/seo';
 import { media } from '../data/media';
 import { integrations, CONSENT_VERSION } from '../config/company';
+import { SHOW_DEV_MARKERS } from '../config/site';
 
 interface Props {
   lang: Locale;
@@ -28,7 +29,7 @@ const ld = [organizationLd(lang), websiteLd(lang), ...jsonLd];
 const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, meta: integrations.metaPixelId };
 ---
 <!doctype html>
-<html lang={localeMeta[lang].htmlLang} class="no-js">
+<html lang={localeMeta[lang].htmlLang} class:list={['no-js', SHOW_DEV_MARKERS && 'show-dev']}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -64,7 +65,7 @@ const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, 
 
     <!-- Google Consent Mode v2 defaults: everything non-essential denied until consent. -->
     <script is:inline define:vars={{ consentConfig }}>
-      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+      document.documentElement.classList.replace('no-js', 'js');
       window.__AIDEX_CONSENT_CFG = consentConfig;
       window.dataLayer = window.dataLayer || [];
       window.gtag = function () { window.dataLayer.push(arguments); };

@@ -2,13 +2,16 @@
 import SectionHead from '../SectionHead.astro';
 import { useT, type Locale } from '../../i18n';
 import { testimonials } from '../../data/testimonials';
+import { SHOW_DEV_MARKERS } from '../../config/site';
 interface Props { lang: Locale }
 const { lang } = Astro.props;
 const t = useT(lang);
 const s = t.testimonials;
 const anyPlaceholder = testimonials.some((x) => x.placeholder);
+// No genuine reviews yet → the section stays hidden from visitors.
+const visible = SHOW_DEV_MARKERS || testimonials.some((x) => !x.placeholder);
 ---
-<section class="section section--tight tst" aria-labelledby="tst-title">
+{visible && <section class="section section--tight tst" aria-labelledby="tst-title">
   <div class="container">
     <SectionHead eyebrow={s.eyebrow} title={s.title} id="tst-title" />
     {anyPlaceholder && <p class="dev-note tst__dev" data-reveal>{s.placeholderNote}</p>}
@@ -34,7 +37,7 @@ const anyPlaceholder = testimonials.some((x) => x.placeholder);
       ))}
     </ul>
   </div>
-</section>
+</section>}
 
 <style>
   .tst { background: var(--paper); }

@@ -28,32 +28,32 @@ const tbc: Localized = { lv: 'Tiks precizēts', ru: 'Будет уточнено
 export const projects: Project[] = [
   {
     id: 'p1', placeholder: true, segment: 'home',
-    location: { lv: 'Pierīga — piemērs', ru: 'Пририжье — пример', en: 'Riga region — example' },
+    location: { lv: 'Pierīga', ru: 'Пририжье', en: 'Riga region' },
     capacityKw: null, panel: '—', inverter: '—', battery: '—', annualProductionKwh: null,
     description: { lv: 'Vieta reālam privātmājas projektam ar fotogrāfijām.', ru: 'Место для реального проекта частного дома с фотографиями.', en: 'Space for a real residential project with photography.' },
     images: ['hero'],
   },
   {
     id: 'p2', placeholder: true, segment: 'home',
-    location: { lv: 'Vidzeme — piemērs', ru: 'Видземе — пример', en: 'Vidzeme — example' },
+    location: { lv: 'Vidzeme', ru: 'Видземе', en: 'Vidzeme' },
     capacityKw: null, panel: '—', inverter: '—', battery: null, annualProductionKwh: null,
     description: tbc, images: ['homeDay'],
   },
   {
     id: 'p3', placeholder: true, segment: 'business',
-    location: { lv: 'Loģistikas centrs — piemērs', ru: 'Логистический центр — пример', en: 'Logistics centre — example' },
+    location: { lv: 'Loģistikas centrs', ru: 'Логистический центр', en: 'Logistics centre' },
     capacityKw: null, panel: '—', inverter: '—', battery: null, annualProductionKwh: null,
     description: tbc, images: ['commercialRoof'],
   },
   {
     id: 'p4', placeholder: true, segment: 'home',
-    location: { lv: 'Kurzeme — piemērs', ru: 'Курземе — пример', en: 'Kurzeme — example' },
+    location: { lv: 'Kurzeme', ru: 'Курземе', en: 'Kurzeme' },
     capacityKw: null, panel: '—', inverter: '—', battery: '—', annualProductionKwh: null,
     description: tbc, images: ['roofDetail'],
   },
   {
     id: 'p5', placeholder: true, segment: 'home',
-    location: { lv: 'Zemgale — piemērs', ru: 'Земгале — пример', en: 'Zemgale — example' },
+    location: { lv: 'Zemgale', ru: 'Земгале', en: 'Zemgale' },
     capacityKw: null, panel: '—', inverter: '—', battery: '—', annualProductionKwh: null,
     description: tbc, images: ['batteryRoom'],
   },
