@@ -34,26 +34,34 @@ All images in `src/assets/img` are original renders made with the offline three.
 
 ## Before public launch
 
-Every item below is still temporary (visible as a marker with `PUBLIC_DEV_MARKERS=1`).
+Nothing here is deployed yet. Every item below is still temporary (visible as a marker with `PUBLIC_DEV_MARKERS=1`).
 
 | What | Where | Action |
 |---|---|---|
-| Company details (reg. no., VAT, address, email, phone, hours) | `src/config/company.ts` | Replace each `placeholder(...)` with the real value |
-| Link between GREEN ENERGY SIA and AIDEX Energy Group | `src/config/company.ts` → `group.relationship` | Provide exact legal wording |
+| Company details (reg. no., VAT, addresses, phone, e-mail, hours) | `src/config/company.ts` → `company` | Replace each `placeholder(...)`. This updates the footer, contact page, About, legal pages, Privacy Policy, Terms and JSON-LD |
+| Relationship with AIDEX Energy Group | `src/config/company.ts` → `groupRelationship` | Replace `statement` / `short` / `legal` with the approved wording, set `schema` and `confirmed: true`. Every sentence on the site uses `{groupRel}` / `{groupRelShort}` |
 | Biomass figure from aidex-energy.com | `group.facts` | Confirm, then set `biomassTonnesConfirmed: true` |
-| **Packages, equipment, prices, warranties** (TEMPORARY ENERGUM benchmark) | `src/data/packages.ts` | Replace with AIDEX data, set `source: 'aidex'`, set `BENCHMARK_MODE = false` |
-| Government support amounts and conditions | `src/data/support.ts` | Check against the official source, update `lastChecked`, set `verified: true` |
+| **Packages, equipment, prices, warranties** (TEMPORARY ENERGUM benchmark) | `src/data/packages.ts` | Fill from the template at the bottom of the file, set `source: 'aidex'` and `BENCHMARK_MODE = false`. `null` fields are hidden |
+| Government support | `src/data/support.ts` | Verify, fill `internal` (never rendered), set `verified: true` |
 | Calculator assumptions | `src/data/calculator.ts` | Have engineering tune yield, prices and self-use shares |
-| Projects | `src/data/projects.ts` | Add real, client-approved projects and set `placeholder: false` |
-| Reviews | `src/data/testimonials.ts` | Genuine reviews only (or Google Reviews, see file) |
-| Photography | `src/assets/img/*` + `src/data/media.ts` | Replace the renders with real photos, set `temporary: false` |
+| Projects / case studies | `src/data/projects.ts` + `src/assets/projects/<slug>/` | Each published, consented project becomes a card and its own page `/lv/musu-darbi/<slug>/` |
+| Reviews | `src/data/testimonials.ts` | Genuine, consented reviews only. The section stays hidden until one exists |
+| Photography | `src/data/media.ts` | See **IMAGE_REQUIREMENTS.md** |
 | Logo | `src/components/Logo.astro`, `public/favicon.svg` | Swap in the official AIDEX logo |
-| Lead form endpoint | `src/config/company.ts` → `integrations.leadEndpoint` | POST JSON endpoint (CRM, Formspree, own API). While empty the form runs in dev mode and sends nothing |
+| Lead form destination | `src/config/leads.ts` | See **LEADS.md**. Until configured, the form sends nothing and says so honestly (it never shows a fake success) |
 | Analytics / Meta Pixel | `integrations.googleAnalyticsId`, `metaPixelId` | Optional. These load only after consent |
 | Legal texts | `src/content/legal/index.ts` | Drafts. Have a lawyer review them. Confirm the retention period and the group-company wording |
-| Hero "free estimate / reply within working days" promises | `src/i18n/*.ts` → `final.points` | Confirm these are real service commitments |
+| Service promises ("reply within working days", "free estimate", installation "1–3 days" in the FAQ) | `src/i18n/*.ts` → `final.points`, `src/data/faq.ts` | Confirm these are real commitments |
 
-To find what is left: `grep -rn "PLACEHOLDER\|TEMPORARY\|placeholder: true\|verified: false" src`
+To find what is left: `grep -rn "placeholder(\|TEMPORARY\|verified: false\|confirmed: false" src`
+
+### QA scripts (with `npm run preview` running)
+
+```bash
+node render/functest.mjs      # consent, packages, calculator, hotspots, day/night, form paths, menu, hreflang
+node render/qa.mjs            # every page × 4 widths: overflow, broken links/assets, canonical/hreflang, h1, titles
+node render/i18ncheck.mjs     # Latvian text leaking into RU/EN pages
+```
 
 ---
 
@@ -61,15 +69,18 @@ To find what is left: `grep -rn "PLACEHOLDER\|TEMPORARY\|placeholder: true\|veri
 
 ```
 src/
-  config/company.ts      Legal entity, contacts, integrations. Single source for footer, legal pages, JSON-LD
+  config/company.ts      Legal entity, contacts, group relationship wording. Single source for footer, legal pages, JSON-LD
+  config/leads.ts        Lead-form destination (disabled / Web3Forms / Formspree / HubSpot / webhook)
   config/site.ts         Production origin (canonical / hreflang / sitemap)
-  data/                  All commercial content: packages, equipment, support, calculator, projects,
-                         testimonials, FAQ, media registry
+  data/                  All commercial content: packages, support, calculator, projects, reviews
+                         (testimonials.ts), FAQ, media registry
+  assets/projects/       Real project photos, one folder per project slug
   i18n/                  lv.ts (source) · ru.ts · en.ts (typed against lv) · routes.ts (localized slugs)
   content/legal/         Privacy, Cookies, Terms, Legal info in LV/RU/EN
   components/            UI. components/home/* are the homepage sections, reused on inner pages
   views/                 One view per page type
   pages/[lang]/[...slug].astro   One router that generates every /lv|ru|en/… page
+  pages/[lang]/[section]/[project].astro   Case-study pages, generated from data/projects.ts
   scripts/               consent.ts · lead-form.ts · main.ts
   lib/                   calc.ts (the calculator model, shared by server and browser) · seo.ts · images.ts
 render/                  Offline three.js renderer for the temporary imagery (not deployed)
@@ -90,7 +101,7 @@ render/                  Offline three.js renderer for the temporary imagery (no
 - To add a new opt-in script, use `<script type="text/plain" data-consent="analytics" data-src="…">`.
 
 ### Lead form
-There are four steps: address, consumption (kWh, € or "don't know"), interests and contact. Validation messages are localized. The form includes a honeypot field. It prefills from `?package=…&battery=1&kwh=…`, which the package cards and calculator set. A privacy notice links to the Privacy Policy in the current language. There is no bundled marketing consent. If newsletters are added later, use a separate, optional, unticked checkbox.
+Its destination is set in `src/config/leads.ts`; see LEADS.md. There are four steps: address, consumption (kWh, € or "don't know"), interests and contact. Validation messages are localized. The form includes a honeypot field. It prefills from `?package=…&battery=1&kwh=…`, which the package cards and calculator set. A privacy notice links to the Privacy Policy in the current language. There is no bundled marketing consent. If newsletters are added later, use a separate, optional, unticked checkbox.
 
 ### SEO
 Per-language titles and descriptions. JSON-LD covers Organization/LocalBusiness (verified fields only), WebSite, Service, BreadcrumbList and FAQPage on the FAQ page. `sitemap.xml` includes hreflang alternates; `robots.txt` is generated too. The heading structure is one H1 per page.
@@ -98,4 +109,4 @@ Per-language titles and descriptions. JSON-LD covers Organization/LocalBusiness 
 ### Performance
 Images are AVIF/WebP with responsive `srcset` and art direction for the portrait mobile hero. Everything below the fold is lazy-loaded. Fonts are self-hosted (no Google Fonts request) and split by subset, including Latvian and Cyrillic. JavaScript totals roughly 15 KB. Motion respects `prefers-reduced-motion`.
 
-Lighthouse (`/lv/`, after the v2 redesign): mobile 91 / 100 / 100 / 100, desktop 100 / 100 / 100 / 100.
+Lighthouse (`/lv/`, final polish): mobile 90–92 / 100 / 100 / 100, desktop 100 / 100 / 100 / 100.

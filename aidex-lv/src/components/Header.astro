@@ -2,10 +2,10 @@
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { useT, path, locales, localeMeta, type Locale, type RouteKey } from '../i18n';
-import { company, group, known } from '../config/company';
+import { company, group, known, phoneHref as tel } from '../config/company';
 
-interface Props { lang: Locale; route: RouteKey | null; tone?: 'light' | 'dark' }
-const { lang, route, tone = 'dark' } = Astro.props;
+interface Props { lang: Locale; route: RouteKey | null; tone?: 'light' | 'dark'; langPaths?: Record<Locale, string> }
+const { lang, route, tone = 'dark', langPaths } = Astro.props;
 const t = useT(lang);
 const nav: { key: RouteKey; label: string; low?: boolean }[] = [
   { key: 'solar', label: t.nav.solar },
@@ -21,9 +21,9 @@ const menu: { key: RouteKey; label: string }[] = [
   { key: 'faq', label: t.nav.faq },
   { key: 'contact', label: t.nav.contact },
 ];
-const langHref = (x: Locale) => path(route ?? 'home', x);
+const langHref = (x: Locale) => langPaths?.[x] ?? path(route ?? 'home', x);
 const phone = known(company.phone);
-const phoneHref = known(company.phoneHref);
+const phoneHref = tel();
 ---
 <header class:list={['hdr', `hdr--${tone}`]} data-header data-tone={tone}>
   <div class="hdr__util">

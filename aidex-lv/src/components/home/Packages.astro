@@ -1,15 +1,15 @@
 ---
 /**
  * Solar package cards + comparison table. Renders ONLY what src/data/packages.ts
- * defines. Both variants (with / without battery) are server-rendered and a
- * small script switches between them.
+ * defines; any `null` field hides its line/row. Both variants (with / without
+ * battery) are server-rendered and a small script switches between them.
  */
 import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
 import Picture from '../Picture.astro';
 import PriceDisclaimer from '../PriceDisclaimer.astro';
 import { useT, path, fmtEur, fmtNum, units, type Locale } from '../../i18n';
-import { packages, panels, inverters, batteries, warranties, type PackagePricing } from '../../data/packages';
+import { packages, standardPackages, effectivePrice, finalPrice, warrantyOf, type Offer, type SolarPackage, type Warranty } from '../../data/packages';
 import { media } from '../../data/media';
 
 interface Props { lang: Locale; headingLevel?: 1 | 2; showHead?: boolean; compare?: boolean }
@@ -22,10 +22,19 @@ const variants = [
   { id: 'with', key: 'withBattery' as const },
   { id: 'without', key: 'withoutBattery' as const },
 ];
-const net = (p: PackagePricing) => (p.promo ?? p.standard) - p.supportPv - p.supportBattery;
 const offerHref = (id: string, battery: boolean) => `${path('offer', lang)}?package=${id}&battery=${battery ? 1 : 0}`;
 const monthly = (y: number) => Math.round(y / 12 / 50) * 50;
-const std = packages.filter((p) => p.kw !== null);
+const perMonth = lang === 'en' ? 'mo' : lang === 'ru' ? 'мес.' : 'mēn.';
+const useRange = (p: SolarPackage) => p.fitsConsumption && `${fmtNum(monthly(p.fitsConsumption[0]), lang)}–${fmtNum(monthly(p.fitsConsumption[1]), lang)} ${u.kwh}/${perMonth}`;
+const std = standardPackages();
+const has = <T,>(get: (p: SolarPackage) => T | null | undefined) => std.some((p) => get(p) != null);
+const wRows: { key: keyof Omit<Warranty, 'note'>; label: string }[] = [
+  { key: 'performanceYears', label: v.w.performance },
+  { key: 'productYears', label: v.w.product },
+  { key: 'equipmentYears', label: v.w.equipment },
+  { key: 'installationYears', label: v.w.installation },
+];
+const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offer | null => p.offers[key];
 ---
 <section class="section pk" id="packages" aria-labelledby="packages-title" data-packages data-mode="with">
   <div class="container">
@@ -41,9 +50,6 @@ const std = packages.filter((p) => p.kw !== null);
     <ul class="pk__grid">
       {packages.map((p, i) => {
         const m = media[p.image];
-        const panel = panels[p.panel];
-        const bat = p.battery ? batteries[p.battery] : null;
-        const inv = p.inverter ? inverters[p.inverter] : null;
         return (
           <li class:list={['pc', p.featured && 'pc--featured', p.kw === null && 'pc--max']} data-reveal style={`--d:${(i % 2) * 0.08}s`}>
             <div class="pc__media">
@@ -53,6 +59,7 @@ const std = packages.filter((p) => p.kw !== null);
             <div class="pc__top">
               {p.fitsConsumption && (
                 <span class="pc__use">
+                  <Icon name="home" size={16} />
                   {p.kw === null
                     ? v.forUseMax.replace('{from}', fmtNum(monthly(p.fitsConsumption[0]), lang))
                     : v.forUse.replace('{from}', fmtNum(monthly(p.fitsConsumption[0]), lang)).replace('{to}', fmtNum(monthly(p.fitsConsumption[1]), lang))}
@@ -61,11 +68,11 @@ const std = packages.filter((p) => p.kw !== null);
               {p.featured && <span class="badge badge--brand">{pk.featured}</span>}
             </div>
             <div class="pc__body">
+              <h3 class="pc__name">{p.name}</h3>
               {p.kw === null ? (
                 <>
-                  <h3 class="pc__name">{p.name}</h3>
                   <p class="pc__line">{pk.custom.kw} · {v.maxTitle}</p>
-                  <p class="pc__max">{v.maxText}</p>
+                  <p class="pc__desc">{p.description?.[lang] ?? v.maxText}</p>
                   <div class="pc__btns">
                     <a href={`${path('offer', lang)}?package=${p.id}`} class="btn btn--primary">{t.cta.consult}<Icon name="arrow" /></a>
                     <a href={path('calculator', lang)} class="btn btn--white">{t.cta.calc}</a>
@@ -73,33 +80,34 @@ const std = packages.filter((p) => p.kw !== null);
                 </>
               ) : (
                 <>
-                  <h3 class="pc__name">{p.name}</h3>
                   <p class="pc__line">
-                    {fmtNum(p.kw, lang)} {u.kw} · {p.panelCount} × {fmtNum(panel.watt, lang)} {u.w}
-                    <span data-variant="with"> · {bat && v.withBat.replace('{kwh}', fmtNum(bat.kwh, lang))}</span>
+                    <span class="tnum">{fmtNum(p.kw, lang)} {u.kw}</span>
+                    <span data-variant="with">{p.battery && <> · {v.withBat.replace('{kwh}', fmtNum(p.battery.kwh, lang))}</>}</span>
                     <span data-variant="without"> · {v.noBat}</span>
                   </p>
+                  {(p.householdProfile || p.description) && <p class="pc__desc">{(p.householdProfile ?? p.description)![lang]}</p>}
                   {variants.map((vv) => {
-                    const pr = p[vv.key];
-                    if (!pr) return null;
-                    const support = pr.supportPv + pr.supportBattery;
+                    const o = pickOffer(p, vv.key);
+                    if (!o) return null;
+                    const hasSupport = (o.support ?? 0) > 0;
                     return (
                       <div class="pc__price" data-variant={vv.id}>
-                        <p class="pc__net"><small>{v.from}</small> <span class="tnum">{fmtEur(net(pr), lang)}</span></p>
-                        <p class="pc__after">{v.afterSupport}</p>
-                        <p class="pc__meta tnum">
-                          {v.full} {pr.promo && <s>{fmtEur(pr.standard, lang)}</s>} {fmtEur(pr.promo ?? pr.standard, lang)}
-                          {support > 0 && <> · {v.support} {fmtEur(support, lang)}</>}
-                        </p>
+                        <p class="pc__lbl">{hasSupport ? v.finalLabel : v.priceLabel}</p>
+                        <p class="pc__net tnum">{hasSupport && <small>{v.from}</small>} {fmtEur(finalPrice(o), lang)}</p>
+                        {hasSupport && (
+                          <dl class="pc__calc tnum">
+                            <div><dt>{v.priceLabel}</dt><dd>{o.promoPrice && <s>{fmtEur(o.price, lang)}</s>} {fmtEur(effectivePrice(o), lang)}</dd></div>
+                            <div><dt>{v.supportLabel}</dt><dd>− {fmtEur(o.support!, lang)}</dd></div>
+                          </dl>
+                        )}
                       </div>
                     );
                   })}
-                  <p class="pc__spec">{panel.manufacturer} {fmtNum(panel.watt, lang)} {u.w} · {inv && `${inv.manufacturer} ${inv.model}`}<span data-variant="with">{bat && ` · ${bat.manufacturer} ${bat.model}`}</span></p>
                   <div class="pc__btns">
                     {variants.map((vv) => (
                       <a href={offerHref(p.id, vv.id === 'with')} class="btn btn--primary" data-variant={vv.id} data-cta={`package-${p.id}`}>{t.cta.offer}<Icon name="arrow" /></a>
                     ))}
-                    {compare && <a href={`#compare`} class="btn btn--white">{v.details}</a>}
+                    {compare && <a href="#compare" class="btn btn--white">{v.details}</a>}
                   </div>
                 </>
               )}
@@ -115,6 +123,7 @@ const std = packages.filter((p) => p.kw !== null);
           <h3>{v.compare}</h3>
           <p class="muted">{v.compareLead}</p>
         </div>
+        <p class="cmp__hint" aria-hidden="true">{v.scrollHint} <Icon name="arrow" size={16} /></p>
         <div class="cmp__scroll">
           <table class="cmp__table">
             <thead>
@@ -124,17 +133,19 @@ const std = packages.filter((p) => p.kw !== null);
               </tr>
             </thead>
             <tbody>
-              <tr><th scope="row">{v.consumption}</th>{std.map((p) => <td class="tnum">{p.fitsConsumption && `${fmtNum(monthly(p.fitsConsumption[0]), lang)}–${fmtNum(monthly(p.fitsConsumption[1]), lang)} ${u.kwh}/${lang === 'en' ? 'mo' : lang === 'ru' ? 'мес.' : 'mēn.'}`}</td>)}</tr>
-              <tr><th scope="row">{pk.specs.panels}</th>{std.map((p) => <td>{p.panelCount} × {panels[p.panel].manufacturer} {fmtNum(panels[p.panel].watt, lang)} {u.w}</td>)}</tr>
-              <tr><th scope="row">{pk.specs.inverter}</th>{std.map((p) => <td>{p.inverter && `${inverters[p.inverter].manufacturer} ${inverters[p.inverter].model}`}</td>)}</tr>
-              <tr><th scope="row">{pk.specs.battery}</th>{std.map((p) => <td><span data-variant="with">{p.battery && `${batteries[p.battery].manufacturer} ${fmtNum(batteries[p.battery].kwh, lang)} ${u.kwh}`}</span><span data-variant="without">{pk.specs.noBattery}</span></td>)}</tr>
+              {has((p) => p.fitsConsumption) && <tr><th scope="row">{v.consumption}</th>{std.map((p) => <td class="tnum">{useRange(p)}</td>)}</tr>}
+              {has((p) => p.panel) && <tr><th scope="row">{pk.specs.panels}</th>{std.map((p) => <td>{p.panel && <>{p.panel.count != null && `${p.panel.count} × `}{p.panel.manufacturer} {fmtNum(p.panel.watt, lang)} {u.w}</>}</td>)}</tr>}
+              {has((p) => p.inverter) && <tr><th scope="row">{pk.specs.inverter}</th>{std.map((p) => <td>{p.inverter && `${p.inverter.manufacturer} ${p.inverter.model ?? ''}`}</td>)}</tr>}
+              {has((p) => p.battery) && <tr><th scope="row">{pk.specs.battery}</th>{std.map((p) => <td><span data-variant="with">{p.battery && `${p.battery.manufacturer} ${fmtNum(p.battery.kwh, lang)} ${u.kwh}`}</span><span data-variant="without">{pk.specs.noBattery}</span></td>)}</tr>}
               <tr><th scope="row">{pk.specs.installation}</th>{std.map(() => <td><Icon name="check" size={18} class="cmp__ok" />{pk.specs.installationValue}</td>)}</tr>
-              <tr><th scope="row">{pk.specs.warranty}</th>{std.map(() => <td>{pk.specs.warrantyValue(warranties.panelPowerYears, warranties.inverterYears, warranties.installationYears)}</td>)}</tr>
+              {wRows.filter((r) => has((p) => warrantyOf(p)[r.key])).map((r) => (
+                <tr><th scope="row">{r.label}</th>{std.map((p) => { const y = warrantyOf(p)[r.key]; return <td class="tnum">{y != null ? v.yrs(y) : '—'}</td>; })}</tr>
+              ))}
               {variants.map((vv) => (
                 <>
-                  <tr data-variant={vv.id}><th scope="row">{v.full}</th>{std.map((p) => { const pr = p[vv.key]!; return <td class="tnum">{fmtEur(pr.promo ?? pr.standard, lang)}</td>; })}</tr>
-                  <tr data-variant={vv.id}><th scope="row">{pk.price.support}</th>{std.map((p) => { const pr = p[vv.key]!; return <td class="tnum cmp__sup">− {fmtEur(pr.supportPv + pr.supportBattery, lang)}</td>; })}</tr>
-                  <tr data-variant={vv.id} class="cmp__total"><th scope="row">{v.yourPrice}</th>{std.map((p) => <td class="tnum"><small>{v.from}</small> {fmtEur(net(p[vv.key]!), lang)}</td>)}</tr>
+                  <tr data-variant={vv.id} class="cmp__sep"><th scope="row">{v.priceLabel}</th>{std.map((p) => { const o = pickOffer(p, vv.key); return <td class="tnum">{o && <>{o.promoPrice && <s>{fmtEur(o.price, lang)}</s>} {fmtEur(effectivePrice(o), lang)}</>}</td>; })}</tr>
+                  <tr data-variant={vv.id}><th scope="row">{v.supportLabel}</th>{std.map((p) => { const o = pickOffer(p, vv.key); return <td class="tnum cmp__sup">{o?.support ? `− ${fmtEur(o.support, lang)}` : '—'}</td>; })}</tr>
+                  <tr data-variant={vv.id} class="cmp__total"><th scope="row">{v.yourPrice}</th>{std.map((p) => { const o = pickOffer(p, vv.key); return <td class="tnum">{o && <><small>{v.from}</small> {fmtEur(finalPrice(o), lang)}</>}</td>; })}</tr>
                 </>
               ))}
               <tr class="cmp__cta"><th scope="row"></th>{std.map((p) => (
@@ -178,48 +189,53 @@ const std = packages.filter((p) => p.kw !== null);
 
 <style>
   .pk[data-mode='with'] [data-variant='without'], .pk[data-mode='without'] [data-variant='with'] { display: none !important; }
-  .pk__toggle { display: flex; justify-content: center; margin: -16px 0 36px; }
+  .pk__toggle { display: flex; justify-content: center; margin: -8px 0 40px; }
 
   .pk__grid { list-style: none; display: grid; gap: 24px; grid-template-columns: 1fr; }
   @media (min-width: 900px) { .pk__grid { grid-template-columns: 1fr 1fr; } }
 
-  .pc { position: relative; isolation: isolate; overflow: hidden; border-radius: var(--r-lg); min-height: clamp(560px, 50vw, 680px); display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: #122; box-shadow: var(--shadow-card); }
+  .pc { position: relative; isolation: isolate; overflow: hidden; border-radius: var(--r-lg); min-height: clamp(560px, 46vw, 640px); display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: #122; box-shadow: var(--shadow-card); }
   .pc__media { position: absolute; inset: 0; z-index: -2; }
   .pc__media :global(picture), .pc__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
-  .pc:hover .pc__media :global(img) { transform: scale(1.035); }
-  .pc__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(5, 14, 12, 0.45) 0%, rgba(5, 14, 12, 0) 22%, rgba(5, 14, 12, 0) 38%, rgba(5, 14, 12, 0.72) 62%, rgba(5, 14, 12, 0.94) 100%); }
+  .pc:hover .pc__media :global(img) { transform: scale(1.03); }
+  .pc__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(5, 14, 12, 0.5) 0%, rgba(5, 14, 12, 0) 20%, rgba(5, 14, 12, 0) 34%, rgba(5, 14, 12, 0.7) 58%, rgba(5, 14, 12, 0.94) 100%); }
   .pc--featured { box-shadow: 0 0 0 3px var(--brand), var(--shadow-card); }
-  .pc__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: clamp(22px, 3vw, 36px) clamp(22px, 3vw, 40px) 0; }
-  .pc__use { font-weight: 600; font-size: 1.0625rem; text-shadow: 0 1px 12px rgba(0,0,0,.4); }
-  .pc__body { display: grid; gap: 8px; padding: 0 clamp(22px, 3vw, 40px) clamp(24px, 3vw, 40px); }
-  .pc__name { color: #fff; font-size: clamp(2.2rem, 3.6vw, 3.1rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
-  .pc__line { font-size: clamp(1.02rem, 1.4vw, 1.2rem); font-weight: 600; color: rgba(255,255,255,.92); margin-bottom: 10px; }
-  .pc__price { display: grid; gap: 2px; padding: 16px 0 6px; border-top: 1px solid rgba(255,255,255,.2); }
-  .pc__net { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 4.4vw, 3.6rem); letter-spacing: -0.04em; line-height: 1; }
-  .pc__net small { font-size: .4em; font-weight: 700; letter-spacing: 0; opacity: .8; margin-right: 2px; }
-  .pc__after { font-weight: 600; color: #8fe0b4; font-size: 1rem; }
-  .pc__meta { font-size: .9063rem; color: rgba(255,255,255,.78); margin-top: 4px; }
-  .pc__meta s { opacity: .7; margin-right: 4px; }
-  .pc__spec { font-size: .875rem; color: rgba(255,255,255,.66); }
-  .pc__max { font-size: 1.0625rem; color: rgba(255,255,255,.86); max-width: 40ch; margin-bottom: 6px; }
-  .pc__btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-  .pc__btns .btn { min-height: 54px; }
+  .pc__top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; padding: clamp(20px, 2.6vw, 32px) clamp(20px, 2.8vw, 36px) 0; }
+  .pc__use { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(8, 18, 16, 0.42); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-weight: 600; font-size: .9063rem; white-space: nowrap; }
+  .pc__body { display: grid; gap: 6px; padding: 0 clamp(20px, 2.8vw, 36px) clamp(20px, 2.8vw, 36px); }
+  .pc__name { color: #fff; font-size: clamp(2rem, 3.2vw, 2.75rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+  .pc__line { font-size: clamp(1rem, 1.3vw, 1.125rem); font-weight: 600; color: rgba(255,255,255,.9); }
+  .pc__desc { font-size: 1rem; color: rgba(255,255,255,.84); max-width: 42ch; margin-top: 4px; }
+  .pc__price { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2px 24px; margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.2); }
+  .pc__lbl { grid-column: 1 / -1; font-size: .875rem; font-weight: 600; color: #8fe0b4; }
+  .pc__net { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 4.2vw, 3.5rem); letter-spacing: -0.04em; line-height: 1; }
+  .pc__net small { font-size: .38em; font-weight: 700; letter-spacing: 0; opacity: .8; margin-right: 2px; }
+  .pc__calc { display: grid; gap: 4px; font-size: .875rem; padding-bottom: 4px; }
+  .pc__calc div { display: flex; justify-content: space-between; gap: 16px; }
+  .pc__calc dt { color: rgba(255,255,255,.66); }
+  .pc__calc dd { color: #fff; font-weight: 600; text-align: right; }
+  .pc__calc s { opacity: .6; font-weight: 500; margin-right: 4px; }
+  .pc__btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .pc__btns .btn { min-height: 52px; }
+  .pc--max .pc__desc { margin: 6px 0 2px; }
 
   /* comparison */
-  .cmp { margin-top: 48px; background: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow-card); padding: clamp(22px, 3vw, 40px); scroll-margin-top: calc(var(--header-h) + 24px); }
-  .cmp__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; margin-bottom: 20px; }
+  .cmp { margin-top: 48px; background: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow-card); padding: clamp(20px, 3vw, 40px); scroll-margin-top: calc(var(--header-h) + 24px); }
+  .cmp__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; margin-bottom: 16px; }
   .cmp__head h3 { font-size: clamp(1.5rem, 2.4vw, 2rem); }
   .cmp__head p { font-size: .9375rem; }
-  .cmp__scroll { overflow-x: auto; margin-inline: calc(clamp(22px, 3vw, 40px) * -1); padding-inline: clamp(22px, 3vw, 40px); }
+  .cmp__hint { display: none; }
+  .cmp__scroll { overflow-x: auto; margin-inline: calc(clamp(20px, 3vw, 40px) * -1); padding-inline: clamp(20px, 3vw, 40px); -webkit-overflow-scrolling: touch; }
   .cmp__table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: .9375rem; }
-  .cmp__table th, .cmp__table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
-  .cmp__table thead th { border-bottom: 0; padding-top: 4px; }
-  .cmp__table tbody th { color: var(--muted); font-weight: 500; width: 20%; white-space: nowrap; }
-  @media (max-width: 899px) { .cmp__table th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 8px 0 12px -10px rgba(0,0,0,.25); } .cmp__table { min-width: 640px; font-size: .875rem; } .cmp__table th, .cmp__table td { padding: 12px 10px; } }
-  .cmp__table td { color: var(--ink); font-weight: 500; }
+  .cmp__table th, .cmp__table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .cmp__table thead th { border-bottom: 0; padding-top: 4px; vertical-align: bottom; }
+  .cmp__table tbody th { color: var(--muted); font-weight: 500; width: 24%; }
+  .cmp__table td { color: var(--ink); font-weight: 500; width: 25.3%; }
+  .cmp__table td s { color: var(--muted); font-weight: 400; margin-right: 4px; }
   .cmp__kw { display: block; font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; letter-spacing: -0.03em; color: var(--ink); }
   .cmp__nm { display: block; font-size: .8125rem; color: var(--muted); font-weight: 500; }
   thead th.is-featured .cmp__kw { color: var(--brand); }
+  .cmp__sep th, .cmp__sep td { border-top: 1px solid var(--line-strong); }
   .cmp__sup { color: var(--brand) !important; }
   .cmp__total th, .cmp__total td { border-bottom: 0; background: var(--brand-50); }
   .cmp__total td { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; }
@@ -229,14 +245,29 @@ const std = packages.filter((p) => p.kw !== null);
   .cmp__cta th, .cmp__cta td { border-bottom: 0; padding-top: 18px; }
   :global(.cmp__ok) { display: inline-block; color: var(--brand); vertical-align: -3px; margin-right: 6px; }
 
-  .pk__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px 40px; margin-top: 32px; }
+  .pk__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px 40px; margin-top: 28px; }
 
+  @media (min-width: 720px) and (max-width: 899px) { .pc { min-height: 480px; } }
+  @media (max-width: 899px) {
+    .cmp__hint { display: flex; align-items: center; gap: 6px; font-size: .8125rem; font-weight: 600; color: var(--brand); margin: -4px 0 8px; }
+    .cmp__table { min-width: 560px; font-size: .875rem; }
+    .cmp__table th, .cmp__table td { padding: 12px 10px; }
+    .cmp__table tbody th { width: 118px; min-width: 118px; font-size: .8125rem; line-height: 1.3; }
+    .cmp__table th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 8px 0 12px -10px rgba(0,0,0,.25); }
+    .cmp__total th:first-child { background: var(--brand-50); }
+    .cmp__kw { font-size: 1.5rem; }
+    .cmp__total td { font-size: 1.2rem; }
+  }
   @media (max-width: 719px) {
-    .pk__toggle { margin: -12px 0 24px; }
+    .pk__toggle { margin: -8px 0 24px; }
     .pk__toggle .seg { width: 100%; }
     .pk__toggle .seg > button { flex: 1; padding: 0 10px; font-size: .9375rem; }
-    .pc { min-height: 580px; }
+    .pc { min-height: 540px; }
+    .pc__price { grid-template-columns: 1fr; gap: 6px; }
+    .pc__calc { margin-top: 8px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.18); }
     .pc__btns { display: grid; grid-template-columns: 1fr; }
-    .pc__use { font-size: .9375rem; }
+    .pc__use { font-size: .8125rem; height: 32px; padding: 0 12px; }
+    .pc__top .badge { height: 28px; font-size: .75rem; }
+    .pc__shade { background: linear-gradient(180deg, rgba(5,14,12,.5) 0%, rgba(5,14,12,0) 18%, rgba(5,14,12,.15) 30%, rgba(5,14,12,.78) 50%, rgba(5,14,12,.95) 100%); }
   }
 </style>

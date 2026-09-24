@@ -17,7 +17,7 @@ const v = t.v2.b2b;
 const imgs = [media.pkg8, media.commercialRoof, media.solarField];
 const links = [
   { href: path('packages', lang), label: t.cta.allPackages, ext: false },
-  { href: path('business', lang), label: compact ? t.cta.more : t.cta.b2b, ext: false },
+  { href: path('business', lang), label: compact ? t.cta.businessMore : t.cta.b2b, ext: false },
   { href: group.url, label: t.cta.group, ext: true },
 ];
 const catIcons = ['warehouse', 'factory', 'battery', 'truck'];
@@ -66,15 +66,18 @@ const catIds = ['commercial', 'industrial', 'bess', 'supply'];
   .b2b { position: relative; background: var(--deep); color: rgba(236,243,240,.84); overflow: hidden; isolation: isolate; }
   .b2b__bg { position: absolute; inset: 0; z-index: -1; background: radial-gradient(60% 50% at 85% 0%, rgba(52,199,123,.18), transparent 70%), radial-gradient(50% 40% at 0% 100%, rgba(124,200,255,.1), transparent 70%), repeating-linear-gradient(115deg, rgba(255,255,255,.025) 0 2px, transparent 2px 120px); }
   .b2b :global(.s-head h2) { color: #fff; }
-  .b2b :global(.s-head .lead) { color: rgba(236,243,240,.74); }
+  .b2b :global(.lead) { color: rgba(236,243,240,.82) !important; }
   .b2b :global(.eyebrow) { color: #7fd6a8; }
   .b2b__stages { list-style: none; display: grid; gap: 20px; grid-template-columns: 1fr; }
   @media (min-width: 1000px) { .b2b__stages { grid-template-columns: repeat(3, 1fr); gap: 28px; } }
   .st { position: relative; display: grid; grid-template-rows: auto 1fr; border-radius: var(--r-lg); background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px var(--line-inv); overflow: visible; }
   .st--group { background: linear-gradient(160deg, rgba(52,199,123,.22), rgba(52,199,123,.04)); box-shadow: inset 0 0 0 1px rgba(127,214,168,.4); }
+  @media (min-width: 600px) and (max-width: 999px) { .st__media { aspect-ratio: 21 / 9 !important; } }
   .st__media { margin: 0; aspect-ratio: 16 / 10; border-radius: var(--r-lg) var(--r-lg) 0 0; overflow: hidden; }
   .st__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
-  .st__body { display: grid; gap: 12px; align-content: start; justify-items: start; padding: 24px 26px 28px; }
+  .st__body { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 24px 26px 28px; }
+  .st__body > .btn { margin-top: auto; }
+  .st ul { flex: none; }
   .st__tag { font-size: .8125rem; font-weight: 700; letter-spacing: .04em; color: #7fd6a8; }
   .st h3 { font-size: 1.45rem; color: #fff; }
   .st ul { list-style: none; display: grid; gap: 8px; margin-bottom: 6px; }

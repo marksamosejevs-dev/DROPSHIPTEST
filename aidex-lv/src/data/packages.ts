@@ -1,124 +1,192 @@
 /**
  * ============================================================================
- *  TEMPORARY — REPLACE WITH AIDEX PRODUCT DATA BEFORE PUBLIC LAUNCH
+ *  PACKAGES — the ONLY source of product, price and warranty data on the site
  * ============================================================================
- * The equipment, specifications, warranties, prices and support amounts in
- * this file are a DEVELOPMENT BENCHMARK derived from publicly visible market
- * offers (ENERGUM, energum.lv, September 2026) so that the layout can be
- * reviewed with realistic numbers. They are NOT AIDEX offers and must never
- * be published as AIDEX facts.
+ *  TEMPORARY — REPLACE WITH AIDEX PRODUCT DATA BEFORE PUBLIC LAUNCH
  *
- *  - While BENCHMARK_MODE is true, every package card shows a visible
- *    "Demo data" marker and prices are labelled as illustrative.
- *  - To go live: replace the equipment + packages below with AIDEX data,
- *    set `source: 'aidex'` on each entry and BENCHMARK_MODE = false.
+ *  The values below are a DEVELOPMENT BENCHMARK derived from publicly visible
+ *  market offers (ENERGUM, energum.lv, September 2026) so the layout can be
+ *  reviewed with realistic numbers. They are NOT AIDEX offers.
  *
- * Nothing else in the codebase contains product or price data; components
- * only render what is defined here.
+ *  To go live:
+ *   1. Fill each package using the template at the bottom of this file.
+ *   2. Set `source: 'aidex'` on every package.
+ *   3. Set BENCHMARK_MODE = false.
+ *
+ *  Rules
+ *   - Unknown value → `null`. Never guess. A `null` field is simply not shown
+ *     (the card / table row hides itself).
+ *   - Prices are in EUR incl. VAT.
+ *   - `finalPrice` may be left `null`: it is then calculated as
+ *     (promoPrice ?? price) − support. If you set it, the build warns when it
+ *     does not match that calculation.
+ *   - Components never contain product data; they only render this file.
  * ============================================================================
  */
 
 export const BENCHMARK_MODE = true;
 
 export type Localized = { lv: string; ru: string; en: string };
-type Source = 'benchmark' | 'benchmark-approximation' | 'aidex';
+export type Source = 'benchmark' | 'benchmark-approximation' | 'aidex';
 
-export interface PanelModel { id: string; manufacturer: string; model: string; watt: number; type: Localized; source: Source }
-export interface InverterModel { id: string; manufacturer: string; model: string; kw: number; phases: 1 | 3; hybrid: boolean; source: Source }
-export interface BatteryModel { id: string; manufacturer: string; model: string; kwh: number; source: Source }
+export interface PanelSpec { manufacturer: string; model: string | null; watt: number; count: number | null }
+export interface InverterSpec { manufacturer: string; model: string | null; kw: number | null; phases?: 1 | 3 | null; hybrid?: boolean }
+export interface BatterySpec { manufacturer: string; model: string | null; kwh: number }
 
-// ---- Equipment catalogue (TEMPORARY benchmark) ---------------------------
-export const panels: Record<string, PanelModel> = {
-  aiko500: {
-    id: 'aiko500', manufacturer: 'AIKO', model: '500 W all-black', watt: 500, source: 'benchmark',
-    type: { lv: 'Melni monokristāliskie paneļi', ru: 'Чёрные монокристаллические панели', en: 'All-black monocrystalline modules' },
-  },
-};
+export interface Offer {
+  /** Normal price incl. VAT, before support. */
+  price: number;
+  /** Campaign price incl. VAT (optional). */
+  promoPrice?: number | null;
+  /** Maximum potential government support for this configuration. */
+  support: number | null;
+  /** Split of `support` (optional; used by the calculator's support curve). */
+  supportSplit?: { pv: number; battery: number } | null;
+  /** Estimated customer price after support. `null` = calculated. */
+  finalPrice?: number | null;
+}
 
-export const inverters: Record<string, InverterModel> = {
-  gw6: { id: 'gw6', manufacturer: 'Growatt', model: 'Hybrid 6 kW', kw: 6, phases: 3, hybrid: true, source: 'benchmark' },
-  gw8: { id: 'gw8', manufacturer: 'Growatt', model: 'Hybrid 8 kW', kw: 8, phases: 3, hybrid: true, source: 'benchmark' },
-  gw12: { id: 'gw12', manufacturer: 'Growatt', model: 'Hybrid 12 kW', kw: 12, phases: 3, hybrid: true, source: 'benchmark' },
-};
-
-export const batteries: Record<string, BatteryModel> = {
-  renon16: { id: 'renon16', manufacturer: 'Renon', model: 'Xcellent Plus 16 kWh', kwh: 16, source: 'benchmark' },
-};
-
-// ---- Warranties (TEMPORARY benchmark — confirm AIDEX terms) --------------
-export const warranties = {
-  panelPowerYears: 30,
-  inverterYears: 10,
-  batteryYears: 10,
-  installationYears: 2,
-  source: 'benchmark' as Source,
-};
-
-// ---- Packages -------------------------------------------------------------
-export interface PackagePricing {
-  /** Full project price incl. VAT, before any support. */
-  standard: number;
-  /** Optional campaign price incl. VAT. */
-  promo?: number;
-  /** Maximum potential support for the PV part (see src/data/support.ts). */
-  supportPv: number;
-  /** Maximum potential support for the battery part. */
-  supportBattery: number;
+export interface Warranty {
+  /** General equipment warranty (inverter, battery…), years. */
+  equipmentYears: number | null;
+  /** Installation workmanship warranty, years. */
+  installationYears: number | null;
+  /** Panel product warranty, years. */
+  productYears: number | null;
+  /** Panel performance (power output) warranty, years. */
+  performanceYears: number | null;
+  /** Optional free-text detail, e.g. "87.4 % output after 30 years". */
+  note?: Localized | null;
 }
 
 export interface SolarPackage {
   id: string;
   name: string;
-  kw: number | null; // null = custom
-  panel: string;
-  panelCount: number | null;
-  inverter: string | null;
-  battery: string | null;
-  /** Price of the package WITH battery. */
-  withBattery: PackagePricing | null;
-  /** Price of the package WITHOUT battery. */
-  withoutBattery: PackagePricing | null;
-  /** Typical annual consumption the package is sized for (kWh). */
+  /** System size in kW. `null` = custom / individual project card. */
+  kw: number | null;
+  /** Short description shown on the card (optional). */
+  description: Localized | null;
+  /** Recommended household profile, e.g. "Family house with a heat pump" (optional). */
+  householdProfile: Localized | null;
+  /** Typical annual consumption the package is sized for (kWh/year). */
   fitsConsumption: [number, number] | null;
+  panel: PanelSpec | null;
+  inverter: InverterSpec | null;
+  /** Battery included in the "with battery" offer. */
+  battery: BatterySpec | null;
+  offers: { withBattery: Offer | null; withoutBattery: Offer | null };
+  /** `null` = use `defaultWarranty`. */
+  warranty: Warranty | null;
   featured?: boolean;
   /** Key in src/data/media.ts used as the card photograph. */
   image: 'pkg6' | 'pkg8' | 'pkg10' | 'pkgMax';
   source: Source;
-  /** e.g. 'energum.lv/komplekti — TURBO 6' */
+  /** Internal note on where benchmark figures came from. Never rendered. */
   benchmarkRef?: string;
 }
 
+// ---- Shared defaults (TEMPORARY benchmark — confirm AIDEX terms) ---------
+export const defaultWarranty: Warranty = {
+  equipmentYears: 10,
+  installationYears: 2,
+  productYears: null, // not stated in the benchmark — do not guess
+  performanceYears: 30,
+  note: null,
+};
+
+// Benchmark equipment, reused by the three standard packages below.
+const aiko = (count: number): PanelSpec => ({ manufacturer: 'AIKO', model: '500 W all-black', watt: 500, count });
+const growatt = (kw: number): InverterSpec => ({ manufacturer: 'Growatt', model: `Hybrid ${kw} kW`, kw, phases: 3, hybrid: true });
+const renon16: BatterySpec = { manufacturer: 'Renon', model: 'Xcellent Plus', kwh: 16 };
+
+// ---- Packages -------------------------------------------------------------
 export const packages: SolarPackage[] = [
   {
-    id: 'home-6', name: 'AIDEX Home 6', image: 'pkg6', kw: 6, panel: 'aiko500', panelCount: 12, inverter: 'gw6', battery: 'renon16',
-    withBattery: { standard: 9000, supportPv: 2800, supportBattery: 2500 },
-    withoutBattery: { standard: 5600, supportPv: 2800, supportBattery: 0 },
+    id: 'home-6', name: 'AIDEX Home 6', image: 'pkg6', kw: 6,
+    description: null, householdProfile: null,
     fitsConsumption: [3500, 6500],
-    source: 'benchmark', benchmarkRef: 'energum.lv/komplekti — 6 kW kit (price & support); no-battery variant is an approximation',
+    panel: aiko(12), inverter: growatt(6), battery: renon16,
+    offers: {
+      withBattery: { price: 9000, support: 5300, supportSplit: { pv: 2800, battery: 2500 } },
+      withoutBattery: { price: 5600, support: 2800, supportSplit: { pv: 2800, battery: 0 } },
+    },
+    warranty: null,
+    source: 'benchmark', benchmarkRef: 'energum.lv/komplekti — 6 kW kit (price & support); no-battery variant approximated',
   },
   {
-    id: 'home-8', name: 'AIDEX Home 8', image: 'pkg8', kw: 8, panel: 'aiko500', panelCount: 16, inverter: 'gw8', battery: 'renon16',
-    withBattery: { standard: 11500, promo: 10900, supportPv: 3500, supportBattery: 2500 },
-    withoutBattery: { standard: 7400, supportPv: 3500, supportBattery: 0 },
-    fitsConsumption: [6500, 9000], featured: true,
+    id: 'home-8', name: 'AIDEX Home 8', image: 'pkg8', kw: 8, featured: true,
+    description: null, householdProfile: null,
+    fitsConsumption: [6500, 9000],
+    panel: aiko(16), inverter: growatt(8), battery: renon16,
+    offers: {
+      withBattery: { price: 11500, promoPrice: 10900, support: 6000, supportSplit: { pv: 3500, battery: 2500 } },
+      withoutBattery: { price: 7400, support: 3500, supportSplit: { pv: 3500, battery: 0 } },
+    },
+    warranty: null,
     source: 'benchmark-approximation', benchmarkRef: 'energum.lv/komplekti — 8 kW kit (support); price approximated',
   },
   {
-    id: 'home-10', name: 'AIDEX Home 10', image: 'pkg10', kw: 10, panel: 'aiko500', panelCount: 20, inverter: 'gw12', battery: 'renon16',
-    withBattery: { standard: 13300, supportPv: 4000, supportBattery: 2500 },
-    withoutBattery: { standard: 9200, supportPv: 4000, supportBattery: 0 },
+    id: 'home-10', name: 'AIDEX Home 10', image: 'pkg10', kw: 10,
+    description: null, householdProfile: null,
     fitsConsumption: [9000, 12000],
+    panel: aiko(20), inverter: growatt(12), battery: renon16,
+    offers: {
+      withBattery: { price: 13300, support: 6500, supportSplit: { pv: 4000, battery: 2500 } },
+      withoutBattery: { price: 9200, support: 4000, supportSplit: { pv: 4000, battery: 0 } },
+    },
+    warranty: null,
     source: 'benchmark-approximation', benchmarkRef: 'energum.lv/komplekti — 10 kW kit (support); price approximated',
   },
   {
-    id: 'max', name: 'AIDEX Max', image: 'pkgMax', kw: null, panel: 'aiko500', panelCount: null, inverter: null, battery: null,
-    withBattery: null, withoutBattery: null, fitsConsumption: [12000, 40000],
+    id: 'max', name: 'AIDEX Max', image: 'pkgMax', kw: null,
+    description: null, householdProfile: null,
+    fitsConsumption: [12000, 40000],
+    panel: null, inverter: null, battery: null,
+    offers: { withBattery: null, withoutBattery: null },
+    warranty: null,
     source: 'benchmark',
   },
 ];
 
-export const netPrice = (p: PackagePricing, includeSupport = true) =>
-  (p.promo ?? p.standard) - (includeSupport ? p.supportPv + p.supportBattery : 0);
+// ---- Helpers (used by components; no data below this line) ---------------
+export const effectivePrice = (o: Offer) => o.promoPrice ?? o.price;
+export const finalPrice = (o: Offer, includeSupport = true) =>
+  includeSupport ? o.finalPrice ?? Math.max(0, effectivePrice(o) - (o.support ?? 0)) : effectivePrice(o);
+export const warrantyOf = (p: SolarPackage): Warranty => p.warranty ?? defaultWarranty;
+export const standardPackages = () => packages.filter((p) => p.kw !== null);
 
-export const lowestNetPrice = () =>
-  Math.min(...packages.flatMap((p) => [p.withBattery, p.withoutBattery]).filter(Boolean).map((p) => netPrice(p!)));
+export const lowestFinalPrice = (variant: 'withBattery' | 'withoutBattery' | 'any' = 'any') =>
+  Math.min(...packages
+    .flatMap((p) => (variant === 'any' ? [p.offers.withBattery, p.offers.withoutBattery] : [p.offers[variant]]))
+    .filter((o): o is Offer => !!o)
+    .map((o) => finalPrice(o)));
+
+// Build-time consistency check for manually entered final prices.
+for (const p of packages) for (const o of [p.offers.withBattery, p.offers.withoutBattery]) {
+  if (o?.finalPrice != null && o.finalPrice !== Math.max(0, effectivePrice(o) - (o.support ?? 0)))
+    console.warn(`[packages] ${p.id}: finalPrice ${o.finalPrice} ≠ price − support (${effectivePrice(o) - (o.support ?? 0)})`);
+}
+
+/* ---------------------------------------------------------------------------
+ * TEMPLATE — copy for each real AIDEX package
+ * ---------------------------------------------------------------------------
+  {
+    id: 'home-8',                       // URL-safe, stable (used in ?package=)
+    name: 'AIDEX Home 8',
+    kw: 8,
+    description: { lv: '…', ru: '…', en: '…' },          // or null
+    householdProfile: { lv: '…', ru: '…', en: '…' },     // or null
+    fitsConsumption: [6500, 9000],      // kWh per YEAR
+    panel: { manufacturer: '…', model: '…', watt: 0, count: 0 },
+    inverter: { manufacturer: '…', model: '…', kw: 0, phases: 3, hybrid: true },
+    battery: { manufacturer: '…', model: '…', kwh: 0 },  // or null
+    offers: {
+      withBattery:    { price: 0, promoPrice: null, support: 0, finalPrice: null },
+      withoutBattery: { price: 0, promoPrice: null, support: 0, finalPrice: null },
+    },
+    warranty: { equipmentYears: 0, installationYears: 0, productYears: 0, performanceYears: 0, note: null },
+    featured: false,
+    image: 'pkg8',
+    source: 'aidex',
+  },
+ * ------------------------------------------------------------------------ */

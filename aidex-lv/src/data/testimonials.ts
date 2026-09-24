@@ -1,40 +1,60 @@
 /**
- * TESTIMONIALS / REVIEWS
+ * CUSTOMER REVIEWS
  * ---------------------------------------------------------------------------
- * No real reviews have been supplied yet. The entries below are clearly
- * labelled PLACEHOLDERS and render with a visible marker. Never replace them
- * with invented reviews — only with genuine, consented customer feedback.
+ * Only genuine reviews, published with the customer's permission. There are
+ * none yet, so the reviews section is not rendered at all (no placeholders).
+ * It appears automatically as soon as one entry has `published: true`.
  *
- * Future Google Reviews integration: set integrations.googlePlaceId in
- * src/config/company.ts and implement fetchGoogleReviews() at build time
- * (Places API "place details → reviews"), mapping results to `Testimonial`
- * with source: 'google'. Components already render `source` and `rating`.
+ * Fields
+ *   name        As the customer agreed to be shown, e.g. 'Jānis K.'
+ *   location    Town / municipality
+ *   project     Optional slug from src/data/projects.ts → links to the case study
+ *   system      Optional short system label if there is no project page, e.g. '8 kW + 10 kWh'
+ *   text        The review in the language it was written (`lang`); add
+ *               `translations` only if the customer approved them
+ *   rating      1–5, or null if the source has no rating
+ *   photo       Optional file in src/assets/reviews/ (customer's consent required)
+ *   source      Where it was published; `sourceUrl` links to the original
+ *   date        'YYYY-MM-DD'
+ *
+ * Google Reviews: set integrations.googlePlaceId in src/config/company.ts and
+ * map the Places API reviews to this shape at build time (source: 'google').
  */
-import type { Localized } from './packages';
+import type { ImageMetadata } from 'astro';
+import type { Locale } from '../i18n/routes';
 
-export interface Testimonial {
+export interface Review {
   id: string;
-  placeholder: boolean;
+  published: boolean;
+  consent: boolean;
   name: string;
-  location: Localized;
-  photo?: string;
-  system: Localized;
-  text: Localized;
-  rating: number | null; // 1–5
-  source: 'google' | 'direct' | 'facebook' | null;
-  date?: string;
+  location: string;
+  project?: string | null;
+  system?: string | null;
+  lang: Locale;
+  text: string;
+  translations?: Partial<Record<Locale, string>>;
+  rating: 1 | 2 | 3 | 4 | 5 | null;
+  photo?: string | null;
+  source: 'google' | 'facebook' | 'direct' | 'other';
+  sourceUrl?: string | null;
+  date: string;
 }
 
-const ph = (id: string): Testimonial => ({
-  id, placeholder: true, name: '—',
-  location: { lv: 'Atrašanās vieta', ru: 'Местоположение', en: 'Location' },
-  system: { lv: 'Sistēma: tiks norādīta', ru: 'Система: будет указана', en: 'System: to be added' },
-  text: {
-    lv: 'Šeit tiks publicēta reāla klienta atsauksme pēc saskaņošanas ar klientu.',
-    ru: 'Здесь будет опубликован реальный отзыв клиента после согласования с ним.',
-    en: 'A genuine customer review will be published here once approved by the customer.',
+export const reviews: Review[] = [
+  /* TEMPLATE
+  {
+    id: 'r-2026-01', published: true, consent: true,
+    name: 'Jānis K.', location: 'Jūrmala', project: 'jurmala-10kw', system: null,
+    lang: 'lv', text: '…', translations: {},
+    rating: 5, photo: null, source: 'google', sourceUrl: 'https://…', date: '2026-09-01',
   },
-  rating: null, source: null,
-});
+  */
+];
 
-export const testimonials: Testimonial[] = [ph('t1'), ph('t2'), ph('t3')];
+const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/reviews/*.{jpg,jpeg,png,webp,avif}', { eager: true });
+export const reviewPhoto = (r: Review) => (r.photo ? photos[`../assets/reviews/${r.photo}`]?.default ?? null : null);
+
+export const visibleReviews = () => reviews.filter((r) => r.published && r.consent);
+/** Text in the visitor's language when an approved translation exists, else the original. */
+export const reviewText = (r: Review, lang: Locale) => ({ text: r.translations?.[lang] ?? r.text, original: !r.translations?.[lang] && r.lang !== lang ? r.lang : null });

@@ -6,18 +6,14 @@ interface Props { lang: Locale }
 const { lang } = Astro.props;
 const t = useT(lang);
 const p = t.process;
-const icons = ['doc', 'chart', 'home', 'layers', 'tool', 'sun'];
 ---
-<section class="section section--white proc" aria-labelledby="proc-title">
+<section class="section proc" aria-labelledby="proc-title">
   <div class="container">
     <SectionHead eyebrow={p.eyebrow} title={p.title} id="proc-title" />
     <ol class="proc__list">
       {p.steps.map((s, i) => (
-        <li class:list={['proc__step', i === p.steps.length - 1 && 'proc__step--last']} data-reveal style={`--d:${(i % 3) * 0.07}s`}>
-          <div class="proc__top">
-            <span class="proc__num tnum">{String(i + 1).padStart(2, '0')}</span>
-            <span class="proc__ic"><Icon name={icons[i]} size={22} /></span>
-          </div>
+        <li class:list={['proc__step', i === p.steps.length - 1 && 'proc__step--last']} data-reveal style={`--d:${i * 0.06}s`}>
+          <span class="proc__num tnum" aria-hidden="true">{i + 1}</span>
           <h3>{s.title}</h3>
           <p>{s.text}</p>
         </li>
@@ -30,21 +26,22 @@ const icons = ['doc', 'chart', 'home', 'layers', 'tool', 'sun'];
 </section>
 
 <style>
-  .proc__list { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; counter-reset: s; }
-  @media (min-width: 720px) { .proc__list { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1100px) { .proc__list { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
-  .proc__step { position: relative; display: grid; gap: 10px; align-content: start; padding: 28px; border-radius: var(--r-lg); background: var(--bg); transition: background .3s, transform .4s var(--ease), box-shadow .4s var(--ease); }
-  .proc__step:hover { background: #fff; box-shadow: var(--shadow-card); transform: translateY(-3px); }
-  .proc__step--last { background: var(--brand); color: rgba(255,255,255,.88); }
-  .proc__step--last:hover { background: var(--brand-hover); }
-  .proc__step--last h3 { color: #fff; }
-  .proc__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-  .proc__num { font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; letter-spacing: -0.04em; line-height: 1; color: var(--brand); }
-  .proc__step--last .proc__num { color: #fff; }
-  .proc__ic { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: var(--brand); box-shadow: var(--shadow-sm); }
-  .proc__step--last .proc__ic { background: rgba(255,255,255,.16); color: #fff; box-shadow: none; }
-  .proc__step h3 { font-size: 1.35rem; }
-  .proc__step p { color: var(--muted); }
-  .proc__step--last p { color: rgba(255,255,255,.86); }
-  .proc__cta { display: flex; justify-content: center; margin-top: 40px; }
+  .proc { background: var(--bg); }
+  .proc__list { list-style: none; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0 24px; position: relative; }
+  .proc__list::before { content: ''; position: absolute; left: 0; right: 0; top: 21px; height: 2px; background: linear-gradient(90deg, var(--line-strong) 0 calc(100% - 16.6%), var(--brand) calc(100% - 16.6%)); }
+  .proc__step { position: relative; display: grid; gap: 8px; align-content: start; }
+  .proc__num { position: relative; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px var(--line-strong); font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); margin-bottom: 14px; }
+  .proc__step--last .proc__num { background: var(--brand); color: #fff; box-shadow: 0 0 0 6px var(--brand-50); }
+  .proc__step h3 { font-size: 1.2rem; }
+  .proc__step p { color: var(--muted); font-size: .9688rem; }
+  .proc__cta { display: flex; justify-content: center; margin-top: 56px; }
+  @media (max-width: 1099px) {
+    .proc__list { grid-template-columns: 1fr; gap: 0; max-width: 560px; margin-inline: auto; }
+    .proc__list::before { left: 21px; right: auto; top: 22px; bottom: 22px; width: 2px; height: auto; background: var(--line-strong); }
+    .proc__step { grid-template-columns: 44px 1fr; column-gap: 20px; padding-bottom: 28px; }
+    .proc__step:last-child { padding-bottom: 0; }
+    .proc__num { grid-row: span 2; margin: 0; }
+    .proc__step h3 { align-self: center; padding-top: 10px; }
+    .proc__cta { margin-top: 40px; }
+  }
 </style>

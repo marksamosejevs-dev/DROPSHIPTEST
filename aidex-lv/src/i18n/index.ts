@@ -3,11 +3,26 @@ import ru from './ru';
 import en from './en';
 import type { Locale } from './routes';
 import type { Localized } from '../data/packages';
+import { groupRelationship } from '../config/company';
 
 export * from './routes';
 export type { Dict };
 
-const dictionaries: Record<Locale, Dict> = { lv, ru, en };
+/**
+ * Company-controlled wording is injected into the translations here, so it is
+ * edited in ONE place (src/config/company.ts → groupRelationship):
+ *   {groupRel}       → groupRelationship.statement
+ *   {groupRelShort}  → groupRelationship.short
+ */
+function inject<T>(v: T, lang: Locale): T {
+  if (typeof v === 'string')
+    return v.replace(/\{groupRel\}/g, groupRelationship.statement[lang]).replace(/\{groupRelShort\}/g, groupRelationship.short[lang]) as T;
+  if (Array.isArray(v)) return v.map((x) => inject(x, lang)) as T;
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, inject(x, lang)])) as T;
+  return v;
+}
+
+const dictionaries: Record<Locale, Dict> = { lv: inject(lv, 'lv'), ru: inject(ru, 'ru'), en: inject(en, 'en') };
 
 export const useT = (lang: Locale): Dict => dictionaries[lang];
 

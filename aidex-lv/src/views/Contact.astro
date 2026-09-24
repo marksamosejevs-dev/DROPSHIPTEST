@@ -5,7 +5,7 @@ import LeadForm from '../components/LeadForm.astro';
 import Field from '../components/Field.astro';
 import Icon from '../components/Icon.astro';
 import { useT, type Locale, type RouteKey } from '../i18n';
-import { company, known } from '../config/company';
+import { company, known, phoneHref as tel, officeAddress } from '../config/company';
 import { breadcrumbLd } from '../lib/seo';
 interface Props { lang: Locale; route: RouteKey }
 const { lang, route } = Astro.props;
@@ -13,7 +13,8 @@ const t = useT(lang);
 const c = t.pages.contact;
 const f = t.footer;
 const email = known(company.email);
-const phoneHref = known(company.phoneHref);
+const phoneHref = tel();
+const office = officeAddress();
 ---
 <Base lang={lang} route={route} title={t.meta.contact.title} description={t.meta.contact.description}
   jsonLd={[breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.contact, key: 'contact' }])]}>
@@ -26,7 +27,8 @@ const phoneHref = known(company.phoneHref);
           <li><Icon name="phone" size={22} /><div><span>{f.phone}</span>{phoneHref ? <a href={`tel:${phoneHref}`}><Field value={company.phone} lang={lang} /></a> : <strong><Field value={company.phone} lang={lang} /></strong>}</div></li>
           <li><Icon name="mail" size={22} /><div><span>{f.email}</span>{email ? <a href={`mailto:${email}`}>{email}</a> : <strong><Field value={company.email} lang={lang} /></strong>}</div></li>
           <li><Icon name="pin" size={22} /><div><span>{f.address}</span><strong><Field value={company.registeredAddress} lang={lang} /></strong></div></li>
-          <li><Icon name="clock" size={22} /><div><span>&nbsp;</span><strong><Field value={company.openingHours} lang={lang} /></strong></div></li>
+          {office && <li><Icon name="office" size={22} /><div><span>{f.office}</span><strong>{office}</strong></div></li>}
+          <li><Icon name="clock" size={22} /><div><span>{f.hours}</span><strong><Field value={company.openingHours[lang]} lang={lang} /></strong></div></li>
         </ul>
         <p class="ct__op">{f.operatedBy}</p>
       </div>

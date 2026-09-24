@@ -1,24 +1,22 @@
 ---
-/** Government support — renders only src/data/support.ts (editable programme data). */
+/** Government support — renders only the public fields of src/data/support.ts. */
 import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
 import { useT, path, fmtEur, fmtDate, type Locale } from '../../i18n';
-import { supportProgrammes } from '../../data/support';
-interface Props { lang: Locale; headingLevel?: 1 | 2; cta?: boolean }
-const { lang, headingLevel = 2, cta = true } = Astro.props;
+import { activeProgrammes } from '../../data/support';
+interface Props { lang: Locale; headingLevel?: 1 | 2; cta?: boolean; head?: boolean; tone?: 'white' | 'bg' }
+const { lang, headingLevel = 2, cta = true, head = true, tone = 'white' } = Astro.props;
 const t = useT(lang);
 const s = t.support;
-const active = supportProgrammes.filter((p) => p.active);
 const itemIcons = ['panel', 'battery'];
 ---
-<section class="section sup" id="support" aria-labelledby="sup-title">
+<section class:list={['section sup', tone === 'bg' && 'sup--bg']} id="support" aria-labelledby="sup-title">
   <div class="container">
-    <SectionHead eyebrow={s.eyebrow} title={s.title} lead={s.lead} id="sup-title" level={headingLevel} />
+    {head ? <SectionHead eyebrow={s.eyebrow} title={s.title} lead={s.lead} id="sup-title" level={headingLevel} /> : <h2 id="sup-title" class="sr-only">{s.title}</h2>}
 
-    {active.map((p) => (
+    {activeProgrammes().map((p) => (
       <article class="prog" data-reveal>
         <div class="prog__hero">
-          <span class="prog__badge">{p.shortName}</span>
           <p class="prog__tl">{s.total}</p>
           {p.maxTotal && <p class="prog__tv tnum"><small>{s.upTo}</small> {fmtEur(p.maxTotal, lang)}</p>}
           <p class="prog__name">{p.name[lang]}</p>
@@ -34,49 +32,53 @@ const itemIcons = ['panel', 'battery'];
               </li>
             ))}
           </ul>
-          <p class="prog__note">{s.verifyNote} {s.checked}: {fmtDate(p.lastChecked, lang)} · {s.source}: {p.sources.map((src) => <a href={src.url} rel="noopener" target="_blank">{src.label}</a>)}</p>
+          {p.eligibility.length > 0 && <ul class="prog__elig">{p.eligibility.map((e) => <li><Icon name="check" size={16} />{e[lang]}</li>)}</ul>}
+          <div class="prog__help">
+            <p class="prog__helpt">{s.helpTitle}</p>
+            <ol>{s.steps.map((st, i) => <li><span class="tnum">{i + 1}</span>{st}</li>)}</ol>
+          </div>
+          <p class="prog__note">{s.verifyNote}</p>
           {!p.verified && <p class="dev-note">{s.unverified}</p>}
         </div>
       </article>
     ))}
 
-    <ol class="sup__steps">
-      {s.steps.map((st, i) => <li data-reveal style={`--d:${i * 0.07}s`}><span class="tnum">{i + 1}</span><p>{st}</p></li>)}
-    </ol>
     {cta && <div class="sup__cta" data-reveal><a href={path('support', lang)} class="btn btn--primary">{t.cta.support}<Icon name="arrow" /></a></div>}
   </div>
 </section>
 
 <style>
-  .sup { background: var(--bg); }
+  .sup { background: #fff; }
+  .sup--bg { background: var(--bg); }
   .prog { display: grid; border-radius: var(--r-xl); overflow: hidden; background: #fff; box-shadow: var(--shadow-card); }
-  @media (min-width: 900px) { .prog { grid-template-columns: 0.9fr 1.1fr; } }
-  .prog__hero { position: relative; display: grid; gap: 8px; align-content: center; padding: clamp(28px, 4vw, 56px); background: radial-gradient(90% 90% at 0% 0%, #1d6a4e 0%, var(--deep) 70%); color: rgba(236,243,240,.8); }
-  .prog__badge { justify-self: start; height: 30px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.12); color: #fff; font-weight: 700; font-size: .8125rem; margin-bottom: 14px; }
+  @media (min-width: 900px) { .prog { grid-template-columns: 0.85fr 1.15fr; } }
+  .prog__hero { display: grid; gap: 8px; align-content: center; padding: clamp(28px, 4vw, 56px); background: var(--deep); color: rgba(236,243,240,.78); }
   .prog__tl { font-weight: 600; font-size: .9375rem; }
-  .prog__tv { font-family: var(--font-display); font-weight: 800; font-size: clamp(3.4rem, 7vw, 5.4rem); letter-spacing: -0.045em; line-height: 1; color: #fff; }
+  .prog__tv { font-family: var(--font-display); font-weight: 800; font-size: clamp(3.2rem, 6.4vw, 5rem); letter-spacing: -0.045em; line-height: 1; color: #fff; }
   .prog__tv small { font-size: .3em; font-weight: 700; letter-spacing: 0; color: #7fd6a8; margin-right: 4px; }
-  .prog__name { font-size: 1rem; max-width: 40ch; margin-top: 10px; }
-  .prog__dl { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; color: #7fd6a8; margin-top: 6px; }
-  .prog__body { display: grid; gap: 20px; align-content: center; padding: clamp(24px, 4vw, 48px); }
-  .prog__items { list-style: none; display: grid; gap: 12px; }
-  .prog__items li { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 20px; border-radius: var(--r-md); background: var(--bg); }
-  .prog__ic { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: var(--brand); box-shadow: var(--shadow-sm); }
+  .prog__name { font-size: 1rem; max-width: 36ch; margin-top: 10px; }
+  .prog__dl { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; color: #7fd6a8; margin-top: 4px; }
+  .prog__body { display: grid; gap: 24px; align-content: center; padding: clamp(24px, 4vw, 48px); }
+  .prog__items { list-style: none; display: grid; }
+  .prog__items li { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .prog__items li:first-child { padding-top: 0; }
+  .prog__ic { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; background: var(--brand-50); color: var(--brand); }
   .prog__items div { display: grid; gap: 2px; }
   .prog__items strong { font-family: var(--font-display); font-weight: 750; font-size: 1.1rem; color: var(--ink); }
   .prog__items span { font-size: .875rem; color: var(--muted); }
-  .prog__amt { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
+  .prog__amt { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
   .prog__amt small { font-size: .5em; font-weight: 700; color: var(--muted); letter-spacing: 0; }
+  .prog__elig { list-style: none; display: grid; gap: 6px; font-size: .9375rem; }
+  .prog__elig li { display: flex; gap: 8px; align-items: flex-start; }
+  .prog__elig :global(svg) { color: var(--brand); margin-top: 4px; flex: none; }
+  .prog__helpt { font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+  .prog__help ol { list-style: none; display: grid; gap: 10px; }
+  .prog__help li { display: flex; gap: 12px; align-items: baseline; color: var(--ink); font-size: .9688rem; }
+  .prog__help li span { width: 24px; height: 24px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; font-size: .75rem; font-weight: 700; transform: translateY(-1px); }
   .prog__note { font-size: .8125rem; color: var(--muted); }
-  .prog__note a { color: var(--brand); }
-  .sup__steps { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 24px; }
-  @media (min-width: 900px) { .sup__steps { grid-template-columns: repeat(3, 1fr); } }
-  .sup__steps li { display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; background: #fff; border-radius: var(--r-md); box-shadow: var(--shadow-sm); }
-  .sup__steps span { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--brand-50); color: var(--brand); font-weight: 800; font-family: var(--font-display); }
-  .sup__steps p { color: var(--ink); font-weight: 500; }
   .sup__cta { display: flex; justify-content: center; margin-top: 36px; }
   @media (max-width: 719px) {
     .prog__items li { grid-template-columns: auto 1fr; }
-    .prog__amt { grid-column: 2; font-size: 1.4rem; }
+    .prog__amt { grid-column: 2; font-size: 1.35rem; }
   }
 </style>

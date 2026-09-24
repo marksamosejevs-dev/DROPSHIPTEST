@@ -20,10 +20,13 @@ interface Props {
   noindex?: boolean;
   headerTone?: 'light' | 'dark';
   mobileCta?: boolean;
+  /** Explicit localized paths (for pages outside the route table, e.g. case studies). */
+  paths?: Record<Locale, string>;
 }
-const { lang, route, title, description, jsonLd = [], noindex = false, headerTone = 'dark', mobileCta = true } = Astro.props;
+const { lang, route, title, description, jsonLd = [], noindex = false, headerTone = 'dark', mobileCta = true, paths } = Astro.props;
 const t = useT(lang);
-const canonical = route ? abs(path(route, lang)) : undefined;
+const canonical = paths ? abs(paths[lang]) : route ? abs(path(route, lang)) : undefined;
+const alts = paths ? [...locales.map((l) => ({ hreflang: l, href: abs(paths[l]) })), { hreflang: 'x-default', href: abs(paths.lv) }] : route ? alternates(route) : [];
 const og = await getImage({ src: media.hero.src, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 82 });
 const ld = [organizationLd(lang), websiteLd(lang), ...jsonLd];
 const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, meta: integrations.metaPixelId };
@@ -37,7 +40,7 @@ const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, 
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex, follow" /> : <meta name="robots" content="index, follow, max-image-preview:large" />}
     {canonical && <link rel="canonical" href={canonical} />}
-    {route && alternates(route).map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    {alts.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
     <meta name="theme-color" content="#0b1410" />
     <meta name="format-detection" content="telephone=no" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -75,7 +78,7 @@ const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, 
   </head>
   <body data-lang={lang}>
     <a class="skip-link" href="#main">{t.skip}</a>
-    <Header lang={lang} route={route} tone={headerTone} />
+    <Header lang={lang} route={route} tone={headerTone} langPaths={paths} />
     <main id="main" tabindex="-1">
       <slot />
     </main>

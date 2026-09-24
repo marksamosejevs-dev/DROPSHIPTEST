@@ -6,7 +6,7 @@ const ctx = await browser.newContext({ viewport: { width: +w, height: +h }, devi
 const page = await ctx.newPage();
 page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
 page.on('console', (m) => m.type() === 'error' && console.log('CONSOLE', m.text()));
-await page.goto('http://localhost:4321' + p, { waitUntil: 'networkidle' });
+await page.goto((process.env.BASE || 'http://localhost:4321') + p, { waitUntil: 'networkidle' });
 if (process.env.CONSENT) await page.evaluate(() => { localStorage.setItem('aidex_consent', JSON.stringify({ v: 1, necessary: true, analytics: false, marketing: false, ts: new Date().toISOString() })); });
 if (process.env.CONSENT) await page.reload({ waitUntil: 'networkidle' });
 // reveal everything

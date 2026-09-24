@@ -3,7 +3,7 @@ import Icon from '../Icon.astro';
 import { useT, path, fmtEur, type Locale } from '../../i18n';
 import { media } from '../../data/media';
 import { responsive } from '../../lib/images';
-import { packages, netPrice } from '../../data/packages';
+import { lowestFinalPrice } from '../../data/packages';
 
 interface Props { lang: Locale }
 const { lang } = Astro.props;
@@ -11,8 +11,9 @@ const t = useT(lang);
 const h = t.v2.hero;
 const wide = await responsive(media.hero.src, [960, 1440, 1920, 2400], 72);
 const tall = await responsive(media.heroPortrait.src, [540, 810, 1080], 72);
-const fromBattery = Math.min(...packages.map((p) => p.withBattery).filter(Boolean).map((p) => netPrice(p!)));
+const fromBattery = lowestFinalPrice('withBattery');
 const trustIcons = ['layers', 'battery', 'doc', 'globe'];
+const [priceA, priceB] = h.priceLine.split('{price}');
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero__media">
@@ -34,7 +35,7 @@ const trustIcons = ['layers', 'battery', 'doc', 'globe'];
       <a href={path('offer', lang)} class="btn btn--primary" data-cta="hero-offer">{t.cta.offer}<Icon name="arrow" /></a>
       <a href={path('home', lang, 'calculator')} class="btn btn--ghost-inv" data-cta="hero-calc"><Icon name="chart" />{t.cta.calc}</a>
     </div>
-    <p class="hero__price hero__in" style="--d:.42s">{h.priceLine.replace('{price}', fmtEur(fromBattery, lang))}</p>
+    <p class="hero__price hero__in" style="--d:.42s">{priceA}<strong class="tnum">{fmtEur(fromBattery, lang)}</strong>{priceB}</p>
     <a href={path('home', lang, 'packages')} class="hero__down hero__in" style="--d:.5s">{h.seePrices}<Icon name="chevron" size={18} /></a>
   </div>
 </section>
@@ -68,7 +69,8 @@ const trustIcons = ['layers', 'battery', 'doc', 'globe'];
   .hero__lead { font-size: clamp(1.08rem, 1.5vw, 1.3rem); line-height: 1.55; color: rgba(255, 255, 255, 0.9); max-width: 56ch; }
   .hero__ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 6px; }
   .hero__ctas .btn { min-height: 60px; padding-inline: 30px; font-size: 1.125rem; }
-  .hero__price { font-size: .9688rem; font-weight: 600; color: rgba(255, 255, 255, 0.92); }
+  .hero__price { display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 0 .35em; padding: 10px 20px; border-radius: 999px; background: rgba(6, 16, 13, 0.42); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.9); }
+  .hero__price strong { font-family: var(--font-display); font-weight: 800; font-size: 1.35em; letter-spacing: -0.02em; color: #fff; }
   .hero__down { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-weight: 600; font-size: .9375rem; text-decoration: underline; text-underline-offset: 6px; opacity: .85; }
   .hero__down:hover { opacity: 1; }
 
@@ -93,8 +95,10 @@ const trustIcons = ['layers', 'battery', 'doc', 'globe'];
     .hero__chip { font-size: .8125rem; height: 34px; }
     .hero__title { font-size: clamp(2.3rem, 10.5vw, 2.9rem); }
     .hero__lead { font-size: 1.02rem; }
-    .hero__ctas { display: grid; width: 100%; }
+    .hero__ctas { display: grid; width: 100%; order: 2; gap: 10px; margin-top: 2px; }
     .hero__ctas .btn { min-height: 56px; }
+    .hero__ctas .btn--ghost-inv { min-height: 50px; font-size: 1rem; }
+    .hero__price { order: 1; padding: 8px 16px; font-size: .9375rem; }
     .hero__down { display: none; }
     .trust { margin-top: -52px; }
     .trust__card { padding: 4px; }

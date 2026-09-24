@@ -4,6 +4,50 @@ type Errors = Record<'required' | 'address' | 'usage' | 'number' | 'interests' |
 const PHONE = /^\+?[0-9 ()-]{7,20}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+interface LeadCfg { provider: 'disabled' | 'formspree' | 'web3forms' | 'hubspot' | 'webhook'; endpoint: string; accessKey: string; portalId: string; formGuid: string; subject: string; timeoutMs: number }
+
+/** Posts the enquiry and resolves ONLY when the destination confirms receipt. */
+async function send(cfg: LeadCfg, data: Record<string, unknown>) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), cfg.timeoutMs);
+  const post = (url: string, body: unknown) => fetch(url, {
+    method: 'POST', signal: ctrl.signal,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = async (res: Response) => { try { return await res.json(); } catch { return null; } };
+  try {
+    let res: Response;
+    if (cfg.provider === 'web3forms') {
+      res = await post('https://api.web3forms.com/submit', { access_key: cfg.accessKey, subject: cfg.subject, from_name: 'AIDEX.lv', ...flat(data) });
+      const j = await json(res);
+      if (!res.ok || j?.success !== true) throw new Error(`web3forms ${res.status}`);
+    } else if (cfg.provider === 'formspree') {
+      res = await post(cfg.endpoint, { _subject: cfg.subject, ...flat(data) });
+      const j = await json(res);
+      if (!res.ok || j?.ok === false || j?.errors) throw new Error(`formspree ${res.status}`);
+    } else if (cfg.provider === 'hubspot') {
+      const f = flat(data);
+      const [firstname, ...rest] = String(f.name ?? '').trim().split(/\s+/);
+      const fields = [
+        { name: 'firstname', value: firstname ?? '' }, { name: 'lastname', value: rest.join(' ') },
+        { name: 'email', value: f.email }, { name: 'phone', value: f.phone }, { name: 'address', value: f.address },
+        { name: 'message', value: Object.entries(f).filter(([k]) => !['name', 'email', 'phone', 'address'].includes(k)).map(([k, v]) => `${k}: ${v}`).join('\n') },
+      ];
+      res = await post(`https://api.hsforms.com/submissions/v3/integration/submit/${cfg.portalId}/${cfg.formGuid}`, { fields, context: { pageUri: location.href, pageName: document.title } });
+      if (!res.ok) throw new Error(`hubspot ${res.status}`);
+    } else {
+      res = await post(cfg.endpoint, data);
+      const j = await json(res);
+      if (!res.ok || j?.ok === false || j?.success === false) throw new Error(`webhook ${res.status}`);
+    }
+  } finally {
+    clearTimeout(timer);
+  }
+}
+/** Flattens arrays/objects for e-mail style providers. */
+const flat = (d: Record<string, unknown>) => Object.fromEntries(Object.entries(d).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v && typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')]));
+
 document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) => {
   const errors: Errors = JSON.parse(form.dataset.errors!);
   const panels = [...form.querySelectorAll<HTMLElement>('[data-step-panel]')];
@@ -125,25 +169,29 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
     data.submittedAt = new Date().toISOString();
     delete data.website;
 
-    const endpoint = form.dataset.endpoint;
+    const cfg: LeadCfg = JSON.parse(form.dataset.leads!);
+    const offBox = form.querySelector<HTMLElement>('[data-not-connected]')!;
+    offBox.hidden = true;
+    if (cfg.provider === 'disabled') {
+      // No destination configured: nothing leaves the browser and we never
+      // pretend it did. The visitor's input stays in the form.
+      console.info('[lead-form] destination not configured — payload NOT sent:', data);
+      offBox.hidden = false;
+      offBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      return;
+    }
     const label = submit.innerHTML;
     submit.disabled = true;
     submit.textContent = form.dataset.sending!;
     try {
-      if (endpoint) {
-        const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
-        if (!res.ok) throw new Error(String(res.status));
-      } else {
-        // Development mode: no endpoint configured — nothing leaves the browser.
-        await new Promise((r) => setTimeout(r, 500));
-        form.querySelector<HTMLElement>('[data-dev-note]')!.hidden = false;
-      }
+      await send(cfg, data);
       form.classList.add('is-done');
       const done = form.querySelector<HTMLElement>('[data-done]')!;
       done.hidden = false;
       done.focus();
       (window as any).dataLayer?.push({ event: 'generate_lead', form_source: data.source });
-    } catch {
+    } catch (err) {
+      console.warn('[lead-form] submission failed:', err);
       submitErr.textContent = errors.submit;
     } finally {
       submit.disabled = false;

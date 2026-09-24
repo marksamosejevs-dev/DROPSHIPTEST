@@ -14,8 +14,8 @@ const pvItemMax = programme?.items[0]?.maxAmount ?? 0;
 const batItemMax = programme?.items[1]?.maxAmount ?? 0;
 // Support curve for the PV part, derived from package data (kW → amount).
 const curve = packages
-  .filter((p) => p.kw && p.withoutBattery)
-  .map((p) => [p.kw as number, p.withoutBattery!.supportPv] as const)
+  .filter((p) => p.kw && p.offers.withoutBattery)
+  .map((p) => { const o = p.offers.withoutBattery!; return [p.kw as number, o.supportSplit?.pv ?? o.support ?? 0] as const; })
   .sort((a, b) => a[0] - b[0]);
 
 function pvSupport(kw: number) {

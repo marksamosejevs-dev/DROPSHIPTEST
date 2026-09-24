@@ -1,6 +1,5 @@
 ---
 import SectionHead from '../SectionHead.astro';
-import Icon from '../Icon.astro';
 import Picture from '../Picture.astro';
 import { useT, units, type Locale } from '../../i18n';
 import { media } from '../../data/media';
@@ -10,7 +9,7 @@ const t = useT(lang);
 const w = t.why;
 const v = t.v2.why;
 const u = units[lang];
-const [one, quality, install, battery, , docs] = w.pillars;
+const [one, , , battery] = w.pillars;
 ---
 <section class="section why" aria-labelledby="why-title">
   <div class="container">
@@ -45,21 +44,14 @@ const [one, quality, install, battery, , docs] = w.pillars;
       </li>
     </ul>
 
-    <ul class="why__mini">
-      {[{ i: 'shield', ...quality }, { i: 'tool', ...install }, { i: 'doc', ...docs }].map((m, k) => (
-        <li data-reveal style={`--d:${k * 0.06}s`}>
-          <span class="why__ic"><Icon name={m.i} size={22} /></span>
-          <div><h3>{m.title}</h3><p>{m.text}</p></div>
-        </li>
-      ))}
-    </ul>
   </div>
 </section>
 
 <style>
   .why { background: var(--bg); }
   .why__cards { list-style: none; display: grid; gap: 24px; grid-template-columns: 1fr; }
-  @media (min-width: 900px) { .why__cards { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 720px) { .why__cards { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+  @media (min-width: 720px) and (max-width: 999px) { .wc h3 { font-size: 1.2rem; } .wc p { font-size: .9375rem; } }
   .wc { display: grid; gap: 12px; align-content: start; }
   .wc__media { margin: 0 0 10px; aspect-ratio: 4 / 3; border-radius: var(--r-lg); overflow: hidden; }
   .wc h3 { font-size: 1.45rem; }
@@ -75,10 +67,4 @@ const [one, quality, install, battery, , docs] = w.pillars;
   .app__row div { background: rgba(255,255,255,.07); border-radius: 12px; padding: 10px 12px; display: grid; gap: 2px; }
   .app__row span { font-size: .6875rem; opacity: .7; }
   .app__row strong { font-size: .9375rem; }
-  .why__mini { list-style: none; display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 48px; }
-  @media (min-width: 900px) { .why__mini { grid-template-columns: repeat(3, 1fr); } }
-  .why__mini li { display: flex; gap: 16px; padding: 24px; background: #fff; border-radius: var(--r-md); box-shadow: var(--shadow-sm); }
-  .why__ic { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 12px; background: var(--brand-50); color: var(--brand); }
-  .why__mini h3 { font-size: 1.15rem; margin-bottom: 4px; }
-  .why__mini p { color: var(--muted); font-size: .9375rem; }
 </style>

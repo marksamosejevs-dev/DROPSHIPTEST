@@ -7,7 +7,7 @@
  * Company facts are injected from src/config/company.ts; missing facts render
  * as visible "[to be confirmed]" markers.
  */
-import { company, group, integrations, isPlaceholder, type Field } from '../../config/company';
+import { company, group, groupRelationship, integrations, isPlaceholder, officeAddress, type Field } from '../../config/company';
 import { calculatorAssumptions } from '../../data/calculator';
 import type { Locale } from '../../i18n/routes';
 import { SHOW_DEV_MARKERS } from '../../config/site';
@@ -31,11 +31,12 @@ type Ctx = { lang: Locale; links: { privacy: string; cookies: string; settings: 
 function controller(c: Ctx) {
   const { lang } = c;
   const rows = {
-    lv: ['Nosaukums', 'Reģistrācijas numurs', 'Juridiskā adrese', 'E-pasts', 'Datu aizsardzības jautājumi', 'Tālrunis'],
-    ru: ['Наименование', 'Регистрационный номер', 'Юридический адрес', 'Эл. почта', 'Вопросы защиты данных', 'Телефон'],
-    en: ['Name', 'Registration number', 'Registered address', 'Email', 'Data-protection contact', 'Phone'],
+    lv: ['Nosaukums', 'Reģistrācijas numurs', 'PVN maksātāja numurs', 'Juridiskā adrese', 'Biroja adrese', 'E-pasts', 'Datu aizsardzības jautājumi', 'Tālrunis', 'Tīmekļvietne'],
+    ru: ['Наименование', 'Регистрационный номер', 'Номер плательщика НДС', 'Юридический адрес', 'Адрес офиса', 'Эл. почта', 'Вопросы защиты данных', 'Телефон', 'Сайт'],
+    en: ['Name', 'Registration number', 'VAT number', 'Registered address', 'Office address', 'Email', 'Data-protection contact', 'Phone', 'Website'],
   }[lang];
-  const vals = [esc(company.legalName), f(company.registrationNumber, lang), f(company.registeredAddress, lang), f(company.email, lang), f(company.privacyEmail, lang), f(company.phone, lang)];
+  const office = officeAddress();
+  const vals = [esc(company.legalName), f(company.registrationNumber, lang), f(company.vatNumber, lang), f(company.registeredAddress, lang), office ? esc(office) : '', f(company.email, lang), f(company.privacyEmail, lang), f(company.phone, lang), esc(company.domain)];
   return `<table><tbody>${rows.map((r, i) => (vals[i] ? `<tr><th scope="row">${r}</th><td>${vals[i]}</td></tr>` : '')).join('')}</tbody></table>`;
 }
 
@@ -112,8 +113,8 @@ export function legalDoc(key: LegalKey, c: Ctx): LegalDoc {
         title: 'Juridiskā informācija',
         intro: `AIDEX.lv pārvalda ${L}.`,
         sections: [
-          { h: 'Vietnes pārvaldītājs', html: controller(c) + (f(company.vatNumber, lang) ? `<p>PVN maksātāja numurs: ${f(company.vatNumber, lang)}</p>` : '') },
-          { h: `Saistība ar ${esc(group.name)}`, html: `${f(group.relationship, lang) ? `<p>${f(group.relationship, lang)}</p>` : ''}<p><a href="${group.url}" rel="noopener" target="_blank">${esc(group.url)}</a></p>` },
+          { h: 'Vietnes pārvaldītājs', html: controller(c) },
+          { h: `Saistība ar ${esc(group.name)}`, html: `${f(groupRelationship.legal[lang], lang) ? `<p>${f(groupRelationship.legal[lang], lang)}</p>` : ''}<p><a href="${group.url}" rel="noopener" target="_blank">${esc(group.url)}</a></p>` },
           { h: 'Dokumenti', html: `<ul><li>${priv}Privātuma politika</a></li><li>${cook}Sīkdatņu politika</a></li><li>${settings}Sīkdatņu iestatījumi</a></li></ul>` },
           { h: 'Attēli', html: `<p>Izstrādes versijā izmantotie attēli ir oriģinālas datorgrafikas vizualizācijas un tiks aizstāti ar AIDEX projektu fotogrāfijām.</p>` },
         ],
@@ -167,8 +168,8 @@ export function legalDoc(key: LegalKey, c: Ctx): LegalDoc {
         title: 'Юридическая информация',
         intro: `Сайтом AIDEX.lv управляет ${L}.`,
         sections: [
-          { h: 'Оператор сайта', html: controller(c) + (f(company.vatNumber, lang) ? `<p>Номер плательщика НДС: ${f(company.vatNumber, lang)}</p>` : '') },
-          { h: `Связь с ${esc(group.name)}`, html: `${f(group.relationship, lang) ? `<p>${f(group.relationship, lang)}</p>` : ''}<p><a href="${group.url}" rel="noopener" target="_blank">${esc(group.url)}</a></p>` },
+          { h: 'Оператор сайта', html: controller(c) },
+          { h: `Связь с ${esc(group.name)}`, html: `${f(groupRelationship.legal[lang], lang) ? `<p>${f(groupRelationship.legal[lang], lang)}</p>` : ''}<p><a href="${group.url}" rel="noopener" target="_blank">${esc(group.url)}</a></p>` },
           { h: 'Документы', html: `<ul><li>${priv}Политика конфиденциальности</a></li><li>${cook}Политика использования cookie</a></li><li>${settings}Настройки cookie</a></li></ul>` },
           { h: 'Изображения', html: `<p>Изображения в версии для разработки — оригинальные компьютерные визуализации; они будут заменены фотографиями проектов AIDEX.</p>` },
         ],
@@ -222,8 +223,8 @@ export function legalDoc(key: LegalKey, c: Ctx): LegalDoc {
         title: 'Legal information',
         intro: `AIDEX.lv is operated by ${L}.`,
         sections: [
-          { h: 'Website operator', html: controller(c) + (f(company.vatNumber, lang) ? `<p>VAT number: ${f(company.vatNumber, lang)}</p>` : '') },
-          { h: `Relationship with ${esc(group.name)}`, html: `${f(group.relationship, lang) ? `<p>${f(group.relationship, lang)}</p>` : ''}<p><a href="${group.url}" rel="noopener" target="_blank">${esc(group.url)}</a></p>` },
+          { h: 'Website operator', html: controller(c) },
+          { h: `Relationship with ${esc(group.name)}`, html: `${f(groupRelationship.legal[lang], lang) ? `<p>${f(groupRelationship.legal[lang], lang)}</p>` : ''}<p><a href="${group.url}" rel="noopener" target="_blank">${esc(group.url)}</a></p>` },
           { h: 'Documents', html: `<ul><li>${priv}Privacy Policy</a></li><li>${cook}Cookie Policy</a></li><li>${settings}Cookie settings</a></li></ul>` },
           { h: 'Imagery', html: `<p>Images in this development version are original computer-generated visualisations and will be replaced with AIDEX project photography.</p>` },
         ],

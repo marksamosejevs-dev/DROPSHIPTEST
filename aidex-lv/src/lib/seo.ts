@@ -1,4 +1,4 @@
-import { company, group, known } from '../config/company';
+import { company, group, groupRelationship, known, officeAddress } from '../config/company';
 import { locales, path, type Locale, type RouteKey } from '../i18n/routes';
 import { SITE_URL } from '../config/site';
 import { faq } from '../data/faq';
@@ -12,6 +12,16 @@ export function alternates(key: RouteKey) {
   ];
 }
 
+function groupOrg() {
+  const org = { '@type': 'Organization', name: group.name, url: group.url };
+  switch (groupRelationship.confirmed ? groupRelationship.schema : null) {
+    case 'parentOrganization': return { parentOrganization: org };
+    case 'memberOf': return { memberOf: org };
+    case 'sameAs-link': return { sameAs: [group.url] };
+    default: return {};
+  }
+}
+
 /** Organization / LocalBusiness — only verified (non-placeholder) fields are emitted. */
 export function organizationLd(lang: Locale) {
   const email = known(company.email);
@@ -19,6 +29,7 @@ export function organizationLd(lang: Locale) {
   const address = known(company.registeredAddress);
   const vat = known(company.vatNumber);
   const reg = known(company.registrationNumber);
+  const openingHours = known(company.openingHours.en);
   return {
     '@context': 'https://schema.org',
     '@type': ['Organization', 'LocalBusiness'],
@@ -28,12 +39,15 @@ export function organizationLd(lang: Locale) {
     url: abs(path('home', lang)),
     logo: abs('/favicon.svg'),
     areaServed: { '@type': 'Country', name: 'Latvia' },
-    parentOrganization: { '@type': 'Organization', name: group.name, url: group.url },
+    // Relationship to the group is emitted only once its legal form is confirmed.
+    ...(groupOrg()),
     ...(email && { email }),
     ...(phone && { telephone: phone }),
     ...(address && { address: { '@type': 'PostalAddress', streetAddress: address, addressCountry: 'LV' } }),
     ...(vat && { vatID: vat }),
     ...(reg && { identifier: reg }),
+    ...(officeAddress() && { location: { '@type': 'Place', address: { '@type': 'PostalAddress', streetAddress: officeAddress(), addressCountry: 'LV' } } }),
+    ...(openingHours && { openingHours }),
     knowsLanguage: ['lv', 'ru', 'en'],
   };
 }

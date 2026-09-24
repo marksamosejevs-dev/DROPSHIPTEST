@@ -1,0 +1,44 @@
+---
+/** Case-study card: cover photo, location, generated headline, key specs. Links to the project page. */
+import Picture from '../Picture.astro';
+import Icon from '../Icon.astro';
+import { useT, type Locale } from '../../i18n';
+import { projectPhotos, type Project } from '../../data/projects';
+import { projectPath, projectLocation, projectTitle, projectSpecs } from '../../lib/projects';
+interface Props { project: Project; lang: Locale; lead?: boolean }
+const { project: p, lang, lead = false } = Astro.props;
+const t = useT(lang);
+const cover = projectPhotos(p)[0];
+const specs = projectSpecs(p, lang).slice(1, 4);
+---
+<article class:list={['pj', lead && 'pj--lead']}>
+  <a href={projectPath(p, lang)} class="pj__link">
+    <figure class="pj__media">
+      <Picture src={cover.src} alt={cover.alt?.[lang] ?? projectTitle(p, lang)} sizes={lead ? '(min-width: 1100px) 62vw, 100vw' : '(min-width: 1100px) 31vw, (min-width: 720px) 50vw, 100vw'} widths={[480, 800, 1200, 1600]} />
+      {p.sample && <span class="dev-flag pj__flag">{t.example}</span>}
+    </figure>
+    <div class="pj__body">
+      <p class="pj__loc"><Icon name="pin" size={16} />{projectLocation(p, lang)} · {t.projects.segments[p.segment]}</p>
+      <h3 class="pj__title">{projectTitle(p, lang)}</h3>
+      {specs.length > 0 && <p class="pj__specs">{specs.map((s) => s.v).join(' · ')}</p>}
+      <span class="pj__more">{t.projects.detail.view}<Icon name="arrow" size={18} /></span>
+    </div>
+  </a>
+</article>
+<style>
+  .pj { height: 100%; }
+  .pj__link { height: 100%; display: grid; grid-template-rows: auto 1fr; gap: 18px; color: inherit; text-decoration: none; }
+  .pj__media { position: relative; margin: 0; overflow: hidden; border-radius: var(--r-lg); aspect-ratio: 4 / 3; background: var(--bg-2); }
+  .pj__media :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+  .pj__link:hover .pj__media :global(img) { transform: scale(1.03); }
+  .pj__flag { position: absolute; top: 14px; left: 14px; z-index: 2; }
+  .pj__body { display: grid; gap: 6px; align-content: start; }
+  .pj__loc { display: flex; align-items: center; gap: 6px; font-size: .875rem; color: var(--muted); }
+  .pj__title { font-size: 1.3rem; letter-spacing: -0.02em; line-height: 1.25; }
+  .pj__specs { font-size: .9063rem; color: var(--muted); }
+  .pj__more { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-weight: 600; color: var(--brand); }
+  @media (min-width: 1100px) {
+    .pj--lead .pj__media { aspect-ratio: 16 / 10; }
+    .pj--lead .pj__title { font-size: 1.75rem; }
+  }
+</style>

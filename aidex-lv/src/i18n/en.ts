@@ -40,11 +40,11 @@ const en: Dict = {
     },
     business: {
       title: 'Commercial Solar and BESS for Business | AIDEX',
-      description: 'Commercial and industrial solar, battery energy storage systems (BESS) and equipment supply for businesses — part of the AIDEX Energy Group ecosystem.',
+      description: 'Commercial and industrial solar, battery energy storage systems (BESS) and equipment supply for businesses. {groupRel}',
     },
     about: {
       title: 'About AIDEX — An Energy Business, Not Just an Installer',
-      description: 'AIDEX.lv is operated by GREEN ENERGY SIA. Local solar expertise in Latvia combined with the international AIDEX Energy Group.',
+      description: 'AIDEX.lv is operated by GREEN ENERGY SIA. Solar panels, batteries and installation in Latvia. {groupRel}',
     },
     faq: {
       title: 'Solar Panel FAQ for Homeowners | AIDEX',
@@ -94,6 +94,7 @@ const en: Dict = {
     b2b: 'Discuss your project',
     call: 'Call',
     more: 'Learn more',
+    businessMore: 'Business solutions',
     allFaq: 'All questions',
     allProjects: 'All projects',
     back: 'Back to home',
@@ -112,7 +113,7 @@ const en: Dict = {
       { title: 'One provider, end to end', text: 'Consultation, design, installation and service' },
       { title: 'Panels + battery', text: 'A system that keeps working after sunset' },
       { title: 'Support paperwork handled', text: 'Documents and the grid-connection process' },
-      { title: 'AIDEX Energy Group', text: 'International energy experience' },
+      { title: 'AIDEX Energy Group', text: '{groupRelShort}' },
     ],
     scroll: 'Scroll',
   },
@@ -175,7 +176,7 @@ const en: Dict = {
 
   calc: {
     eyebrow: 'Cost calculator',
-    title: 'What would solar cost for your home?',
+    title: 'What would a solar system cost for your home?',
     lead: 'Enter your monthly consumption or bill — the estimate updates instantly.',
     mode: 'Calculate from',
     byConsumption: 'Consumption',
@@ -237,6 +238,7 @@ const en: Dict = {
     verifyNote: 'Programme conditions can change. We check the current rules before you sign a contract.',
     unverified: 'Development version: amounts must be confirmed against the official source.',
     source: 'Source',
+    helpTitle: 'How we help',
     steps: ['We check whether your project qualifies', 'We prepare the technical information for the application', 'After installation, we help with the closing documents'],
   },
 
@@ -244,7 +246,7 @@ const en: Dict = {
     eyebrow: 'Process',
     title: 'Six steps to your own energy',
     steps: [
-      { title: 'Request', text: 'Tell us your address and electricity consumption. It takes two minutes.' },
+      { title: 'Request', text: 'Tell us your address and electricity consumption. It takes about a minute.' },
       { title: 'Estimate', text: 'We prepare the recommended configuration and an indicative price.' },
       { title: 'Site survey', text: 'An engineer assesses the roof, electrical installation and grid connection.' },
       { title: 'Design', text: 'We produce and agree the final system design.' },
@@ -258,7 +260,9 @@ const en: Dict = {
     title: 'Our projects',
     lead: 'Homes and businesses already producing their own energy.',
     placeholderNote: 'Development version: these are layout examples, not real AIDEX projects. They will be replaced with genuine projects and photography.',
-    labels: { capacity: 'Capacity', panel: 'Panels', inverter: 'Inverter', battery: 'Battery', production: 'Annual production', location: 'Location' },
+    labels: { capacity: 'Capacity', panel: 'Panels', inverter: 'Inverter', battery: 'Battery', production: 'Annual production', location: 'Location', installed: 'Installed', segment: 'Property' },
+    auto: (kw: string, bat: string | null) => `${kw} solar system${bat ? ` with ${bat} battery` : ''}`,
+    detail: { system: 'System', challenge: 'Brief', solution: 'Solution', result: 'Result', gallery: 'Photos', back: 'All projects', cta: 'Want a system like this?', ctaText: 'Tell us your address and consumption — we’ll prepare an estimate for your home.', more: 'More projects', view: 'View project' },
     segments: { all: 'All', home: 'Homes', business: 'Business' },
   },
 
@@ -266,13 +270,13 @@ const en: Dict = {
     eyebrow: 'Reviews',
     title: 'What our customers say',
     placeholderNote: 'Only genuine reviews approved by customers will be published here.',
-    source: { google: 'Google', direct: 'Direct review', facebook: 'Facebook' },
+    source: { google: 'Google', direct: 'Direct review', facebook: 'Facebook', other: 'Review' },
   },
 
   b2b: {
     eyebrow: 'Business',
     title: 'Energy solutions for business',
-    lead: 'AIDEX goes beyond homes. We design and build solar plants and energy storage for businesses, and supply equipment — backed by the international AIDEX Energy Group.',
+    lead: 'AIDEX goes beyond homes. We design and build solar plants and energy storage for businesses, and supply equipment. {groupRel}',
     categories: [
       { title: 'Commercial solar', text: 'Warehouses, factories, offices, retail, logistics centres and agricultural businesses.' },
       { title: 'Industrial solar', text: 'Large rooftop and ground-mounted projects with full engineering support.' },
@@ -282,7 +286,7 @@ const en: Dict = {
     segmentsTitle: 'Solutions for',
     segments: ['Warehouses', 'Factories', 'Offices', 'Retail', 'Logistics centres', 'Agriculture'],
     groupEyebrow: 'Renewable energy',
-    groupTitle: 'Part of a larger energy business',
+    groupTitle: 'AIDEX Energy Group',
     groupText: 'AIDEX Energy Group is a Latvia-headquartered renewable-energy company supplying certified biomass, solar and storage across the EU and the United Kingdom.',
     groupStat: 'tonnes of certified biomass move across the EU and UK through AIDEX Energy Group',
     groupStatSource: 'Source: aidex-energy.com',
@@ -292,10 +296,10 @@ const en: Dict = {
   about: {
     eyebrow: 'About AIDEX',
     title: 'An energy company. Not just an installation crew.',
-    lead: 'AIDEX.lv is operated by GREEN ENERGY SIA. We combine local solar expertise in Latvia with the capabilities of the international AIDEX Energy Group.',
+    lead: 'AIDEX.lv is operated by GREEN ENERGY SIA. We design, install and connect solar energy systems for homes and businesses in Latvia.',
     blocks: [
       { title: 'Local team', text: 'Consultation, site surveys, design and installation in Latvia — in Latvian, Russian and English.' },
-      { title: 'International scale', text: 'AIDEX Energy Group’s supply chain, purchasing volumes and experience working with manufacturers across Europe.' },
+      { title: 'AIDEX Energy Group', text: '{groupRel} AIDEX Energy Group works in renewable energy across the EU and the United Kingdom.' },
       { title: 'Long-term responsibility', text: 'A solar system runs for decades. That is why we stay in touch long after handover.' },
     ],
     operator: 'AIDEX.lv is operated by GREEN ENERGY SIA',
@@ -317,7 +321,7 @@ const en: Dict = {
   },
 
   form: {
-    title: 'Get estimate',
+    title: 'Get your estimate',
     stepOf: (a: number, b: number) => `Step ${a} of ${b}`,
     steps: ['Address', 'Consumption', 'Interests', 'Contact'],
     address: 'Property address or town',
@@ -337,7 +341,7 @@ const en: Dict = {
     message: 'Comment (optional)',
     next: 'Next',
     back: 'Back',
-    submit: 'Get estimate',
+    submit: 'Request my estimate',
     sending: 'Sending…',
     privacy: { before: 'By submitting the form, you confirm that you have read the ', link: 'Privacy Policy', after: '.' },
     errors: {
@@ -354,8 +358,8 @@ const en: Dict = {
     success: {
       title: 'Thank you! We’ve received your request.',
       text: 'Our specialist will contact you to confirm the details and prepare your estimate.',
-      dev: 'Development mode: no data was sent (no lead endpoint configured).',
     },
+    notConnected: { title: 'The request form is not connected yet', text: 'Your request has not been sent. What you entered is kept on this page — please try again later.', alt: 'Or contact us directly:' },
     quick: 'Takes ~1 minute',
   },
 
@@ -380,7 +384,7 @@ const en: Dict = {
   },
 
   footer: {
-    tagline: 'Solar energy for homes and businesses in Latvia. Part of a larger energy business.',
+    tagline: 'Solar energy for homes and businesses in Latvia. {groupRel}',
     cols: { aidex: 'AIDEX', business: 'Business', company: 'Company', legal: 'Legal' },
     commercialSolar: 'Commercial solar',
     storage: 'Energy storage',
@@ -388,6 +392,8 @@ const en: Dict = {
     regNo: 'Reg. No.',
     vat: 'VAT No.',
     address: 'Registered address',
+    office: 'Office',
+    hours: 'Opening hours',
     email: 'Email',
     phone: 'Phone',
     cookieSettings: 'Cookie settings',
@@ -406,7 +412,7 @@ const en: Dict = {
       title: 'A complete solar system for your home',
       lead: 'Solar panels, battery storage and professional installation. We handle design, grid connection and the government-support paperwork.',
       facts: ['Panels', 'Batteries', 'Installation', 'Government support'],
-      priceLine: 'Battery packages from {price} with government support',
+      priceLine: 'Battery packages from {price} after government support',
       seePrices: 'See packages and prices',
     },
     pk: {
@@ -417,16 +423,23 @@ const en: Dict = {
       withBat: '{kwh} kWh battery',
       noBat: 'no battery',
       from: 'from',
-      afterSupport: 'with government support',
+      afterSupport: 'after government support',
       full: 'Full price',
       support: 'support up to',
       details: 'Specification',
       compare: 'Compare packages',
-      compareLead: 'All prices incl. VAT. The lower amount is after potential government support.',
+      compareLead: 'All prices incl. VAT. “Your price” is shown after potential government support.',
       yourPrice: 'Your price',
       consumption: 'Consumption',
       maxTitle: 'Bespoke project',
       maxText: 'For larger homes, heat pumps, EVs and ground-mounted arrays.',
+      priceLabel: 'Price',
+      supportLabel: 'Government support',
+      finalLabel: 'Your price after support',
+      promoLabel: 'Offer',
+      yrs: (n: number) => `${n} ${n === 1 ? 'year' : 'years'}`,
+      w: { performance: 'Panel performance warranty', product: 'Panel product warranty', equipment: 'Equipment warranty', installation: 'Installation warranty' },
+      scrollHint: 'Swipe to compare',
     },
     hs: {
       eyebrow: 'The system',
@@ -444,7 +457,7 @@ const en: Dict = {
       eyebrow: 'How it works',
       title: 'Sun by day. Your own power by night.',
       day: 'Day',
-      dayText: 'The panels power your home and charge the battery, and any surplus goes to the grid. You pay nothing for the electricity you use during the day.',
+      dayText: 'The panels power your home and charge the battery, and any surplus goes to the grid. During the day, your home runs on the electricity it produces.',
       night: 'Night',
       nightText: 'After sunset, the battery takes over. Lights, appliances and the heat pump run on energy stored during the day.',
       size: 'System size',
@@ -462,7 +475,7 @@ const en: Dict = {
     b2b: {
       eyebrow: 'From your home to an international business',
       title: 'One energy ecosystem',
-      lead: 'AIDEX.lv serves homes and local businesses in Latvia and is connected to the international AIDEX Energy Group. Behind your system is an energy business that also works with industry and international supply.',
+      lead: 'AIDEX.lv works with homes and local businesses in Latvia. {groupRel} AIDEX Energy Group works with industry and international renewable-energy supply.',
       stages: [
         { tag: '01 · Home', title: 'Solar panels and batteries', points: ['6–12+ kW packages', 'Energy storage', 'EV charging', 'Government-support paperwork'] },
         { tag: '02 · Business', title: 'Commercial and industrial energy', points: ['Commercial solar plants', 'Industrial rooftop and ground projects', 'BESS energy storage', 'B2B equipment supply'] },

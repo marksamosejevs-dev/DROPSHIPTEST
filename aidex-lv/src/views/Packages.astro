@@ -18,7 +18,7 @@ const t = useT(lang);
   <PageHero lang={lang} eyebrow={t.packages.eyebrow} title={t.pages.h1.packages} lead={t.packages.lead} crumb={t.nav.packages} image={media.pkg8.src} imageAlt={media.pkg8.alt[lang]} cta={false} secondary={{ href: path('packages', lang, 'calculator'), label: t.cta.calc }} />
   <Packages lang={lang} />
   <Calculator lang={lang} />
-  <SupportSection lang={lang} />
+  <SupportSection lang={lang} tone="bg" />
   <FaqList lang={lang} limit={6} />
   <FinalCta lang={lang} source="packages" />
 </Base>

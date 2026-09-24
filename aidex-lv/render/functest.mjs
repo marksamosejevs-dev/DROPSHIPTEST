@@ -7,7 +7,7 @@ async function newPage(w = 1440, h = 900) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h } });
   const p = await ctx.newPage();
   p.on('pageerror', (e) => errors.push(e.message));
-  p.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  p.on('console', (m) => m.type() === 'error' && !/status of 500/.test(m.text()) && errors.push(m.text())); // the 500 is the simulated backend failure
   return p;
 }
 // ---- cookie consent
@@ -98,7 +98,21 @@ await f.locator('[name="phone"]').fill('+371 20000000');
 await f.locator('[name="email"]').fill('test@example.com');
 await f.locator('[data-submit]').click();
 await p.waitForTimeout(900);
-ok(await f.locator('[data-done]').isVisible(), 'submit → success state (dev mode)');
+ok(!(await f.locator('[data-done]').isVisible()) && await f.locator('[data-not-connected]').isVisible(), 'no destination → honest "not connected", no fake success');
+ok((await f.locator('[name="name"]').inputValue()) === 'Test', 'input kept after unsent submit');
+// simulate a configured webhook: failure must NOT show success, 2xx must
+const hook = 'https://leads.example.test/hook';
+await f.evaluate((el, h) => { el.dataset.leads = JSON.stringify({ provider: 'webhook', endpoint: h, accessKey: '', portalId: '', formGuid: '', subject: '', timeoutMs: 4000 }); }, hook);
+await p.route(hook, (r) => r.fulfill({ status: 500, contentType: 'application/json', body: '{"ok":false}' }));
+await f.locator('[data-submit]').click();
+await p.waitForTimeout(500);
+ok(!(await f.locator('[data-done]').isVisible()) && (await f.locator('[data-submit-error]').innerText()).length > 0, 'backend 500 → error, no success');
+await p.unroute(hook);
+let received = null;
+await p.route(hook, (r) => { received = JSON.parse(r.request().postData()); r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); });
+await f.locator('[data-submit]').click();
+await p.waitForTimeout(500);
+ok(await f.locator('[data-done]').isVisible() && received?.email === 'test@example.com' && received?.package === 'home-8', 'backend 200 → success with payload');
 ok(await f.locator('.lf__privacy a').getAttribute('href') === '/lv/privatuma-politika/', 'privacy link localized');
 
 // ---- mobile menu + language

@@ -3,14 +3,15 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import Field from './Field.astro';
 import { useT, path, type Locale } from '../i18n';
-import { company, group, known } from '../config/company';
+import { company, group, known, phoneHref as tel, officeAddress } from '../config/company';
 
 interface Props { lang: Locale }
 const { lang } = Astro.props;
 const t = useT(lang);
 const f = t.footer;
 const year = new Date().getFullYear();
-const phoneHref = known(company.phoneHref);
+const phoneHref = tel();
+const office = officeAddress();
 const email = known(company.email);
 ---
 <footer class="ftr dark" aria-labelledby="footer-title">
@@ -70,6 +71,7 @@ const email = known(company.email);
         <div><dt>{f.regNo}</dt><dd><Field value={company.registrationNumber} lang={lang} /></dd></div>
         <div><dt>{f.vat}</dt><dd><Field value={company.vatNumber} lang={lang} /></dd></div>
         <div><dt>{f.address}</dt><dd><Field value={company.registeredAddress} lang={lang} /></dd></div>
+        {office && <div><dt>{f.office}</dt><dd>{office}</dd></div>}
         <div><dt>{f.email}</dt><dd>{email ? <a href={`mailto:${email}`}>{email}</a> : <Field value={company.email} lang={lang} />}</dd></div>
         <div><dt>{f.phone}</dt><dd>{phoneHref ? <a href={`tel:${phoneHref}`}><Field value={company.phone} lang={lang} /></a> : <Field value={company.phone} lang={lang} />}</dd></div>
       </dl>

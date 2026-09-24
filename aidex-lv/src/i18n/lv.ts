@@ -39,11 +39,11 @@ const lv = {
     },
     business: {
       title: 'Saules enerģija un BESS uzņēmumiem | AIDEX',
-      description: 'Komerciālas un industriālas saules elektrostacijas, enerģijas uzkrāšanas sistēmas (BESS) un aprīkojuma piegādes uzņēmumiem. Daļa no AIDEX Energy Group ekosistēmas.',
+      description: 'Komerciālas un industriālas saules elektrostacijas, enerģijas uzkrāšanas sistēmas (BESS) un aprīkojuma piegādes uzņēmumiem. {groupRel}',
     },
     about: {
       title: 'Par AIDEX — enerģētikas uzņēmums, ne tikai uzstādītājs',
-      description: 'AIDEX.lv pārvalda GREEN ENERGY SIA. Vietēja saules enerģijas pieredze kopā ar starptautisko AIDEX Energy Group.',
+      description: 'AIDEX.lv pārvalda GREEN ENERGY SIA. Saules paneļi, akumulatori un uzstādīšana Latvijā. {groupRel}',
     },
     faq: {
       title: 'Biežāk uzdotie jautājumi par saules paneļiem | AIDEX',
@@ -93,6 +93,7 @@ const lv = {
     b2b: 'Sazināties par projektu',
     call: 'Zvanīt',
     more: 'Uzzināt vairāk',
+    businessMore: 'Risinājumi uzņēmumiem',
     allFaq: 'Visi jautājumi',
     allProjects: 'Visi projekti',
     back: 'Atpakaļ uz sākumu',
@@ -110,8 +111,8 @@ const lv = {
     trust: [
       { title: 'Viss no viena partnera', text: 'Konsultācija, projekts, montāža un serviss' },
       { title: 'Paneļi + akumulators', text: 'Sistēma, kas strādā arī vakarā' },
-      { title: 'Palīdzība ar atbalstu', text: 'Dokumenti un pieslēguma process' },
-      { title: 'AIDEX Energy Group', text: 'Starptautiska enerģētikas pieredze' },
+      { title: 'Palīdzība ar valsts atbalstu', text: 'Dokumenti un pieslēguma process' },
+      { title: 'AIDEX Energy Group', text: '{groupRelShort}' },
     ],
     scroll: 'Ritināt',
   },
@@ -174,7 +175,7 @@ const lv = {
 
   calc: {
     eyebrow: 'Izmaksu kalkulators',
-    title: 'Cik jums maksātu saules enerģija?',
+    title: 'Cik maksātu saules sistēma jūsu mājai?',
     lead: 'Ievadiet mēneša patēriņu vai rēķinu — aprēķins parādīsies uzreiz.',
     mode: 'Aprēķina pamats',
     byConsumption: 'Patēriņš',
@@ -236,6 +237,7 @@ const lv = {
     verifyNote: 'Programmas nosacījumi var mainīties. Pirms līguma noslēgšanas pārbaudām aktuālos noteikumus.',
     unverified: 'Izstrādes versija: summas jāapstiprina ar oficiālo avotu.',
     source: 'Avots',
+    helpTitle: 'Kā mēs palīdzam',
     steps: ['Mēs izvērtējam, vai jūsu projekts atbilst programmai', 'Sagatavojam tehnisko informāciju pieteikumam', 'Pēc uzstādīšanas palīdzam ar noslēguma dokumentiem'],
   },
 
@@ -243,7 +245,7 @@ const lv = {
     eyebrow: 'Process',
     title: 'Seši soļi līdz jūsu enerģijai',
     steps: [
-      { title: 'Pieteikums', text: 'Norādiet adresi un elektrības patēriņu. Tas aizņem divas minūtes.' },
+      { title: 'Pieteikums', text: 'Norādiet adresi un elektrības patēriņu. Tas aizņem aptuveni minūti.' },
       { title: 'Aprēķins', text: 'Sagatavojam ieteicamo konfigurāciju un indikatīvu cenu.' },
       { title: 'Apsekošana', text: 'Inženieris izvērtē jumtu, elektroinstalāciju un pieslēgumu.' },
       { title: 'Projektēšana', text: 'Izstrādājam galīgo sistēmas projektu un saskaņojam to.' },
@@ -257,7 +259,9 @@ const lv = {
     title: 'Mūsu darbi',
     lead: 'Privātmājas un uzņēmumi, kas jau ražo paši savu enerģiju.',
     placeholderNote: 'Izstrādes versija: šie ir izkārtojuma paraugi, nevis reāli AIDEX projekti. Tie tiks aizstāti ar īstiem projektiem un fotogrāfijām.',
-    labels: { capacity: 'Jauda', panel: 'Paneļi', inverter: 'Invertors', battery: 'Akumulators', production: 'Gada ražošana', location: 'Vieta' },
+    labels: { capacity: 'Jauda', panel: 'Paneļi', inverter: 'Invertors', battery: 'Akumulators', production: 'Gada ražošana', location: 'Vieta', installed: 'Uzstādīts', segment: 'Objekts' },
+    auto: (kw: string, bat: string | null) => `${kw} saules sistēma${bat ? ` ar ${bat} akumulatoru` : ''}`,
+    detail: { system: 'Sistēma', challenge: 'Uzdevums', solution: 'Risinājums', result: 'Rezultāts', gallery: 'Fotogrāfijas', back: 'Visi projekti', cta: 'Vēlaties līdzīgu sistēmu?', ctaText: 'Norādiet adresi un patēriņu — sagatavosim aprēķinu jūsu mājai.', more: 'Citi projekti', view: 'Skatīt projektu' },
     segments: { all: 'Visi', home: 'Privātmājas', business: 'Uzņēmumi' },
   },
 
@@ -265,13 +269,13 @@ const lv = {
     eyebrow: 'Atsauksmes',
     title: 'Ko saka mūsu klienti',
     placeholderNote: 'Šeit tiks publicētas tikai reālas, klientu apstiprinātas atsauksmes.',
-    source: { google: 'Google', direct: 'Tieša atsauksme', facebook: 'Facebook' },
+    source: { google: 'Google', direct: 'Tieša atsauksme', facebook: 'Facebook', other: 'Atsauksme' },
   },
 
   b2b: {
     eyebrow: 'Uzņēmumiem',
     title: 'Enerģijas risinājumi uzņēmumiem',
-    lead: 'AIDEX neaprobežojas ar privātmājām. Projektējam un būvējam saules elektrostacijas un enerģijas uzkrāšanas sistēmas uzņēmumiem, piegādājam aprīkojumu — ar starptautiskās AIDEX Energy Group atbalstu.',
+    lead: 'AIDEX neaprobežojas ar privātmājām. Projektējam un būvējam saules elektrostacijas un enerģijas uzkrāšanas sistēmas uzņēmumiem, piegādājam aprīkojumu. {groupRel}',
     categories: [
       { title: 'Komerciālā saules enerģija', text: 'Noliktavas, ražotnes, biroji, tirdzniecība, loģistikas centri un lauksaimniecības uzņēmumi.' },
       { title: 'Industriālā saules enerģija', text: 'Lieli jumta un zemes projekti ar pilnu inženiertehnisko nodrošinājumu.' },
@@ -281,7 +285,7 @@ const lv = {
     segmentsTitle: 'Risinājumi',
     segments: ['Noliktavas', 'Ražotnes', 'Biroji', 'Tirdzniecība', 'Loģistikas centri', 'Lauksaimniecība'],
     groupEyebrow: 'Atjaunīgā enerģija',
-    groupTitle: 'Daļa no plašāka enerģētikas biznesa',
+    groupTitle: 'AIDEX Energy Group',
     groupText: 'AIDEX Energy Group ir Latvijā bāzēts atjaunīgās enerģijas uzņēmums, kas piegādā sertificētu biomasu, saules un uzkrāšanas risinājumus visā ES un Apvienotajā Karalistē.',
     groupStat: 'tonnu sertificētas biomasas pārvietojas caur AIDEX Energy Group visā ES un AK',
     groupStatSource: 'Avots: aidex-energy.com',
@@ -291,10 +295,10 @@ const lv = {
   about: {
     eyebrow: 'Par AIDEX',
     title: 'Enerģētikas uzņēmums. Ne tikai uzstādītāju brigāde.',
-    lead: 'AIDEX.lv pārvalda GREEN ENERGY SIA. Mēs apvienojam vietējo saules enerģijas pieredzi Latvijā ar starptautiskās AIDEX Energy Group enerģētikas biznesa iespējām.',
+    lead: 'AIDEX.lv pārvalda GREEN ENERGY SIA. Mēs projektējam, uzstādām un pieslēdzam saules enerģijas sistēmas privātmājām un uzņēmumiem Latvijā.',
     blocks: [
       { title: 'Vietējā komanda', text: 'Konsultācijas, apsekošana, projektēšana un uzstādīšana Latvijā — latviešu, krievu un angļu valodā.' },
-      { title: 'Starptautisks mērogs', text: 'AIDEX Energy Group piegādes ķēde, iepirkumu apjomi un pieredze darbā ar ražotājiem visā Eiropā.' },
+      { title: 'AIDEX Energy Group', text: '{groupRel} AIDEX Energy Group darbojas atjaunīgās enerģijas jomā ES un Apvienotajā Karalistē.' },
       { title: 'Ilgtermiņa atbildība', text: 'Saules sistēma kalpo desmitiem gadu. Tāpēc mēs paliekam kontaktā arī pēc nodošanas.' },
     ],
     operator: 'AIDEX.lv pārvalda GREEN ENERGY SIA',
@@ -353,8 +357,8 @@ const lv = {
     success: {
       title: 'Paldies! Pieteikums saņemts.',
       text: 'Mūsu speciālists sazināsies ar jums, lai precizētu detaļas un sagatavotu aprēķinu.',
-      dev: 'Izstrādes režīms: dati netika nosūtīti (nav konfigurēts pieteikumu galapunkts).',
     },
+    notConnected: { title: 'Pieteikumu forma vēl nav pieslēgta', text: 'Jūsu pieteikums netika nosūtīts. Ievadītie dati ir saglabāti šajā lapā — lūdzu, mēģiniet vēlāk.', alt: 'Vai sazinieties ar mums tieši:' },
     quick: 'Aizņem ~1 minūti',
   },
 
@@ -379,7 +383,7 @@ const lv = {
   },
 
   footer: {
-    tagline: 'Saules enerģija privātmājām un uzņēmumiem Latvijā. Daļa no plašāka enerģētikas biznesa.',
+    tagline: 'Saules enerģija privātmājām un uzņēmumiem Latvijā. {groupRel}',
     cols: { aidex: 'AIDEX', business: 'Uzņēmumiem', company: 'Uzņēmums', legal: 'Juridiskā informācija' },
     commercialSolar: 'Komerciālie saules risinājumi',
     storage: 'Enerģijas uzkrāšana',
@@ -387,6 +391,8 @@ const lv = {
     regNo: 'Reģ. Nr.',
     vat: 'PVN Nr.',
     address: 'Juridiskā adrese',
+    office: 'Birojs',
+    hours: 'Darba laiks',
     email: 'E-pasts',
     phone: 'Tālrunis',
     cookieSettings: 'Sīkdatņu iestatījumi',
@@ -405,7 +411,7 @@ const lv = {
       title: 'Pilna saules sistēma jūsu mājai',
       lead: 'Saules paneļi, akumulators un profesionāla uzstādīšana. Projektēšanu, pieslēgšanu un valsts atbalsta dokumentus sakārtojam mēs.',
       facts: ['Paneļi', 'Akumulatori', 'Uzstādīšana', 'Valsts atbalsts'],
-      priceLine: 'Komplekti ar akumulatoru no {price} ar valsts atbalstu',
+      priceLine: 'Komplekti ar akumulatoru no {price} pēc valsts atbalsta',
       seePrices: 'Skatīt komplektus un cenas',
     },
     pk: {
@@ -416,21 +422,28 @@ const lv = {
       withBat: '{kwh} kWh akumulators',
       noBat: 'bez akumulatora',
       from: 'no',
-      afterSupport: 'ar valsts atbalstu',
+      afterSupport: 'pēc valsts atbalsta',
       full: 'Pilna cena',
       support: 'atbalsts līdz',
       details: 'Specifikācija',
       compare: 'Salīdziniet komplektus',
-      compareLead: 'Visas cenas ar PVN. Mazākā summa — pēc iespējamā valsts atbalsta.',
+      compareLead: 'Visas cenas ar PVN. Jūsu cena norādīta pēc iespējamā valsts atbalsta.',
       yourPrice: 'Jūsu cena',
       consumption: 'Patēriņš',
       maxTitle: 'Individuāls projekts',
       maxText: 'Lielākām mājām, siltumsūknim, elektroauto un zemes konstrukcijām.',
+      priceLabel: 'Cena',
+      supportLabel: 'Valsts atbalsts',
+      finalLabel: 'Jūsu cena pēc atbalsta',
+      promoLabel: 'Akcija',
+      yrs: (n: number) => `${n} g.`,
+      w: { performance: 'Paneļu jaudas garantija', product: 'Paneļu produkta garantija', equipment: 'Iekārtu garantija', installation: 'Montāžas garantija' },
+      scrollHint: 'Pavelciet, lai salīdzinātu',
     },
     hs: {
       eyebrow: 'Sistēma',
       title: 'Jūsu māja — jūsu elektrostacija',
-      lead: 'Viena saskaņota sistēma. Izvēlieties elementu, lai redzētu, ko tas dara.',
+      lead: 'Visas iekārtas strādā kā viena sistēma. Izvēlieties elementu, lai uzzinātu, ko tas dara.',
       hint: 'Izvēlieties elementu',
       items: {
         panels: { label: 'Saules paneļi', title: 'Saules paneļi', text: 'Melni monokristāliskie paneļi uz jumta ražo elektrību visu gaišo diennakts laiku — arī mākoņainā dienā.' },
@@ -443,7 +456,7 @@ const lv = {
       eyebrow: 'Kā tas strādā',
       title: 'Saule dienā. Sava enerģija arī naktī.',
       day: 'Diena',
-      dayText: 'Paneļi baro māju, uzlādē akumulatoru, un pārpalikums nonāk tīklā. Par dienā patērēto elektrību jūs nemaksājat.',
+      dayText: 'Paneļi baro māju, uzlādē akumulatoru, un pārpalikums nonāk tīklā. Dienā jūsu māja izmanto pašu saražoto elektrību.',
       night: 'Nakts',
       nightText: 'Pēc saulrieta māju baro akumulators. Gaisma, ierīces un siltumsūknis strādā ar dienā uzkrāto enerģiju.',
       size: 'Sistēmas jauda',
@@ -451,7 +464,7 @@ const lv = {
       note: 'Indikatīvi aprēķini ar kalkulatora pieņēmumiem.',
     },
     why: {
-      title: 'Uzstādot sistēmu ar AIDEX, jūs iegūstat',
+      title: 'Ko jūs iegūstat ar AIDEX',
       monitor: { title: 'Monitorings lietotnē', text: 'Ražošana, patēriņš un akumulators reāllaikā — telefonā un datorā.' },
       today: 'Šodien',
       produced: 'Saražots',
@@ -461,7 +474,7 @@ const lv = {
     b2b: {
       eyebrow: 'No mājas līdz starptautiskam biznesam',
       title: 'Viena enerģētikas ekosistēma',
-      lead: 'AIDEX.lv apkalpo mājsaimniecības un vietējos uzņēmumus Latvijā, un tas ir saistīts ar starptautisko AIDEX Energy Group. Aiz jūsu sistēmas ir enerģētikas bizness, kas strādā arī ar rūpniecību un starptautiskām piegādēm.',
+      lead: 'AIDEX.lv strādā ar privātmājām un vietējiem uzņēmumiem Latvijā. {groupRel} AIDEX Energy Group strādā ar rūpniecību un starptautiskām atjaunīgās enerģijas piegādēm.',
       stages: [
         { tag: '01 · Mājai', title: 'Saules paneļi un akumulatori', points: ['Komplekti 6–12+ kW', 'Enerģijas uzkrāšana', 'Elektroauto uzlāde', 'Valsts atbalsta dokumenti'] },
         { tag: '02 · Uzņēmumiem', title: 'Komerciālā un industriālā enerģija', points: ['Komerciālas saules stacijas', 'Industriāli jumta un zemes projekti', 'BESS enerģijas uzkrāšana', 'Aprīkojuma B2B piegādes'] },

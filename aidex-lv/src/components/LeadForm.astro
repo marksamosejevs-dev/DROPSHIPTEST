@@ -7,7 +7,8 @@
  */
 import Icon from './Icon.astro';
 import { useT, path, units, type Locale } from '../i18n';
-import { integrations } from '../config/company';
+import { company, known } from '../config/company';
+import { leadClientConfig } from '../config/leads';
 import { calculatorAssumptions as A } from '../data/calculator';
 
 interface Props { lang: Locale; id?: string; tone?: 'light' | 'dark'; source?: string }
@@ -16,16 +17,18 @@ const t = useT(lang);
 const f = t.form;
 const total = 4;
 const interests = Object.entries(f.interestOptions) as [string, string][];
+const cfg = leadClientConfig();
+const fallbackEmail = known(company.email);
+const fallbackPhone = known(company.phone);
 const interestIcons: Record<string, string> = { solar: 'panel', battery: 'battery', ev: 'ev', consult: 'phone' };
 ---
 <form
   class:list={['lf', `lf--${tone}`]}
   id={id}
   method="post"
-  action={integrations.leadEndpoint || undefined}
   novalidate
   data-lead-form
-  data-endpoint={integrations.leadEndpoint}
+  data-leads={JSON.stringify(cfg)}
   data-errors={JSON.stringify(f.errors)}
   data-sending={f.sending}
   data-step="1"
@@ -120,6 +123,13 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
   </fieldset>
 
   <p class="field-error lf__submit-err" role="alert" data-submit-error></p>
+  <div class="lf__off" role="status" data-not-connected hidden>
+    <p class="lf__offtitle">{f.notConnected.title}</p>
+    <p>{f.notConnected.text}</p>
+    {(fallbackEmail || fallbackPhone) && (
+      <p class="lf__offalt">{f.notConnected.alt} {fallbackPhone && <a href={`tel:${fallbackPhone.replace(/[^\d+]/g, '')}`}>{fallbackPhone}</a>}{fallbackPhone && fallbackEmail && ' · '}{fallbackEmail && <a href={`mailto:${fallbackEmail}`}>{fallbackEmail}</a>}</p>
+    )}
+  </div>
 
   <div class="lf__nav">
     <button type="button" class="btn btn--ghost lf__back" data-back hidden>{f.back}</button>
@@ -131,7 +141,6 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
     <span class="lf__doneicon"><Icon name="check" size={28} /></span>
     <p class="lf__donetitle">{f.success.title}</p>
     <p>{f.success.text}</p>
-    <p class="dev-note" data-dev-note hidden>{f.success.dev}</p>
   </div>
 </form>
 
@@ -140,8 +149,12 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
 </script>
 
 <style>
+  .lf__off { display: grid; gap: 4px; padding: 14px 16px; border-radius: var(--r-sm); background: #fff7df; color: #5a4300; font-size: .9063rem; line-height: 1.5; box-shadow: inset 0 0 0 1px #f0d98a; }
+  .lf__off[hidden] { display: none; }
+  .lf__offtitle { font-weight: 700; color: #3f2f00; }
+  .lf__offalt a { color: inherit; font-weight: 600; text-decoration: underline; }
   .lf { --surface: #fff; --fg: var(--ink); position: relative; display: grid; gap: 22px; padding: clamp(22px, 3.4vw, 36px); border-radius: 16px; background: var(--surface); color: var(--fg); box-shadow: var(--shadow-card), 0 0 0 1px var(--line); }
-  .lf__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .lf__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 12px; }
   .lf__title { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
   .lf__quick { display: inline-flex; align-items: center; gap: 6px; font-size: .8125rem; color: var(--muted); white-space: nowrap; }
   .lf__progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
