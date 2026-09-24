@@ -41,7 +41,8 @@ Nothing here is deployed yet. Every item below is still temporary (visible as a 
 | Company details (reg. no., VAT, addresses, phone, e-mail, hours) | `src/config/company.ts` → `company` | Replace each `placeholder(...)`. This updates the footer, contact page, About, legal pages, Privacy Policy, Terms and JSON-LD |
 | Relationship with AIDEX Energy Group | `src/config/company.ts` → `groupRelationship` | Replace `statement` / `short` / `legal` with the approved wording, set `schema` and `confirmed: true`. Every sentence on the site uses `{groupRel}` / `{groupRelShort}` |
 | Biomass figure from aidex-energy.com | `group.facts` | Confirm, then set `biomassTonnesConfirmed: true` |
-| **Packages, equipment, prices, warranties** (TEMPORARY ENERGUM benchmark) | `src/data/packages.ts` | Fill from the template at the bottom of the file, set `source: 'aidex'` and `BENCHMARK_MODE = false`. `null` fields are hidden |
+| Panels | `src/data/equipment.ts` | **Done:** SUNPRO POWER SP440-N108M10 Black Frame (verified by AIDEX), 14 / 18 / 23 panels = 6.16 / 7.92 / 10.12 kWp. It has its own page at `/lv/saules-paneli/sunpro-power-sp440-n108m10/`. Warranty, loads and certifications are still empty until confirmed; add a product photo via `photos` |
+| **Prices, support, warranties, inverter, battery** (TEMPORARY ENERGUM benchmark) | `src/data/packages.ts` | Fill from the template at the bottom of the file, set `source: 'aidex'` and `BENCHMARK_MODE = false`. `null` fields are hidden |
 | Government support | `src/data/support.ts` | Verify, fill `internal` (never rendered), set `verified: true` |
 | Calculator assumptions | `src/data/calculator.ts` | Have engineering tune yield, prices and self-use shares |
 | Projects / case studies | `src/data/projects.ts` + `src/assets/projects/<slug>/` | Each published, consented project becomes a card and its own page `/lv/musu-darbi/<slug>/` |
@@ -72,7 +73,7 @@ src/
   config/company.ts      Legal entity, contacts, group relationship wording. Single source for footer, legal pages, JSON-LD
   config/leads.ts        Lead-form destination (disabled / Web3Forms / Formspree / HubSpot / webhook)
   config/site.ts         Production origin (canonical / hreflang / sitemap)
-  data/                  All commercial content: packages, support, calculator, projects, reviews
+  data/                  All commercial content: packages, equipment (manufacturer specs), support, calculator, projects, reviews
                          (testimonials.ts), FAQ, media registry
   assets/projects/       Real project photos, one folder per project slug
   i18n/                  lv.ts (source) · ru.ts · en.ts (typed against lv) · routes.ts (localized slugs)
@@ -80,7 +81,7 @@ src/
   components/            UI. components/home/* are the homepage sections, reused on inner pages
   views/                 One view per page type
   pages/[lang]/[...slug].astro   One router that generates every /lv|ru|en/… page
-  pages/[lang]/[section]/[project].astro   Case-study pages, generated from data/projects.ts
+  pages/[lang]/[section]/[item].astro   Case-study pages (data/projects.ts) and equipment pages (data/equipment.ts)
   scripts/               consent.ts · lead-form.ts · main.ts
   lib/                   calc.ts (the calculator model, shared by server and browser) · seo.ts · images.ts
 render/                  Offline three.js renderer for the temporary imagery (not deployed)

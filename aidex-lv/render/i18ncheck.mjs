@@ -14,7 +14,7 @@ for (const lang of ['en', 'ru']) {
         const t = n.textContent.trim(); if (!t) continue;
         const el = n.parentElement; if (el.closest('script,style,[lang]:not(html)')) continue;
         if (/[āēīūčšžņļģķ]/i.test(t)) out.add(t.slice(0, 80));
-        if (lang === 'ru' && /\b[a-z]{4,}\b/.test(t) && !/(AIDEX|GREEN|ENERGY|Group|Growatt|Renon|Xcellent|Plus|Hybrid|AIKO|black|kWh|Google|Meta|Pixel|Analytics|Consent|Mode|localStorage|cookie|Home|Max|aidex|energy|sadalestikls|www|dvi|ptac|gov|com|Ireland|Platforms|Ltd|UTM|HTTPS|GDPR|BESS|B2B|CRM|IT)/.test(t)) out.add('LATIN: ' + t.slice(0, 80));
+        if (lang === 'ru' && /\b[a-z]{4,}\b/.test(t) && !/(SUNPRO|POWER|TOPCon|type|Frame|Black|AIDEX|GREEN|ENERGY|Group|Growatt|Renon|Xcellent|Plus|Hybrid|AIKO|black|kWh|Google|Meta|Pixel|Analytics|Consent|Mode|localStorage|cookie|Home|Max|aidex|energy|sadalestikls|www|dvi|ptac|gov|com|Ireland|Platforms|Ltd|UTM|HTTPS|GDPR|BESS|B2B|CRM|IT)/.test(t)) out.add('LATIN: ' + t.slice(0, 80));
       }
       return [...out];
     }, lang);

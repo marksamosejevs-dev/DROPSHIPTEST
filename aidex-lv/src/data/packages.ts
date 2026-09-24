@@ -4,9 +4,11 @@
  * ============================================================================
  *  TEMPORARY — REPLACE WITH AIDEX PRODUCT DATA BEFORE PUBLIC LAUNCH
  *
- *  The values below are a DEVELOPMENT BENCHMARK derived from publicly visible
- *  market offers (ENERGUM, energum.lv, September 2026) so the layout can be
- *  reviewed with realistic numbers. They are NOT AIDEX offers.
+ *  PANELS: SUNPRO POWER SP440-N108M10 Black Frame — chosen and verified by
+ *  AIDEX (full manufacturer record in src/data/equipment.ts).
+ *  PRICES, SUPPORT, WARRANTIES, INVERTER, BATTERY: still a DEVELOPMENT
+ *  BENCHMARK derived from publicly visible market offers (ENERGUM, energum.lv,
+ *  September 2026). They are NOT AIDEX offers.
  *
  *  To go live:
  *   1. Fill each package using the template at the bottom of this file.
@@ -29,7 +31,8 @@ export const BENCHMARK_MODE = true;
 export type Localized = { lv: string; ru: string; en: string };
 export type Source = 'benchmark' | 'benchmark-approximation' | 'aidex';
 
-export interface PanelSpec { manufacturer: string; model: string | null; watt: number; count: number | null }
+/** `productId` links to the full manufacturer record in src/data/equipment.ts. */
+export interface PanelSpec { productId?: string | null; manufacturer: string; model: string | null; watt: number; count: number | null }
 export interface InverterSpec { manufacturer: string; model: string | null; kw: number | null; phases?: 1 | 3 | null; hybrid?: boolean }
 export interface BatterySpec { manufacturer: string; model: string | null; kwh: number }
 
@@ -62,7 +65,8 @@ export interface Warranty {
 export interface SolarPackage {
   id: string;
   name: string;
-  /** System size in kW. `null` = custom / individual project card. */
+  /** Nominal (commercial) size in kW, used in the name and support curve. `null` = custom project.
+   *  The real installed capacity is dcKwp() = panel count × panel W. */
   kw: number | null;
   /** Short description shown on the card (optional). */
   description: Localized | null;
@@ -94,8 +98,10 @@ export const defaultWarranty: Warranty = {
   note: null,
 };
 
-// Benchmark equipment, reused by the three standard packages below.
-const aiko = (count: number): PanelSpec => ({ manufacturer: 'AIKO', model: '500 W all-black', watt: 500, count });
+// Panels: SUNPRO POWER SP440-N108M10 Black Frame (AIDEX choice; full record in src/data/equipment.ts).
+// DC capacity = panel count × 440 W → 6.16 / 7.92 / 10.12 kWp.
+const sunpro = (count: number): PanelSpec => ({ productId: 'sunpro-sp440-n108m10-bf', manufacturer: 'SUNPRO POWER', model: 'SP440-N108M10', watt: 440, count });
+// Inverter and battery: TEMPORARY benchmark equipment, unchanged until AIDEX confirms its choice.
 const growatt = (kw: number): InverterSpec => ({ manufacturer: 'Growatt', model: `Hybrid ${kw} kW`, kw, phases: 3, hybrid: true });
 const renon16: BatterySpec = { manufacturer: 'Renon', model: 'Xcellent Plus', kwh: 16 };
 
@@ -105,7 +111,7 @@ export const packages: SolarPackage[] = [
     id: 'home-6', name: 'AIDEX Home 6', image: 'pkg6', kw: 6,
     description: null, householdProfile: null,
     fitsConsumption: [3500, 6500],
-    panel: aiko(12), inverter: growatt(6), battery: renon16,
+    panel: sunpro(14), inverter: growatt(6), battery: renon16,
     offers: {
       withBattery: { price: 9000, support: 5300, supportSplit: { pv: 2800, battery: 2500 } },
       withoutBattery: { price: 5600, support: 2800, supportSplit: { pv: 2800, battery: 0 } },
@@ -117,7 +123,7 @@ export const packages: SolarPackage[] = [
     id: 'home-8', name: 'AIDEX Home 8', image: 'pkg8', kw: 8, featured: true,
     description: null, householdProfile: null,
     fitsConsumption: [6500, 9000],
-    panel: aiko(16), inverter: growatt(8), battery: renon16,
+    panel: sunpro(18), inverter: growatt(8), battery: renon16,
     offers: {
       withBattery: { price: 11500, promoPrice: 10900, support: 6000, supportSplit: { pv: 3500, battery: 2500 } },
       withoutBattery: { price: 7400, support: 3500, supportSplit: { pv: 3500, battery: 0 } },
@@ -129,7 +135,7 @@ export const packages: SolarPackage[] = [
     id: 'home-10', name: 'AIDEX Home 10', image: 'pkg10', kw: 10,
     description: null, householdProfile: null,
     fitsConsumption: [9000, 12000],
-    panel: aiko(20), inverter: growatt(12), battery: renon16,
+    panel: sunpro(23), inverter: growatt(12), battery: renon16,
     offers: {
       withBattery: { price: 13300, support: 6500, supportSplit: { pv: 4000, battery: 2500 } },
       withoutBattery: { price: 9200, support: 4000, supportSplit: { pv: 4000, battery: 0 } },
@@ -154,6 +160,8 @@ export const finalPrice = (o: Offer, includeSupport = true) =>
   includeSupport ? o.finalPrice ?? Math.max(0, effectivePrice(o) - (o.support ?? 0)) : effectivePrice(o);
 export const warrantyOf = (p: SolarPackage): Warranty => p.warranty ?? defaultWarranty;
 export const standardPackages = () => packages.filter((p) => p.kw !== null);
+/** Real installed DC capacity in kWp (panel count × panel wattage), or null. */
+export const dcKwp = (p: SolarPackage) => (p.panel?.count ? (p.panel.count * p.panel.watt) / 1000 : null);
 
 export const lowestFinalPrice = (variant: 'withBattery' | 'withoutBattery' | 'any' = 'any') =>
   Math.min(...packages
@@ -177,7 +185,7 @@ for (const p of packages) for (const o of [p.offers.withBattery, p.offers.withou
     description: { lv: '…', ru: '…', en: '…' },          // or null
     householdProfile: { lv: '…', ru: '…', en: '…' },     // or null
     fitsConsumption: [6500, 9000],      // kWh per YEAR
-    panel: { manufacturer: '…', model: '…', watt: 0, count: 0 },
+    panel: { productId: '…', manufacturer: '…', model: '…', watt: 0, count: 0 },
     inverter: { manufacturer: '…', model: '…', kw: 0, phases: 3, hybrid: true },
     battery: { manufacturer: '…', model: '…', kwh: 0 },  // or null
     offers: {

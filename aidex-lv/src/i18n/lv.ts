@@ -304,6 +304,21 @@ const lv = {
     operator: 'AIDEX.lv pārvalda GREEN ENERGY SIA',
   },
 
+  equipment: {
+    titleSuffix: 'saules panelis',
+    eyebrow: 'Saules paneļi AIDEX komplektos',
+    lead: 'Šo moduli izmantojam AIDEX saules paneļu komplektos privātmājām.',
+    keyPower: 'jauda', keyEff: 'moduļa efektivitāte', keyWarranty: 'produkta un jaudas garantija',
+    advTitle: 'Kāpēc šis panelis', specTitle: 'Tehniskā specifikācija', datasheet: 'Ražotāja datu lapa (PDF)',
+    manufacturerSite: 'Ražotāja vietne', inPackages: 'Komplektos ar šo paneli', panelsCount: (n: number) => `${n} paneļi`,
+    note: 'Specifikācija pēc ražotāja oficiālās produkta informācijas. Tehniskie dati var mainīties; noteicošā ir aktuālā ražotāja dokumentācija.',
+    groups: { general: 'Vispārīgi', electrical: 'Elektriskie parametri', mechanical: 'Konstrukcija', warranty: 'Garantija' },
+    halfCells: 'pusšūnas', electricalTitle: 'Elektriskie dati (440 W)', stcCol: 'STC', nmotCol: 'NMOT', reference: 'Ražotāja produkta lapa', keyFormat: 'kompakts formāts',
+    labels: { fuse: 'Maks. virknes drošinātājs', connector: 'Savienotājs', cellCount: 'Šūnu skaits', manufacturer: 'Ražotājs', model: 'Modelis', series: 'Sērija', variant: 'Versija', technology: 'Tehnoloģija', cells: 'Šūnas', bifacial: 'Divpusējs (bifacial)', power: 'Nominālā jauda (STC)', powerRange: 'Sērijas jaudas', efficiency: 'Moduļa efektivitāte', maxVoltage: 'Maks. sistēmas spriegums', tempPmax: 'Pmax temperatūras koeficients', tempVoc: 'Voc temperatūras koeficients', construction: 'Konstrukcija', glass: 'Stikls', frame: 'Rāmja krāsa', dimensions: 'Izmēri', area: 'Laukums', weight: 'Svars', snow: 'Sniega slodze', wind: 'Vēja slodze', productWarranty: 'Produkta garantija', performanceWarranty: 'Lineārā jaudas garantija', output25: 'Jauda pēc 25 gadiem', output30: 'Jauda pēc 30 gadiem', firstYear: 'Degradācija 1. gadā', annual: 'Ikgadējā degradācija', certifications: 'Sertifikāti' },
+    construction: { 'double-glass': 'Divkāršs stikls (stikls–stikls)', 'glass-backsheet': 'Stikls ar aizmugures plēvi' },
+    years: (n: number) => `${n} gadi`, yes: 'Jā', no: 'Nē',
+  },
+
   faq: {
     eyebrow: 'BUJ',
     title: 'Biežāk uzdotie jautājumi',
@@ -438,6 +453,10 @@ const lv = {
       promoLabel: 'Akcija',
       yrs: (n: number) => `${n} g.`,
       w: { performance: 'Paneļu jaudas garantija', product: 'Paneļu produkta garantija', equipment: 'Iekārtu garantija', installation: 'Montāžas garantija' },
+      dc: 'Uzstādītā jauda',
+      panelLine: (n: number, brand: string, w: string, tech: string) => `${n} × ${brand} ${w} · ${tech}`,
+      panelCount: 'Paneļu skaits',
+      aboutPanel: 'Par paneli',
       scrollHint: 'Pavelciet, lai salīdzinātu',
     },
     hs: {
@@ -446,7 +465,7 @@ const lv = {
       lead: 'Visas iekārtas strādā kā viena sistēma. Izvēlieties elementu, lai uzzinātu, ko tas dara.',
       hint: 'Izvēlieties elementu',
       items: {
-        panels: { label: 'Saules paneļi', title: 'Saules paneļi', text: 'Melni monokristāliskie paneļi uz jumta ražo elektrību visu gaišo diennakts laiku — arī mākoņainā dienā.' },
+        panels: { label: 'Saules paneļi', title: 'Saules paneļi', text: 'SUNPRO POWER N-type TOPCon paneļi ar melnu rāmi ražo elektrību visu gaišo diennakts laiku — arī mākoņainā dienā.' },
         inverter: { label: 'Invertors', title: 'Hibrīda invertors', text: 'Pārvērš saules enerģiju mājas elektrībā un vada plūsmu starp paneļiem, akumulatoru un tīklu.' },
         battery: { label: 'Akumulators', title: 'Akumulators', text: 'Uzkrāj dienas pārpalikumu vakaram un naktij, lai jūs mazāk pirktu no tīkla.' },
         ev: { label: 'EV uzlāde', title: 'Elektroauto uzlāde', text: 'Uzlādējiet automašīnu ar pašu saražoto enerģiju — sistēmā to var paredzēt jau sākumā.' },

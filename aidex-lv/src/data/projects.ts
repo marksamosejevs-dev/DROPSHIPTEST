@@ -73,7 +73,7 @@ export const projects: Project[] = [
     published: true, consent: true, segment: 'home',
     location: 'Jūrmala',
     systemKw: 10,
-    panels: { model: 'AIKO … 500 W', count: 20 },
+    panels: { model: 'SUNPRO POWER SP440-N108M10', count: 23 },
     inverter: { model: 'Growatt …' },
     battery: { kwh: 10, model: '…' },          // or null
     installedOn: '2026-08',

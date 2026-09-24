@@ -40,10 +40,10 @@ export const fmtNum = (n: number, lang: Locale, digits = 0) =>
 export const fmtDate = (iso: string, lang: Locale) =>
   new Intl.DateTimeFormat(intlLocale[lang], { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(iso));
 
-export const units: Record<Locale, { kw: string; kwh: string; w: string; pcs: string }> = {
-  lv: { kw: 'kW', kwh: 'kWh', w: 'W', pcs: 'gab.' },
-  ru: { kw: 'кВт', kwh: 'кВт·ч', w: 'Вт', pcs: 'шт.' },
-  en: { kw: 'kW', kwh: 'kWh', w: 'W', pcs: '×' },
+export const units: Record<Locale, { kw: string; kwp: string; kwh: string; w: string; pcs: string }> = {
+  lv: { kw: 'kW', kwp: 'kWp', kwh: 'kWh', w: 'W', pcs: 'gab.' },
+  ru: { kw: 'кВт', kwp: 'кВтп', kwh: 'кВт·ч', w: 'Вт', pcs: 'шт.' },
+  en: { kw: 'kW', kwp: 'kWp', kwh: 'kWh', w: 'W', pcs: '×' },
 };
 
 export const intlLocaleOf = (lang: Locale) => intlLocale[lang];

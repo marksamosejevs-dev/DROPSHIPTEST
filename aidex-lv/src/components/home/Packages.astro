@@ -9,7 +9,9 @@ import Icon from '../Icon.astro';
 import Picture from '../Picture.astro';
 import PriceDisclaimer from '../PriceDisclaimer.astro';
 import { useT, path, fmtEur, fmtNum, units, type Locale } from '../../i18n';
-import { packages, standardPackages, effectivePrice, finalPrice, warrantyOf, type Offer, type SolarPackage, type Warranty } from '../../data/packages';
+import { packages, standardPackages, effectivePrice, finalPrice, warrantyOf, dcKwp, type Offer, type SolarPackage, type Warranty } from '../../data/packages';
+import { panelById } from '../../data/equipment';
+import { equipmentPath } from '../../lib/equipment';
 import { media } from '../../data/media';
 
 interface Props { lang: Locale; headingLevel?: 1 | 2; showHead?: boolean; compare?: boolean }
@@ -34,6 +36,10 @@ const wRows: { key: keyof Omit<Warranty, 'note'>; label: string }[] = [
   { key: 'equipmentYears', label: v.w.equipment },
   { key: 'installationYears', label: v.w.installation },
 ];
+const kwp = (p: SolarPackage) => { const d = dcKwp(p); return d != null ? `${fmtNum(d, lang, 2)} ${u.kwp}` : `${fmtNum(p.kw!, lang)} ${u.kw}`; };
+const panelOf = (p: SolarPackage) => (p.panel?.productId ? panelById(p.panel.productId) : null);
+const invText = (p: SolarPackage) => p.inverter && `${p.inverter.manufacturer} ${p.inverter.model ?? ''}`.trim();
+const batText = (p: SolarPackage) => p.battery && `${p.battery.manufacturer} ${fmtNum(p.battery.kwh, lang)} ${u.kwh}`;
 const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offer | null => p.offers[key];
 ---
 <section class="section pk" id="packages" aria-labelledby="packages-title" data-packages data-mode="with">
@@ -85,6 +91,7 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
                     <span data-variant="with">{p.battery && <> · {v.withBat.replace('{kwh}', fmtNum(p.battery.kwh, lang))}</>}</span>
                     <span data-variant="without"> · {v.noBat}</span>
                   </p>
+                  {p.panel && <p class="pc__brand tnum">{v.panelLine(p.panel.count ?? 0, p.panel.manufacturer, `${fmtNum(p.panel.watt, lang)} ${u.w}`, panelOf(p)?.technology ?? '')}</p>}
                   {(p.householdProfile || p.description) && <p class="pc__desc">{(p.householdProfile ?? p.description)![lang]}</p>}
                   {variants.map((vv) => {
                     const o = pickOffer(p, vv.key);
@@ -134,9 +141,11 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
             </thead>
             <tbody>
               {has((p) => p.fitsConsumption) && <tr><th scope="row">{v.consumption}</th>{std.map((p) => <td class="tnum">{useRange(p)}</td>)}</tr>}
-              {has((p) => p.panel) && <tr><th scope="row">{pk.specs.panels}</th>{std.map((p) => <td>{p.panel && <>{p.panel.count != null && `${p.panel.count} × `}{p.panel.manufacturer} {fmtNum(p.panel.watt, lang)} {u.w}</>}</td>)}</tr>}
-              {has((p) => p.inverter) && <tr><th scope="row">{pk.specs.inverter}</th>{std.map((p) => <td>{p.inverter && `${p.inverter.manufacturer} ${p.inverter.model ?? ''}`}</td>)}</tr>}
-              {has((p) => p.battery) && <tr><th scope="row">{pk.specs.battery}</th>{std.map((p) => <td><span data-variant="with">{p.battery && `${p.battery.manufacturer} ${fmtNum(p.battery.kwh, lang)} ${u.kwh}`}</span><span data-variant="without">{pk.specs.noBattery}</span></td>)}</tr>}
+              {has((p) => dcKwp(p)) && <tr><th scope="row">{v.dc}</th>{std.map((p) => <td class="tnum cmp__strong">{kwp(p)}</td>)}</tr>}
+              {has((p) => p.panel?.count) && <tr><th scope="row">{v.panelCount}</th>{std.map((p) => <td class="tnum">{p.panel?.count}</td>)}</tr>}
+              {has((p) => p.panel) && <tr><th scope="row">{pk.specs.panels}</th>{std.map((p) => { const pr = panelOf(p); return <td>{p.panel && <>{p.panel.manufacturer} {fmtNum(p.panel.watt, lang)} {u.w}{pr && <a class="cmp__more" href={equipmentPath(pr, lang)}>{pr.model} · {pr.technology}</a>}</>}</td>; })}</tr>}
+              {has((p) => p.inverter) && <tr><th scope="row">{pk.specs.inverter}</th>{std.map((p) => <td>{invText(p)}</td>)}</tr>}
+              {has((p) => p.battery) && <tr><th scope="row">{pk.specs.battery}</th>{std.map((p) => <td><span data-variant="with">{batText(p)}</span><span data-variant="without">{pk.specs.noBattery}</span></td>)}</tr>}
               <tr><th scope="row">{pk.specs.installation}</th>{std.map(() => <td><Icon name="check" size={18} class="cmp__ok" />{pk.specs.installationValue}</td>)}</tr>
               {wRows.filter((r) => has((p) => warrantyOf(p)[r.key])).map((r) => (
                 <tr><th scope="row">{r.label}</th>{std.map((p) => { const y = warrantyOf(p)[r.key]; return <td class="tnum">{y != null ? v.yrs(y) : '—'}</td>; })}</tr>
@@ -205,6 +214,7 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
   .pc__body { display: grid; gap: 6px; padding: 0 clamp(20px, 2.8vw, 36px) clamp(20px, 2.8vw, 36px); }
   .pc__name { color: #fff; font-size: clamp(2rem, 3.2vw, 2.75rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
   .pc__line { font-size: clamp(1rem, 1.3vw, 1.125rem); font-weight: 600; color: rgba(255,255,255,.9); }
+  .pc__brand { font-size: .875rem; font-weight: 600; color: rgba(255,255,255,.72); letter-spacing: .01em; }
   .pc__desc { font-size: 1rem; color: rgba(255,255,255,.84); max-width: 42ch; margin-top: 4px; }
   .pc__price { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2px 24px; margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.2); }
   .pc__lbl { grid-column: 1 / -1; font-size: .875rem; font-weight: 600; color: #8fe0b4; }
@@ -236,6 +246,8 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
   .cmp__nm { display: block; font-size: .8125rem; color: var(--muted); font-weight: 500; }
   thead th.is-featured .cmp__kw { color: var(--brand); }
   .cmp__sep th, .cmp__sep td { border-top: 1px solid var(--line-strong); }
+  .cmp__strong { font-weight: 700 !important; }
+  .cmp__more { display: block; font-size: .8125rem; color: var(--brand); font-weight: 600; margin-top: 2px; text-decoration: underline; text-underline-offset: 3px; }
   .cmp__sup { color: var(--brand) !important; }
   .cmp__total th, .cmp__total td { border-bottom: 0; background: var(--brand-50); }
   .cmp__total td { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; }

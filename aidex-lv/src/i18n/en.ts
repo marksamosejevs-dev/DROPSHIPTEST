@@ -305,6 +305,21 @@ const en: Dict = {
     operator: 'AIDEX.lv is operated by GREEN ENERGY SIA',
   },
 
+  equipment: {
+    titleSuffix: 'solar panel',
+    eyebrow: 'Solar panels in AIDEX packages',
+    lead: 'This is the module we use in AIDEX solar packages for homes.',
+    keyPower: 'power', keyEff: 'module efficiency', keyWarranty: 'product and power warranty',
+    advTitle: 'Why this panel', specTitle: 'Technical specification', datasheet: 'Manufacturer datasheet (PDF)',
+    manufacturerSite: 'Manufacturer website', inPackages: 'Packages with this panel', panelsCount: (n: number) => `${n} panels`,
+    note: 'Specification according to the manufacturer’s official product information. Technical data may change; the current manufacturer documentation prevails.',
+    groups: { general: 'General', electrical: 'Electrical', mechanical: 'Construction', warranty: 'Warranty' },
+    halfCells: 'half-cells', electricalTitle: 'Electrical data (440 W)', stcCol: 'STC', nmotCol: 'NMOT', reference: 'Manufacturer product page', keyFormat: 'compact format',
+    labels: { fuse: 'Max. series fuse', connector: 'Connector', cellCount: 'Number of cells', manufacturer: 'Manufacturer', model: 'Model', series: 'Series', variant: 'Version', technology: 'Technology', cells: 'Cells', bifacial: 'Bifacial', power: 'Rated power (STC)', powerRange: 'Power classes in series', efficiency: 'Module efficiency', maxVoltage: 'Max. system voltage', tempPmax: 'Temperature coefficient of Pmax', tempVoc: 'Temperature coefficient of Voc', construction: 'Construction', glass: 'Glass', frame: 'Frame colour', dimensions: 'Dimensions', area: 'Area', weight: 'Weight', snow: 'Snow load', wind: 'Wind load', productWarranty: 'Product warranty', performanceWarranty: 'Linear power warranty', output25: 'Output after 25 years', output30: 'Output after 30 years', firstYear: 'First-year degradation', annual: 'Annual degradation', certifications: 'Certifications' },
+    construction: { 'double-glass': 'Double glass (glass–glass)', 'glass-backsheet': 'Glass with backsheet' },
+    years: (n: number) => `${n} years`, yes: 'Yes', no: 'No',
+  },
+
   faq: {
     eyebrow: 'FAQ',
     title: 'Frequently asked questions',
@@ -439,6 +454,10 @@ const en: Dict = {
       promoLabel: 'Offer',
       yrs: (n: number) => `${n} ${n === 1 ? 'year' : 'years'}`,
       w: { performance: 'Panel performance warranty', product: 'Panel product warranty', equipment: 'Equipment warranty', installation: 'Installation warranty' },
+      dc: 'Installed capacity',
+      panelLine: (n: number, brand: string, w: string, tech: string) => `${n} × ${brand} ${w} · ${tech}`,
+      panelCount: 'Number of panels',
+      aboutPanel: 'About the panel',
       scrollHint: 'Swipe to compare',
     },
     hs: {
@@ -447,7 +466,7 @@ const en: Dict = {
       lead: 'One matched system. Select a component to see what it does.',
       hint: 'Select a component',
       items: {
-        panels: { label: 'Solar panels', title: 'Solar panels', text: 'All-black monocrystalline modules generate electricity throughout daylight hours — on cloudy days too.' },
+        panels: { label: 'Solar panels', title: 'Solar panels', text: 'SUNPRO POWER N-type TOPCon panels with a black frame generate electricity throughout daylight hours — on cloudy days too.' },
         inverter: { label: 'Inverter', title: 'Hybrid inverter', text: 'Turns solar power into household electricity and manages the flow between panels, battery and grid.' },
         battery: { label: 'Battery', title: 'Battery storage', text: 'Stores the daytime surplus for the evening and night, so you buy less from the grid.' },
         ev: { label: 'EV charging', title: 'EV charging', text: 'Charge your car with your own energy — easy to plan into the system from day one.' },

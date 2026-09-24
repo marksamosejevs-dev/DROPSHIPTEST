@@ -1,0 +1,200 @@
+---
+/** AIDEX presentation page for one piece of equipment (src/data/equipment.ts). */
+import Base from '../layouts/Base.astro';
+import Picture from '../components/Picture.astro';
+import Icon from '../components/Icon.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+import { useT, path, locales, fmtNum, units, type Locale } from '../i18n';
+import type { PanelProduct } from '../data/equipment';
+import { standardPackages, dcKwp } from '../data/packages';
+import { media } from '../data/media';
+import { equipmentPath, panelSpecGroups, panelElectrical } from '../lib/equipment';
+import { abs } from '../lib/seo';
+interface Props { lang: Locale; product: PanelProduct }
+const { lang, product: p } = Astro.props;
+const t = useT(lang);
+const e = t.equipment;
+const u = units[lang];
+const paths = Object.fromEntries(locales.map((l) => [l, equipmentPath(p, l)])) as Record<Locale, string>;
+const title = `${p.manufacturer} ${p.model}`;
+const groups = panelSpecGroups(p, lang);
+const elec = panelElectrical(p, lang);
+const refLabel = p.referenceIsDatasheet ? e.datasheet : e.reference;
+const photo = p.photos[0] ? media[p.photos[0]] : null;
+const used = standardPackages().filter((x) => x.panel?.productId === p.id);
+const key = [
+  { v: `${fmtNum(p.watt, lang)} ${u.w}`, l: e.keyPower },
+  p.efficiency != null && { v: `${fmtNum(p.efficiency, lang, 2)} %`, l: e.keyEff },
+  p.productWarrantyYears != null && p.performanceWarrantyYears != null ? { v: `${p.productWarrantyYears} + ${p.performanceWarrantyYears}`, l: e.keyWarranty }
+    : p.dimensions && p.weightKg != null && { v: `${fmtNum(p.weightKg, lang)} ${lang === 'ru' ? 'кг' : 'kg'}`, l: `${p.dimensions[0]} × ${p.dimensions[1]} ${lang === 'ru' ? 'мм' : 'mm'} · ${e.keyFormat}` },
+].filter(Boolean) as { v: string; l: string }[];
+const description = `${title} — ${p.technology}, ${fmtNum(p.watt, lang)} W${p.efficiency ? `, ${fmtNum(p.efficiency, lang, 2)} %` : ''}. ${e.lead}`;
+const ld = [
+  {
+    '@context': 'https://schema.org', '@type': 'Product', name: title, brand: { '@type': 'Brand', name: p.manufacturer },
+    model: p.model, category: 'Solar panel', url: abs(paths[lang]),
+    additionalProperty: [
+      { '@type': 'PropertyValue', name: 'Rated power', value: p.watt, unitText: 'W' },
+      ...(p.efficiency ? [{ '@type': 'PropertyValue', name: 'Module efficiency', value: p.efficiency, unitText: '%' }] : []),
+    ],
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t.nav.home, item: abs(path('home', lang)) },
+      { '@type': 'ListItem', position: 2, name: t.nav.solar, item: abs(path('solar', lang)) },
+      { '@type': 'ListItem', position: 3, name: title, item: abs(paths[lang]) },
+    ],
+  },
+];
+---
+<Base lang={lang} route={null} paths={paths} title={`${title} — ${e.titleSuffix} ${p.technology} | AIDEX`} description={description} jsonLd={ld} headerTone="light">
+  <section class="eq" aria-labelledby="page-title">
+    <div class="container">
+      <nav class="eq__crumbs" aria-label={t.nav.breadcrumb}>
+        <ol>
+          <li><a href={path('home', lang)}>{t.nav.home}</a></li>
+          <li><a href={path('solar', lang)}>{t.nav.solar}</a></li>
+          <li aria-current="page">{p.model}</li>
+        </ol>
+      </nav>
+
+      <div class="eq__hero">
+        <div class="eq__visual" aria-hidden={photo ? undefined : 'true'}>
+          {photo ? (
+            <Picture src={photo.src} alt={photo.alt[lang]} sizes="(min-width: 1000px) 44vw, 100vw" widths={[480, 800, 1200]} eager />
+          ) : (
+            <div class="panel-ill"><div class="panel-ill__module">{Array.from({ length: 54 }).map(() => <i></i>)}</div></div>
+          )}
+        </div>
+        <div class="eq__intro">
+          <p class="eq__brand">{p.manufacturer}</p>
+          <h1 id="page-title">{p.model}</h1>
+          <p class="eq__variant">{p.technology} · {p.variant[lang]}</p>
+          <p class="eq__lead">{e.lead}</p>
+          <dl class="eq__key">
+            {key.map((k) => <div><dt>{k.l}</dt><dd class="tnum">{k.v}</dd></div>)}
+          </dl>
+          <div class="eq__ctas">
+            <a href={path('offer', lang)} class="btn btn--primary">{t.cta.offer}<Icon name="arrow" /></a>
+            <a href={p.referenceUrl} class="btn btn--ghost" target="_blank" rel="noopener"><Icon name={p.referenceIsDatasheet ? 'doc' : 'external'} />{refLabel}</a>
+          </div>
+        </div>
+      </div>
+
+      <section class="eq__adv" aria-labelledby="adv-title">
+        <h2 id="adv-title">{e.advTitle}</h2>
+        <ul>
+          {p.benefits.map((b) => <li><h3>{b.title[lang]}</h3><p>{b.text[lang]}</p></li>)}
+        </ul>
+      </section>
+
+      <section class="eq__spec" aria-labelledby="spec-title">
+        <h2 id="spec-title">{e.specTitle}</h2>
+        <div class="eq__groups">
+          {groups.map((g) => (
+            <div class="eq__group">
+              <h3>{g.title}</h3>
+              <dl>{g.rows.map((r) => <div><dt>{r.k}</dt><dd>{r.v}</dd></div>)}</dl>
+            </div>
+          ))}
+          {elec && (
+          <div class="eq__elec">
+            <h3>{e.electricalTitle}</h3>
+            <div class="eq__elecscroll">
+              <table>
+                <thead><tr><th scope="col"><span class="sr-only">{e.electricalTitle}</span></th><th scope="col">{e.stcCol}</th><th scope="col">{e.nmotCol}</th></tr></thead>
+                <tbody>{elec.map((r) => <tr><th scope="row">{r.label}</th><td class="tnum">{r.stc}</td><td class="tnum">{r.nmot}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        )}
+        </div>
+        <p class="eq__note">{e.note} <a href={p.referenceUrl} target="_blank" rel="noopener">{refLabel}</a> · <a href={p.manufacturerUrl} target="_blank" rel="noopener">{e.manufacturerSite}</a></p>
+      </section>
+
+      {used.length > 0 && (
+        <section class="eq__pk" aria-labelledby="pk-title">
+          <h2 id="pk-title">{e.inPackages}</h2>
+          <ul>
+            {used.map((x) => (
+              <li>
+                <a href={path('packages', lang)}>
+                  <strong>{x.name}</strong>
+                  <span class="tnum">{e.panelsCount(x.panel!.count!)} × {fmtNum(x.panel!.watt, lang)} {u.w} = {fmtNum(dcKwp(x)!, lang, 2)} {u.kwp}</span>
+                  <Icon name="arrow" size={18} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  </section>
+  <FinalCta lang={lang} source={`equipment-${p.slug}`} />
+</Base>
+<style>
+  .eq { padding: calc(var(--hdr-total) + 40px) 0 clamp(56px, 7vw, 96px); background: #fff; }
+  .eq__crumbs ol { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; font-size: .875rem; color: var(--muted); }
+  .eq__crumbs li + li::before { content: '/'; margin-right: 6px; opacity: .5; }
+  .eq__crumbs a { color: inherit; }
+  .eq__hero > * { min-width: 0; }
+  .eq__hero { display: grid; gap: 32px; align-items: center; margin-top: 28px; }
+  @media (min-width: 1000px) { .eq__hero { grid-template-columns: 1fr 1fr; gap: 72px; } }
+  .eq__visual { border-radius: var(--r-xl); overflow: hidden; background: radial-gradient(120% 90% at 30% 10%, #eef3f0 0%, #dde5e1 100%); aspect-ratio: 4 / 3.4; display: grid; place-items: center; }
+  .eq__visual :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .panel-ill { width: 58%; aspect-ratio: 1134 / 1722; transform: perspective(900px) rotateY(-18deg) rotateX(6deg); filter: drop-shadow(30px 40px 40px rgba(13,29,26,.28)); }
+  .panel-ill__module { width: 100%; height: 100%; padding: 3.2%; border-radius: 6px; background: #111615; box-shadow: inset 0 0 0 3px #1d2322; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(9, 1fr); gap: 2px; }
+  .panel-ill__module i { background: linear-gradient(160deg, #1b2226 0%, #0c1013 60%, #161c20 100%); border-radius: 1px; }
+  .eq__intro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-content: center; }
+  .eq__ctas .btn { white-space: normal; text-align: center; }
+  .eq__brand { font-weight: 800; letter-spacing: .14em; font-size: .875rem; color: var(--brand); }
+  .eq__intro h1 { font-size: clamp(2.2rem, 4.4vw, 3.4rem); letter-spacing: -0.03em; line-height: 1.05; }
+  .eq__variant { font-weight: 600; color: var(--ink); }
+  .eq__lead { color: var(--muted); font-size: 1.0625rem; max-width: 52ch; }
+  .eq__key { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 8px 36px; margin: 18px 0 8px; padding: 20px 0; border-block: 1px solid var(--line); }
+  .eq__key div { display: grid; gap: 2px; }
+  .eq__key dd { order: -1; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 3vw, 2.3rem); letter-spacing: -0.03em; color: var(--ink); }
+  .eq__key dt { font-size: .8438rem; color: var(--muted); max-width: 16ch; }
+  .eq__ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .eq__adv, .eq__spec, .eq__pk { margin-top: clamp(56px, 7vw, 96px); }
+  .eq h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); letter-spacing: -0.03em; margin-bottom: 28px; }
+  .eq__adv ul { list-style: none; display: grid; gap: 28px 48px; }
+  @media (min-width: 720px) { .eq__adv ul { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .eq__adv ul { grid-template-columns: repeat(3, 1fr); } }
+  .eq__adv li { padding-top: 18px; border-top: 2px solid var(--ink); display: grid; gap: 6px; align-content: start; }
+  .eq__adv h3 { font-size: 1.2rem; }
+  .eq__adv p { color: var(--muted); }
+  .eq__groups { display: grid; gap: 24px; }
+  @media (min-width: 900px) { .eq__groups { grid-template-columns: 1fr 1fr; gap: 24px 48px; } }
+  .eq__group { padding: 24px; border-radius: var(--r-lg); background: var(--bg); }
+  .eq__group h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .eq__group div { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid var(--line); font-size: .9375rem; }
+  .eq__group dt { color: var(--muted); }
+  .eq__group dd { font-weight: 600; text-align: right; color: var(--ink); }
+  .eq__elec { padding: 24px; border-radius: var(--r-lg); background: var(--bg); }
+  .eq__elec h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .eq__elecscroll { overflow-x: auto; }
+  .eq__elec table { width: 100%; border-collapse: collapse; font-size: .9375rem; }
+  .eq__elec th, .eq__elec td { padding: 11px 0; border-top: 1px solid var(--line); text-align: right; }
+  .eq__elec th:first-child { text-align: left; color: var(--muted); font-weight: 500; }
+  .eq__elec thead th { border-top: 0; font-weight: 700; color: var(--ink); }
+  .eq__elec td { font-weight: 600; color: var(--ink); width: 28%; }
+  .eq__note { margin-top: 18px; font-size: .8438rem; color: var(--muted); max-width: 90ch; }
+  .eq__note a { color: var(--brand); }
+  .eq__pk ul { list-style: none; display: grid; gap: 12px; }
+  @media (min-width: 900px) { .eq__pk ul { grid-template-columns: repeat(3, 1fr); } }
+  .eq__pk a { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 20px 22px; border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--line-strong); color: inherit; text-decoration: none; transition: box-shadow .3s; }
+  .eq__pk a:hover { box-shadow: inset 0 0 0 2px var(--brand); }
+  .eq__pk strong { font-family: var(--font-display); font-size: 1.15rem; }
+  .eq__pk span { grid-column: 1; color: var(--muted); font-size: .9375rem; }
+  .eq__pk a :global(svg) { grid-row: 1 / span 2; grid-column: 2; color: var(--brand); }
+  @media (max-width: 719px) {
+    .eq__key { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 12px; }
+    .eq__key dd { font-size: 1.45rem; white-space: nowrap; }
+    .eq__key dt { font-size: .78rem; }
+    .eq__ctas { display: grid; }
+    .eq__group div { flex-direction: column; gap: 2px; }
+    .eq__group dd { text-align: left; }
+  }
+</style>
