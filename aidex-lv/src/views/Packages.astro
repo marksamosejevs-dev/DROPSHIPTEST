@@ -5,7 +5,7 @@ import Packages from '../components/home/Packages.astro';
 import Calculator from '../components/home/Calculator.astro';
 import SupportSection from '../components/home/SupportSection.astro';
 import FaqList from '../components/home/FaqList.astro';
-import PanelStrip from '../components/PanelStrip.astro';
+import EcosystemStrip from '../components/EcosystemStrip.astro';
 import FinalCta from '../components/home/FinalCta.astro';
 import { useT, path, type Locale, type RouteKey } from '../i18n';
 import { breadcrumbLd } from '../lib/seo';
@@ -17,7 +17,7 @@ const t = useT(lang);
 <Base lang={lang} route={route} title={t.meta.packages.title} description={t.meta.packages.description}
   jsonLd={[breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.packages, key: 'packages' }])]}>
   <PageHero lang={lang} eyebrow={t.packages.eyebrow} title={t.pages.h1.packages} lead={t.packages.lead} crumb={t.nav.packages} image={media.pkg8.src} imageAlt={media.pkg8.alt[lang]} cta={false} secondary={{ href: path('packages', lang, 'calculator'), label: t.cta.calc }} />
-  <Packages lang={lang}><PanelStrip lang={lang} bare /></Packages>
+  <Packages lang={lang}><EcosystemStrip lang={lang} bare /></Packages>
   <Calculator lang={lang} />
   <SupportSection lang={lang} tone="bg" />
   <FaqList lang={lang} limit={6} />

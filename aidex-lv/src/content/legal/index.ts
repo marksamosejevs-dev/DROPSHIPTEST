@@ -7,7 +7,7 @@
  * Company facts are injected from src/config/company.ts; missing facts render
  * as visible "[to be confirmed]" markers.
  */
-import { company, group, groupRelationship, integrations, isPlaceholder, officeAddress, type Field } from '../../config/company';
+import { company, group, groupRelationship, ecosystem, integrations, isPlaceholder, officeAddress, type Field } from '../../config/company';
 import { calculatorAssumptions } from '../../data/calculator';
 import type { Locale } from '../../i18n/routes';
 import { SHOW_DEV_MARKERS } from '../../config/site';
@@ -231,5 +231,8 @@ export function legalDoc(key: LegalKey, c: Ctx): LegalDoc {
       },
     },
   };
-  return docs[lang][key];
+  const doc = docs[lang][key];
+  // AIDEX – SUNPRO POWER wording appears only once the approved text is supplied.
+  if (key === 'legal' && f(ecosystem.relationship[lang], lang)) doc.sections.splice(2, 0, { h: esc(ecosystem.brand), html: `<p>${f(ecosystem.relationship[lang], lang)}</p><p><a href="${ecosystem.url}" rel="noopener" target="_blank">${esc(ecosystem.url)}</a></p>` });
+  return doc;
 }

@@ -306,6 +306,12 @@ const en: Dict = {
   },
 
   equipment: {
+    kinds: { panel: 'Solar panel', inverter: 'Inverter', battery: 'Battery' },
+    kindSuffix: { panel: 'solar panel', inverter: 'hybrid inverter', battery: 'battery' },
+    kindLead: { panel: 'This is the module we use in AIDEX solar packages for homes.', inverter: 'This is the inverter we use in AIDEX solar systems for homes.', battery: 'This is the battery we use in AIDEX solar systems for homes.' },
+    ecoTitle: 'SUNPRO POWER equipment in AIDEX packages',
+    inv: { phasesN: (n: number) => (n === 1 ? 'single-phase' : `${n}-phase`), type: 'Type', types: { hybrid: 'Hybrid', 'grid-tie': 'Grid-tie', 'off-grid': 'Off-grid' }, phases: 'Phases', dc: 'Input (DC)', ac: 'Output (AC)', battery: 'Battery connection', maxPv: 'Max. PV power', mppt: 'Number of MPPTs', mpptRange: 'MPPT voltage range', maxDc: 'Max. DC voltage', maxCurrent: 'Max. current per MPPT', ratedAc: 'Rated AC power', maxAc: 'Max. AC power', backup: 'Backup power', maxEff: 'Max. efficiency', euroEff: 'European efficiency', batteryType: 'Battery type', batteryRange: 'Battery voltage range', chargePower: 'Charge/discharge power', ip: 'Protection rating', monitoring: 'Monitoring', gridCodes: 'Grid codes', voltage: { 'high-voltage': 'High-voltage (HV)', 'low-voltage': 'Low-voltage (LV)' } },
+    bat: { chemistry: 'Chemistry', voltageClass: 'Voltage class', capacity: 'Capacity and power', module: 'Module capacity', usable: 'Usable capacity', capacities: 'Available capacities', voltage: 'Nominal voltage', power: 'Charge/discharge power', dod: 'Depth of discharge (DoD)', cycles: 'Cycle life', installation: 'Installation', temp: 'Operating temperature', throughput: 'Warranted energy' },
     titleSuffix: 'solar panel',
     eyebrow: 'Solar panels in AIDEX packages',
     lead: 'This is the module we use in AIDEX solar packages for homes.',
@@ -457,6 +463,7 @@ const en: Dict = {
       dc: 'Installed capacity',
       panelLine: (n: number, brand: string, w: string, tech: string) => `${n} × ${brand} ${w} · ${tech}`,
       panelCount: 'Number of panels',
+      invGeneric: (kw: string) => `Hybrid inverter ${kw}`,
       aboutPanel: 'About the panel',
       scrollHint: 'Swipe to compare',
     },

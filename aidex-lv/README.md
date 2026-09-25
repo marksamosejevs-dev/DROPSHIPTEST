@@ -42,7 +42,9 @@ Nothing here is deployed yet. Every item below is still temporary (visible as a 
 | Relationship with AIDEX Energy Group | `src/config/company.ts` → `groupRelationship` | Replace `statement` / `short` / `legal` with the approved wording, set `schema` and `confirmed: true`. Every sentence on the site uses `{groupRel}` / `{groupRelShort}` |
 | Biomass figure from aidex-energy.com | `group.facts` | Confirm, then set `biomassTonnesConfirmed: true` |
 | Panels | `src/data/equipment.ts` | **Done:** SUNPRO POWER SP440-N108M10 Black Frame (verified by AIDEX), 14 / 18 / 23 panels = 6.16 / 7.92 / 10.12 kWp. It has its own page at `/lv/saules-paneli/sunpro-power-sp440-n108m10/`. Warranty, loads and certifications are still empty until confirmed; add a product photo via `photos` |
-| **Prices, support, warranties, inverter, battery** (TEMPORARY ENERGUM benchmark) | `src/data/packages.ts` | Fill from the template at the bottom of the file, set `source: 'aidex'` and `BENCHMARK_MODE = false`. `null` fields are hidden |
+| Inverter and battery (SUNPRO POWER only) | `src/data/equipment.ts` → `inverterCatalogue` / `batteryCatalogue`, then `productId` in `src/data/packages.ts` | See **SUNPRO_EQUIPMENT_REQUEST.md**. Until then the site shows only generic sizes (no brand) |
+| AIDEX – SUNPRO POWER relationship wording | `src/config/company.ts` → `ecosystem.relationship` | Hidden until the legally approved wording is supplied (never "official"/"exclusive" before that) |
+| **Prices, support, warranties** (TEMPORARY ENERGUM benchmark) | `src/data/packages.ts` | Fill from the template at the bottom of the file, set `source: 'aidex'` and `BENCHMARK_MODE = false`. `null` fields are hidden |
 | Government support | `src/data/support.ts` | Verify, fill `internal` (never rendered), set `verified: true` |
 | Calculator assumptions | `src/data/calculator.ts` | Have engineering tune yield, prices and self-use shares |
 | Projects / case studies | `src/data/projects.ts` + `src/assets/projects/<slug>/` | Each published, consented project becomes a card and its own page `/lv/musu-darbi/<slug>/` |

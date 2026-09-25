@@ -306,6 +306,12 @@ const ru: Dict = {
   },
 
   equipment: {
+    kinds: { panel: 'Солнечная панель', inverter: 'Инвертор', battery: 'Аккумулятор' },
+    kindSuffix: { panel: 'солнечная панель', inverter: 'гибридный инвертор', battery: 'аккумулятор' },
+    kindLead: { panel: 'Этот модуль мы используем в комплектах AIDEX для частных домов.', inverter: 'Этот инвертор мы используем в солнечных системах AIDEX для частных домов.', battery: 'Этот аккумулятор мы используем в солнечных системах AIDEX для частных домов.' },
+    ecoTitle: 'Оборудование SUNPRO POWER в комплектах AIDEX',
+    inv: { phasesN: (n: number) => (n === 1 ? '1 фаза' : `${n} фазы`), type: 'Тип', types: { hybrid: 'Гибридный', 'grid-tie': 'Сетевой', 'off-grid': 'Автономный' }, phases: 'Фазы', dc: 'Вход (DC)', ac: 'Выход (AC)', battery: 'Подключение аккумулятора', maxPv: 'Макс. мощность PV', mppt: 'Количество MPPT', mpptRange: 'Диапазон напряжения MPPT', maxDc: 'Макс. напряжение DC', maxCurrent: 'Макс. ток на MPPT', ratedAc: 'Номинальная мощность AC', maxAc: 'Макс. мощность AC', backup: 'Резервное питание', maxEff: 'Макс. КПД', euroEff: 'Европейский КПД', batteryType: 'Тип аккумулятора', batteryRange: 'Диапазон напряжения аккумулятора', chargePower: 'Мощность заряда/разряда', ip: 'Класс защиты', monitoring: 'Мониторинг', gridCodes: 'Сетевые стандарты', voltage: { 'high-voltage': 'Высоковольтный (HV)', 'low-voltage': 'Низковольтный (LV)' } },
+    bat: { chemistry: 'Химия', voltageClass: 'Класс напряжения', capacity: 'Ёмкость и мощность', module: 'Ёмкость модуля', usable: 'Полезная ёмкость', capacities: 'Доступные ёмкости', voltage: 'Номинальное напряжение', power: 'Мощность заряда/разряда', dod: 'Глубина разряда (DoD)', cycles: 'Количество циклов', installation: 'Монтаж', temp: 'Рабочая температура', throughput: 'Гарантированная энергия' },
     titleSuffix: 'солнечная панель',
     eyebrow: 'Солнечные панели в комплектах AIDEX',
     lead: 'Этот модуль мы используем в комплектах AIDEX для частных домов.',
@@ -457,6 +463,7 @@ const ru: Dict = {
       dc: 'Установленная мощность',
       panelLine: (n: number, brand: string, w: string, tech: string) => `${n} × ${brand} ${w} · ${tech}`,
       panelCount: 'Количество панелей',
+      invGeneric: (kw: string) => `Гибридный инвертор ${kw}`,
       aboutPanel: 'О панели',
       scrollHint: 'Проведите, чтобы сравнить',
     },

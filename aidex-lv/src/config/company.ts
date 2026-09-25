@@ -115,6 +115,28 @@ export const groupRelationship = {
 };
 
 /**
+ * EQUIPMENT ECOSYSTEM — SUNPRO POWER
+ * ---------------------------------------------------------------------------
+ * AIDEX builds its residential packages on SUNPRO POWER equipment (panels,
+ * and — once verified models are entered in src/data/equipment.ts — inverters
+ * and batteries). Do not add other brands to the standard packages.
+ *
+ * `relationship` is the exact wording describing AIDEX's relationship with
+ * SUNPRO POWER. It stays a placeholder (hidden) until the legally approved
+ * wording is supplied. Never describe AIDEX as an "official", "exclusive" or
+ * country-specific representative without that wording.
+ */
+export const ecosystem = {
+  brand: 'SUNPRO POWER',
+  url: 'https://www.sunpropower.com/',
+  relationship: {
+    lv: placeholder('Precīzs, juridiski apstiprināts AIDEX un SUNPRO POWER sadarbības formulējums'),
+    ru: placeholder('Точная, юридически согласованная формулировка сотрудничества AIDEX и SUNPRO POWER'),
+    en: placeholder('Exact, legally approved wording of the AIDEX – SUNPRO POWER relationship'),
+  } as Record<'lv' | 'ru' | 'en', Field>,
+};
+
+/**
  * Integrations. Leave IDs empty to keep the integration fully disabled.
  * Analytics / marketing scripts are loaded ONLY after the visitor consents
  * to the matching cookie category (see src/scripts/consent.ts).

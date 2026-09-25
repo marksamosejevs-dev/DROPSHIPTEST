@@ -2,18 +2,20 @@
 /**
  * Second-level detail pages:
  *   /{lang}/{projects-slug}/{project-slug}/   → case studies (src/data/projects.ts)
- *   /{lang}/{solar-slug}/{product-slug}/      → equipment pages (src/data/equipment.ts)
+ *   /{lang}/{solar-slug}/{product-slug}/      → panel & inverter pages (src/data/equipment.ts)
+ *   /{lang}/{batteries-slug}/{product-slug}/  → battery / ESS pages
  */
 import { locales, routes } from '../../../i18n/routes';
 import { visibleProjects } from '../../../data/projects';
-import { panelCatalogue } from '../../../data/equipment';
+import { allProducts } from '../../../data/equipment';
+import { equipmentSection } from '../../../lib/equipment';
 import ProjectDetail from '../../../views/ProjectDetail.astro';
 import EquipmentDetail from '../../../views/EquipmentDetail.astro';
 
 export function getStaticPaths() {
   return locales.flatMap((lang) => [
     ...visibleProjects().map((project) => ({ params: { lang, section: routes.projects[lang], item: project.slug }, props: { lang, project, product: null } })),
-    ...panelCatalogue.map((product) => ({ params: { lang, section: routes.solar[lang], item: product.slug }, props: { lang, project: null, product } })),
+    ...allProducts().map((product) => ({ params: { lang, section: routes[equipmentSection(product)][lang], item: product.slug }, props: { lang, project: null, product } })),
   ]);
 }
 const { lang, project, product } = Astro.props;

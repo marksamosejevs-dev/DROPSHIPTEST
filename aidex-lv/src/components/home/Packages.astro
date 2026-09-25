@@ -10,7 +10,7 @@ import Picture from '../Picture.astro';
 import PriceDisclaimer from '../PriceDisclaimer.astro';
 import { useT, path, fmtEur, fmtNum, units, type Locale } from '../../i18n';
 import { packages, standardPackages, effectivePrice, finalPrice, warrantyOf, dcKwp, type Offer, type SolarPackage, type Warranty } from '../../data/packages';
-import { panelById } from '../../data/equipment';
+import { panelById, productById } from '../../data/equipment';
 import { equipmentPath } from '../../lib/equipment';
 import { media } from '../../data/media';
 
@@ -38,8 +38,9 @@ const wRows: { key: keyof Omit<Warranty, 'note'>; label: string }[] = [
 ];
 const kwp = (p: SolarPackage) => { const d = dcKwp(p); return d != null ? `${fmtNum(d, lang, 2)} ${u.kwp}` : `${fmtNum(p.kw!, lang)} ${u.kw}`; };
 const panelOf = (p: SolarPackage) => (p.panel?.productId ? panelById(p.panel.productId) : null);
-const invText = (p: SolarPackage) => p.inverter && `${p.inverter.manufacturer} ${p.inverter.model ?? ''}`.trim();
-const batText = (p: SolarPackage) => p.battery && `${p.battery.manufacturer} ${fmtNum(p.battery.kwh, lang)} ${u.kwh}`;
+// Brand/model are shown only for a verified catalogue product; otherwise the generic size.
+const invText = (p: SolarPackage) => { const i = p.inverter; if (!i) return null; const pr = productById(i.productId); return pr ? `${pr.manufacturer} ${pr.model}` : v.invGeneric(i.kw ? `${fmtNum(i.kw, lang)} ${u.kw}` : ''); };
+const batText = (p: SolarPackage) => { const b = p.battery; if (!b) return null; const pr = productById(b.productId); return `${pr ? `${pr.manufacturer} ${pr.model} · ` : ''}${fmtNum(b.kwh, lang)} ${u.kwh}`; };
 const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offer | null => p.offers[key];
 ---
 <section class="section pk" id="packages" aria-labelledby="packages-title" data-packages data-mode="with">

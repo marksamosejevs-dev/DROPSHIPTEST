@@ -5,6 +5,7 @@ import FeatureSplit from '../components/FeatureSplit.astro';
 import DayNight from '../components/home/DayNight.astro';
 import Packages from '../components/home/Packages.astro';
 import SupportSection from '../components/home/SupportSection.astro';
+import EcosystemStrip from '../components/EcosystemStrip.astro';
 import FinalCta from '../components/home/FinalCta.astro';
 import { useT, path, type Locale, type RouteKey } from '../i18n';
 import { media } from '../data/media';
@@ -19,7 +20,7 @@ const p = t.pages.batteries;
   <PageHero lang={lang} eyebrow={p.eyebrow} title={p.title} lead={p.lead} crumb={t.nav.batteries} image={media.pkg6.src} imageAlt={media.pkg6.alt[lang]} secondary={{ href: path('packages', lang), label: t.cta.allPackages }} />
   <FeatureSplit lang={lang} items={p.sections} image={media.batteryRoom} checklistTitle={p.sizingTitle} checklist={p.sizing} icons={['chart', 'shield', 'plus', 'doc']} />
   <DayNight lang={lang} />
-  <Packages lang={lang} />
+  <Packages lang={lang}><EcosystemStrip lang={lang} bare /></Packages>
   <SupportSection lang={lang} />
   <FinalCta lang={lang} source="batteries" />
 </Base>

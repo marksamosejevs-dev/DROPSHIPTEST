@@ -305,6 +305,12 @@ const lv = {
   },
 
   equipment: {
+    kinds: { panel: 'Saules panelis', inverter: 'Invertors', battery: 'Akumulators' },
+    kindSuffix: { panel: 'saules panelis', inverter: 'hibrīda invertors', battery: 'akumulators' },
+    kindLead: { panel: 'Šo moduli izmantojam AIDEX saules paneļu komplektos privātmājām.', inverter: 'Šo invertoru izmantojam AIDEX saules sistēmās privātmājām.', battery: 'Šo akumulatoru izmantojam AIDEX saules sistēmās privātmājām.' },
+    ecoTitle: 'SUNPRO POWER aprīkojums AIDEX komplektos',
+    inv: { phasesN: (n: number) => (n === 1 ? '1 fāze' : `${n} fāzes`), type: 'Tips', types: { hybrid: 'Hibrīda', 'grid-tie': 'Tīkla', 'off-grid': 'Autonomais' }, phases: 'Fāzes', dc: 'Ieeja (DC)', ac: 'Izeja (AC)', battery: 'Akumulatora pieslēgums', maxPv: 'Maks. PV jauda', mppt: 'MPPT skaits', mpptRange: 'MPPT sprieguma diapazons', maxDc: 'Maks. DC spriegums', maxCurrent: 'Maks. strāva uz MPPT', ratedAc: 'Nominālā AC jauda', maxAc: 'Maks. AC jauda', backup: 'Rezerves barošana', maxEff: 'Maks. efektivitāte', euroEff: 'Eiropas efektivitāte', batteryType: 'Akumulatora tips', batteryRange: 'Akumulatora sprieguma diapazons', chargePower: 'Uzlādes/izlādes jauda', ip: 'Aizsardzības klase', monitoring: 'Monitorings', gridCodes: 'Tīkla standarti', voltage: { 'high-voltage': 'Augstsprieguma (HV)', 'low-voltage': 'Zemsprieguma (LV)' } },
+    bat: { chemistry: 'Ķīmija', voltageClass: 'Sprieguma klase', capacity: 'Ietilpība un jauda', module: 'Moduļa ietilpība', usable: 'Lietderīgā ietilpība', capacities: 'Pieejamās ietilpības', voltage: 'Nominālais spriegums', power: 'Uzlādes/izlādes jauda', dod: 'Izlādes dziļums (DoD)', cycles: 'Ciklu skaits', installation: 'Uzstādīšana', temp: 'Darba temperatūra', throughput: 'Garantētā enerģija' },
     titleSuffix: 'saules panelis',
     eyebrow: 'Saules paneļi AIDEX komplektos',
     lead: 'Šo moduli izmantojam AIDEX saules paneļu komplektos privātmājām.',
@@ -456,6 +462,7 @@ const lv = {
       dc: 'Uzstādītā jauda',
       panelLine: (n: number, brand: string, w: string, tech: string) => `${n} × ${brand} ${w} · ${tech}`,
       panelCount: 'Paneļu skaits',
+      invGeneric: (kw: string) => `Hibrīda invertors ${kw}`,
       aboutPanel: 'Par paneli',
       scrollHint: 'Pavelciet, lai salīdzinātu',
     },

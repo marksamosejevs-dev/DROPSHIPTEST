@@ -85,6 +85,9 @@ ok((await p.locator('[data-out="battery"]').innerText()).includes('Nav'), 'batte
   const t = await p.locator('main, body').first().innerText();
   ok(t.includes('SP440-N108M10') && t.includes('22,53') && t.includes('38,53') && t.includes('10,12 kWp'), 'panel page: model, efficiency, Voc, packages');
   ok(!/garantij/i.test(await p.locator('.eq__spec').innerText()), 'panel page: no unconfirmed warranty rows');
+  const { execSync } = await import('child_process');
+  let hits = ''; try { hits = execSync("grep -rlE 'Growatt|Renon|Huawei|Sungrow|Deye|AIKO' dist --include=*.html || true").toString().trim(); } catch {}
+  ok(hits === '', 'no non-SUNPRO equipment brands in built pages' + (hits ? ': ' + hits : ''));
 }
 
 // ---- lead form

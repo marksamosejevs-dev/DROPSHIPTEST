@@ -74,7 +74,7 @@ export const projects: Project[] = [
     location: 'Jūrmala',
     systemKw: 10,
     panels: { model: 'SUNPRO POWER SP440-N108M10', count: 23 },
-    inverter: { model: 'Growatt …' },
+    inverter: { model: 'SUNPRO POWER …' },
     battery: { kwh: 10, model: '…' },          // or null
     installedOn: '2026-08',
     annualProductionKwh: null,

@@ -178,6 +178,87 @@ export const sunproSp440: PanelProduct = {
 };
 
 export const panelCatalogue: PanelProduct[] = [sunproSp440];
+
+/* ===========================================================================
+ * INVERTERS AND BATTERIES / ESS — SUNPRO POWER ecosystem
+ * ---------------------------------------------------------------------------
+ * AIDEX packages use SUNPRO POWER equipment wherever SUNPRO has the product
+ * category. The SUNPRO residential inverter and battery range has NOT been
+ * verified yet (sunpropower.com is not reachable from the build environment),
+ * so both catalogues are empty. Nothing is shown for them until real,
+ * verified datasheet data is entered here. Do not add other brands to the
+ * standard packages.
+ * ======================================================================== */
+interface ProductBase {
+  id: string;
+  slug: string;
+  manufacturer: string;
+  manufacturerUrl: string;
+  model: string;
+  series: string | null;
+  referenceUrl: string;
+  referenceIsDatasheet: boolean;
+  photos: MediaKey[];
+  benefits: { title: Localized; text: Localized; basis: string }[];
+  verification: { verified: boolean; verifiedBy: string; checkedOn: string; sources: { label: string; url: string }[]; notes: string };
+}
+
+export interface InverterProduct extends ProductBase {
+  kind: 'inverter';
+  type: 'hybrid' | 'grid-tie' | 'off-grid';
+  phases: 1 | 3;
+  ratedAcKw: number;
+  maxAcKva: number | null;
+  maxPvInputKw: number | null;
+  mpptCount: number | null;
+  stringsPerMppt: number | null;
+  mpptVoltageRange: string | null;
+  maxDcVoltage: string | null;
+  maxInputCurrentPerMppt: string | null;
+  batteryVoltage: 'high-voltage' | 'low-voltage' | null;
+  batteryVoltageRange: string | null;
+  maxChargeDischargeKw: number | null;
+  backupEps: Localized | null;
+  maxEfficiency: number | null;
+  euroEfficiency: number | null;
+  ipRating: string | null;
+  dimensions: [number, number, number] | null;
+  weightKg: number | null;
+  monitoring: Localized | null;
+  gridCodes: string[];
+  productWarrantyYears: number | null;
+  compatibleBatteries: string[];
+}
+
+export interface BatteryProduct extends ProductBase {
+  kind: 'battery';
+  chemistry: string | null;
+  voltageClass: 'high-voltage' | 'low-voltage' | null;
+  moduleKwh: number | null;
+  usableKwh: number | null;
+  /** Available system capacities (kWh), e.g. stackable module counts. */
+  capacities: number[];
+  nominalVoltage: string | null;
+  maxChargeDischargeKw: number | null;
+  depthOfDischarge: number | null;
+  cycleLife: string | null;
+  ipRating: string | null;
+  installation: Localized | null;
+  operatingTemp: string | null;
+  dimensions: [number, number, number] | null;
+  weightKg: number | null;
+  certifications: string[];
+  productWarrantyYears: number | null;
+  warrantyThroughput: string | null;
+  compatibleInverters: string[];
+}
+
+export const inverterCatalogue: InverterProduct[] = [];
+export const batteryCatalogue: BatteryProduct[] = [];
+
+export type AnyProduct = PanelProduct | InverterProduct | BatteryProduct;
+export const allProducts = (): AnyProduct[] => [...panelCatalogue, ...inverterCatalogue, ...batteryCatalogue];
+export const productById = (id: string | null | undefined): AnyProduct | null => (id ? allProducts().find((p) => p.id === id) ?? null : null);
 export const panelById = (id: string) => panelCatalogue.find((p) => p.id === id) ?? null;
 /** Module area in m² (null if dimensions unknown). */
 export const panelArea = (p: PanelProduct) => (p.dimensions ? (p.dimensions[0] * p.dimensions[1]) / 1e6 : null);

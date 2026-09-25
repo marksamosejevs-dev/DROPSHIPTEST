@@ -1,0 +1,70 @@
+---
+/**
+ * SUNPRO POWER equipment used in AIDEX packages: one link card per product
+ * in src/data/equipment.ts (panels, inverters, batteries). Categories without
+ * a verified product are simply not shown.
+ */
+import Icon from './Icon.astro';
+import { useT, fmtNum, units, type Locale } from '../i18n';
+import { allProducts, type AnyProduct } from '../data/equipment';
+import { equipmentPath } from '../lib/equipment';
+interface Props { lang: Locale; bare?: boolean }
+const { lang, bare = false } = Astro.props;
+const t = useT(lang);
+const e = t.equipment;
+const u = units[lang];
+const list = allProducts();
+const facts = (p: AnyProduct) =>
+  p.kind === 'panel'
+    ? [p.technology, `${fmtNum(p.watt, lang)} ${u.w}`, p.variant[lang], p.efficiency != null ? `${e.keyEff} ${fmtNum(p.efficiency, lang, 2)} %` : null]
+    : p.kind === 'inverter'
+    ? [e.inv.types[p.type], `${fmtNum(p.ratedAcKw, lang, 1)} ${u.kw}`, e.inv.phasesN(p.phases)]
+    : [p.chemistry, p.usableKwh != null ? `${fmtNum(p.usableKwh, lang, 1)} ${u.kwh}` : null];
+const label = (p: AnyProduct) => (list.length === 1 && p.kind === 'panel' ? e.eyebrow : e.kinds[p.kind]);
+---
+{list.length > 0 && (
+  <section class:list={['ps', bare && 'ps--bare']} aria-label={e.ecoTitle}>
+    <div class:list={[!bare && 'container']}>
+      {list.length > 1 && <p class="ps__title">{e.ecoTitle}</p>}
+      <ul class:list={['ps__list', list.length > 1 && 'ps__list--multi']}>
+        {list.map((p) => (
+          <li>
+            <a class="ps__card" href={equipmentPath(p, lang)} data-reveal>
+              <span class:list={['ps__ill', `ps__ill--${p.kind}`]} aria-hidden="true"><i></i></span>
+              <span class="ps__txt">
+                <span class="ps__eyebrow">{label(p)}</span>
+                <strong>{p.manufacturer} <span class="nowrap">{p.model}</span></strong>
+                <span class="ps__facts tnum">{facts(p).filter(Boolean).join(' · ')}</span>
+              </span>
+              <span class="ps__more">{p.kind === 'panel' ? t.v2.pk.aboutPanel : t.cta.more}<Icon name="arrow" size={18} /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+<style>
+  .ps { padding: 0 0 clamp(40px, 5vw, 64px); background: var(--bg); }
+  .ps--bare { padding: 0; margin-top: 24px; background: none; }
+  .ps__title { font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+  .ps__list { list-style: none; display: grid; gap: 12px; }
+  @media (min-width: 1000px) { .ps__list--multi { grid-template-columns: repeat(3, 1fr); } .ps__list--multi .ps__card { grid-template-columns: auto 1fr; } .ps__list--multi .ps__more { grid-column: 1 / -1; } }
+  .ps__card { display: grid; grid-template-columns: auto 1fr auto; gap: 20px 28px; align-items: center; padding: 22px 28px; border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--line); color: inherit; text-decoration: none; transition: box-shadow .3s; height: 100%; }
+  .ps__card:hover { box-shadow: var(--shadow-card), inset 0 0 0 1px var(--brand); }
+  .ps__ill { width: 44px; height: 66px; border-radius: 4px; position: relative; overflow: hidden; }
+  .ps__ill--panel { background: repeating-linear-gradient(90deg, #121817 0 6px, #232b2a 6px 7px), #121817; box-shadow: inset 0 0 0 2px #0a0d0c; }
+  .ps__ill--panel i { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 7px, #232b2a 7px 8px); }
+  .ps__ill--inverter, .ps__ill--battery { background: linear-gradient(160deg, #fbfcfb, #dfe6e2); box-shadow: inset 0 0 0 1px rgba(13,29,26,.12); }
+  .ps__ill--inverter i, .ps__ill--battery i { position: absolute; left: 30%; right: 30%; top: 22%; height: 3px; border-radius: 2px; background: var(--brand); }
+  .ps__txt { display: grid; gap: 2px; }
+  .ps__eyebrow { font-size: .8125rem; font-weight: 600; color: var(--brand); }
+  .ps__txt strong { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); }
+  .nowrap { white-space: nowrap; }
+  .ps__facts { font-size: .9375rem; color: var(--muted); }
+  .ps__more { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--brand); white-space: nowrap; }
+  @media (max-width: 719px) {
+    .ps__card { grid-template-columns: auto 1fr; padding: 20px; }
+    .ps__more { grid-column: 1 / -1; }
+  }
+</style>

@@ -5,7 +5,7 @@ import { abs } from '../lib/seo';
 import { LEGAL_UPDATED } from '../config/company';
 import { visibleProjects } from '../data/projects';
 import { projectPath } from '../lib/projects';
-import { panelCatalogue } from '../data/equipment';
+import { allProducts } from '../data/equipment';
 import { equipmentPath } from '../lib/equipment';
 
 const priority: Partial<Record<RouteKey, string>> = { home: '1.0', packages: '0.9', solar: '0.9', batteries: '0.8', offer: '0.8', calculator: '0.8', support: '0.8', business: '0.7' };
@@ -26,7 +26,7 @@ export const GET: APIRoute = () => {
     }
   }
   // Equipment pages.
-  for (const p of panelCatalogue) {
+  for (const p of allProducts()) {
     for (const lang of locales) {
       const alts = [...locales.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${abs(equipmentPath(p, l))}"/>`), `<xhtml:link rel="alternate" hreflang="x-default" href="${abs(equipmentPath(p, 'lv'))}"/>`].join('');
       urls.push(`<url><loc>${abs(equipmentPath(p, lang))}</loc>${alts}<priority>0.6</priority></url>`);
