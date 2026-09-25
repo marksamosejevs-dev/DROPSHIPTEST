@@ -169,6 +169,8 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
       </div>
     )}
 
+    <slot />
+
     <div class="pk__foot">
       <PriceDisclaimer lang={lang} />
       <a href={path('support', lang)} class="link-arrow">{t.cta.support}<Icon name="arrow" /></a>

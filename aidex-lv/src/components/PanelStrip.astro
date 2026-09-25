@@ -1,0 +1,46 @@
+---
+/** Compact link band to the panel used in the packages (src/data/equipment.ts). */
+import Icon from './Icon.astro';
+import { useT, fmtNum, units, type Locale } from '../i18n';
+import { panelCatalogue } from '../data/equipment';
+import { equipmentPath } from '../lib/equipment';
+interface Props { lang: Locale; bare?: boolean }
+const { lang, bare = false } = Astro.props;
+const t = useT(lang);
+const e = t.equipment;
+const p = panelCatalogue[0];
+const u = units[lang];
+---
+{p && (
+  <section class:list={['ps', bare && 'ps--bare']} aria-label={e.eyebrow}>
+    <div class:list={[!bare && 'container']}>
+      <a class="ps__card" href={equipmentPath(p, lang)} data-reveal>
+        <span class="ps__ill" aria-hidden="true"><i></i></span>
+        <span class="ps__txt">
+          <span class="ps__eyebrow">{e.eyebrow}</span>
+          <strong>{p.manufacturer} <span class="nowrap">{p.model}</span></strong>
+          <span class="ps__facts tnum">{p.technology} · {fmtNum(p.watt, lang)} {u.w} · {p.variant[lang]}{p.efficiency != null && <> · {e.keyEff} {fmtNum(p.efficiency, lang, 2)}&nbsp;%</>}</span>
+        </span>
+        <span class="ps__more">{t.v2.pk.aboutPanel}<Icon name="arrow" size={18} /></span>
+      </a>
+    </div>
+  </section>
+)}
+<style>
+  .ps { padding: 0 0 clamp(40px, 5vw, 64px); background: var(--bg); }
+  .ps--bare { padding: 0; margin-top: 24px; background: none; }
+  .ps__card { display: grid; grid-template-columns: auto 1fr auto; gap: 20px 28px; align-items: center; padding: 22px 28px; border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--line); color: inherit; text-decoration: none; transition: box-shadow .3s; }
+  .ps__card:hover { box-shadow: var(--shadow-card), inset 0 0 0 1px var(--brand); }
+  .ps__ill { width: 44px; height: 66px; border-radius: 4px; background: repeating-linear-gradient(90deg, #121817 0 6px, #232b2a 6px 7px), #121817; box-shadow: inset 0 0 0 2px #0a0d0c; position: relative; overflow: hidden; }
+  .ps__ill i { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 7px, #232b2a 7px 8px); }
+  .ps__txt { display: grid; gap: 2px; }
+  .ps__eyebrow { font-size: .8125rem; font-weight: 600; color: var(--brand); }
+  .ps__txt strong { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); }
+  .nowrap { white-space: nowrap; }
+  .ps__facts { font-size: .9375rem; color: var(--muted); }
+  .ps__more { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--brand); white-space: nowrap; }
+  @media (max-width: 719px) {
+    .ps__card { grid-template-columns: auto 1fr; padding: 20px; }
+    .ps__more { grid-column: 1 / -1; }
+  }
+</style>

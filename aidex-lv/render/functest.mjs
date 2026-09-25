@@ -76,6 +76,17 @@ ok(await p.isVisible('#calc-bill'), 'bill mode shows bill input');
 await p.uncheck('input[name="battery"]', { force: true });
 ok((await p.locator('[data-out="battery"]').innerText()).includes('Nav'), 'battery off → not included');
 
+// ---- SUNPRO panel data
+{
+  const html = await p.content();
+  ok(['6,16 kWp', '7,92 kWp', '10,12 kWp'].every((x) => html.includes(x)), 'installed kWp shown (6,16 / 7,92 / 10,12)');
+  ok(/14 × SUNPRO POWER 440/.test(await p.locator('.pc').first().innerText()), 'card shows panel count + SUNPRO');
+  await p.goto(B + '/lv/saules-paneli/sunpro-power-sp440-n108m10/', { waitUntil: 'networkidle' });
+  const t = await p.locator('main, body').first().innerText();
+  ok(t.includes('SP440-N108M10') && t.includes('22,53') && t.includes('38,53') && t.includes('10,12 kWp'), 'panel page: model, efficiency, Voc, packages');
+  ok(!/garantij/i.test(await p.locator('.eq__spec').innerText()), 'panel page: no unconfirmed warranty rows');
+}
+
 // ---- lead form
 await p.goto(B + '/lv/sanemt-piedavajumu/?package=home-8&battery=1&kwh=700', { waitUntil: 'networkidle' });
 const f = p.locator('#lead-offer');

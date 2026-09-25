@@ -34,6 +34,7 @@ Send the photos, and each goes into the slot listed below.
 | 13 | **Installation process** (optional future use in "6 steps") | 3:2 | 4:5 | 2400 × 1600 | Survey on the roof, mounting rails, panel lifting, electrician at the switchboard, handover with the app. | Yes, with consent; workers in safety gear | OPTIONAL |
 | 14 | **Monitoring app** (the "Why AIDEX" card is currently an illustration) | 4:3 | 4:3 | 1600 × 1200 | Real screenshot of the monitoring app used for AIDEX systems, with no personal data. | No | OPTIONAL |
 | 15 | **Day / night illustration** (`isoDay`, `isoNight`) | 16:9, transparent PNG | same | 1500 × 850 | This is an illustration, not a photo. The current render can stay. Replace only with a commissioned illustration in the same angle, as a day and night pair. | No | OPTIONAL |
+| 16 | **Panel product photo** (`equipment.ts` → `photos`), SUNPRO POWER SP440-N108M10 page | 4:3.4 (near-square) | same | 2000 × 1700 | Official SUNPRO product image (front view, black frame), or our own photo of the module. Use a manufacturer image only with permission. Until then the page shows a neutral drawn panel. | No | HIGH |
 
 ## Per-project photos (case studies)
 
