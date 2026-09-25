@@ -15,6 +15,28 @@ battery/ESS range.
 | "Sunpro Power SP6KH3–SP12KH3" (three-phase hybrid?) and "SP3KL1–SP6KL1" | ENF directory (third party) only | **Not verified.** It is not confirmed that this is the same company (Zhejiang Sunpro Power) or a current product |
 | "Sunpro Energy Tech", "SUNPRO Batteries", "sunpro-smart" battery and inverter products | Other companies with similar names | **No.** They are different manufacturers |
 
+## Status update (AIDEX, 2026-09-25) — nothing published
+
+**Inverter candidate (verified by AIDEX as genuine, NOT confirmed as current):**
+SUNPRO SP6KH3 / SP8KH3 / SP10KH3 / SP12KH3. The documentation describes them as three-phase energy-storage hybrid inverters: 400 V three-phase AC, IP65, PV + lithium-ion battery, grid-connected. TÜV SÜD test documentation and EN 50549-1:2019 conformity references exist for the family.
+
+| Package | DC capacity | Preliminary pairing (internal only) |
+|---|---|---|
+| ~6 kW | 6.16 kWp (14 × 440 W) | SP6KH3 |
+| ~8 kW | 7.92 kWp (18 × 440 W) | SP8KH3 |
+| ~10 kW | 10.12 kWp (23 × 440 W) | SP10KH3 |
+
+**Blocking questions for SUNPRO POWER:**
+1. Are SP6KH3 / SP8KH3 / SP10KH3 / SP12KH3 still manufactured and available for the European market in 2026? (The documents appear to be an older generation, and one industry directory lists the series as discontinued.)
+2. If not, what is the replacement three-phase hybrid series? Please send its current datasheets and the EN 50549-1 / TÜV documents.
+3. Which SUNPRO residential battery / ESS model is compatible with the confirmed inverter? Please send the official datasheet (see section B).
+
+**Excluded sources:** products from sunprobatteries.com must not be used. It is not verified to be the same company as Zhejiang Sunpro Power Technology Co., Ltd.
+
+**Battery:** still unconfirmed. sunpropower.com confirms that energy-storage products exist, but no residential model has been identified from official documents.
+
+Until SUNPRO confirms, `inverterCatalogue` and `batteryCatalogue` in `src/data/equipment.ts` stay empty. The site keeps showing only generic sizes, and the SP…KH3 models appear nowhere on AIDEX.lv.
+
 ## Needed from you
 
 ### A. Inverter: one datasheet per model (official SUNPRO PDF)
