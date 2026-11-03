@@ -6,8 +6,8 @@ const { lang } = Astro.props;
 const t = useT(lang);
 ---
 <div class="mcta" data-mobile-cta aria-hidden="true">
-  <a href={path('calculator', lang)} class="mcta__calc" tabindex="-1">
-    <Icon name="chart" size={20} /><span class="mcta__label">{t.nav.calculator}</span>
+  <a href={path('packages', lang)} class="mcta__calc" tabindex="-1">
+    <Icon name="panel" size={20} /><span class="mcta__label">{t.nav.packages}</span>
   </a>
   <a href={path('offer', lang)} class="btn btn--volt mcta__offer" tabindex="-1" data-cta="mobile-bar">{t.cta.offer}<Icon name="arrow" /></a>
 </div>

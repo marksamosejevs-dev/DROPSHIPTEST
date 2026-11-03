@@ -25,10 +25,6 @@ const lv = {
       title: 'Saules paneļu komplekti 6,16–10,12 kWp | AIDEX',
       description: 'Saules paneļu komplekti ar 14, 18 vai 23 SUNPRO POWER 440 W paneļiem (6,16, 7,92 un 10,12 kWp), ar akumulatoru vai bez. Pieprasiet individuālu piedāvājumu.',
     },
-    calculator: {
-      title: 'Saules paneļu kalkulators — sistēmas jauda un ražošana | AIDEX',
-      description: 'Aprēķiniet ieteicamo saules paneļu sistēmas jaudu, paneļu skaitu, nepieciešamo platību un indikatīvo gada ražošanu jūsu mājai.',
-    },
     support: {
       title: 'Valsts atbalsts saules paneļiem un akumulatoriem | AIDEX',
       description: 'Aktuālās valsts atbalsta programmas mājsaimniecībām saules paneļu un akumulatoru uzstādīšanai. Palīdzam ar pieteikumu un dokumentiem.',
@@ -59,7 +55,7 @@ const lv = {
     },
     privacy: { title: 'Privātuma politika | AIDEX', description: 'Kā GREEN ENERGY SIA apstrādā personas datus vietnē AIDEX.lv.' },
     cookies: { title: 'Sīkdatņu politika | AIDEX', description: 'Kādas sīkdatnes izmanto AIDEX.lv un kā pārvaldīt savu piekrišanu.' },
-    terms: { title: 'Lietošanas noteikumi | AIDEX', description: 'AIDEX.lv vietnes lietošanas noteikumi.' },
+    terms: { title: 'Lietošanas noteikumi | AIDEX', description: 'AIDEX.lv vietnes lietošanas noteikumi: informācijas raksturs, individuālie piedāvājumi, intelektuālais īpašums un atbildība.' },
     legal: { title: 'Juridiskā informācija | AIDEX', description: 'Informācija par AIDEX.lv pārvaldītāju GREEN ENERGY SIA.' },
     notFound: { title: 'Lapa nav atrasta | AIDEX', description: 'Pieprasītā lapa nav atrasta.' },
   },
@@ -74,7 +70,6 @@ const lv = {
     about: 'Par mums',
     faq: 'BUJ',
     contact: 'Kontakti',
-    calculator: 'Kalkulators',
     menu: 'Izvēlne',
     close: 'Aizvērt',
     language: 'Valoda',
@@ -85,7 +80,6 @@ const lv = {
 
   cta: {
     offer: 'Pieprasīt piedāvājumu',
-    calc: 'Aprēķināt sistēmu',
     support: 'Uzzināt par pieejamo atbalstu',
     group: 'AIDEX Energy Group',
     allPackages: 'Visi saules paneļu komplekti',
@@ -157,31 +151,6 @@ const lv = {
     choose: 'Izvēlēties',
   },
 
-  calc: {
-    eyebrow: 'Sistēmas kalkulators',
-    title: 'Kāda saules sistēma ir piemērota jūsu mājai?',
-    lead: 'Ievadiet mēneša patēriņu vai rēķinu — ieteicamā sistēmas jauda parādīsies uzreiz.',
-    mode: 'Aprēķina pamats',
-    byConsumption: 'Patēriņš',
-    byBill: 'Rēķins',
-    consumption: 'Vidējais mēneša patēriņš',
-    bill: 'Vidējais mēneša elektrības rēķins',
-    kwhMonth: 'kWh/mēn.',
-    eurMonth: '€/mēn.',
-    battery: 'Iekļaut akumulatoru',
-    results: {
-      system: 'Ieteicamā sistēmas jauda',
-      production: 'Indikatīvā gada ražošana',
-      panels: 'SUNPRO POWER paneļi',
-      roof: 'Aptuvenā paneļu platība',
-      battery: 'Ieteicamais akumulators',
-      noBattery: 'Nav iekļauts',
-      package: 'Atbilstošais komplekts',
-    },
-    note: 'Aprēķins ir indikatīvs: ražošana ~{yield} kWh uz kWp gadā (dienvidu orientācija, piemērots slīpums). Rēķina pārrēķinam kWh izmantots vidējais tarifs {price} €/kWh.',
-    quoteText: 'Precīzu sistēmas risinājumu un individuālu piedāvājumu sagatavosim pēc objekta izvērtēšanas.',
-    cta: 'Pieprasīt piedāvājumu',
-  },
 
 
 
@@ -189,6 +158,7 @@ const lv = {
     eyebrow: 'Valsts atbalsts',
     title: 'Daļu izmaksu var segt valsts atbalsts',
     lead: 'Mājsaimniecībām pieejamas atbalsta programmas saules paneļu un akumulatoru iegādei. Mēs pārbaudām aktuālos nosacījumus un palīdzam ar dokumentiem.',
+    pending: 'Atbalsta apmēru un nosacījumus precizējam jūsu piedāvājumā',
     upTo: 'līdz',
     total: 'Kopā vienai mājsaimniecībai',
     deadline: 'Pieteikšanās termiņš',
@@ -306,11 +276,8 @@ const lv = {
     address: 'Objekta adrese vai apdzīvotā vieta',
     addressPh: 'Piem., Mārupe vai Liepājas iela 1, Rīga',
     addressHint: 'Pietiek ar pilsētu vai novadu — precīzu adresi varēsiet norādīt vēlāk.',
-    usageMode: 'Kā vēlaties norādīt patēriņu?',
-    usageKwh: 'kWh mēnesī',
-    usageBill: '€ mēnesī',
+    usageMode: 'Vidējais elektroenerģijas patēriņš',
     usageLabelKwh: 'Vidējais patēriņš mēnesī, kWh',
-    usageLabelBill: 'Vidējais rēķins mēnesī, €',
     usageUnknown: 'Nezinu — palīdziet noteikt',
     interests: 'Kas jūs interesē?',
     interestOptions: { solar: 'Saules paneļi', battery: 'Akumulators', ev: 'Elektroauto uzlāde', consult: 'Nezinu — vēlos konsultāciju' },
@@ -430,17 +397,6 @@ const lv = {
         ev: { label: 'EV uzlāde', title: 'Elektroauto uzlāde', text: 'Uzlādējiet automašīnu ar pašu saražoto enerģiju — sistēmā to var paredzēt jau sākumā.' },
       },
     },
-    dn: {
-      eyebrow: 'Kā tas strādā',
-      title: 'Saule dienā. Sava enerģija arī naktī.',
-      day: 'Diena',
-      dayText: 'Paneļi baro māju, uzlādē akumulatoru, un pārpalikums nonāk tīklā. Dienā jūsu māja izmanto pašu saražoto elektrību.',
-      night: 'Nakts',
-      nightText: 'Pēc saulrieta māju baro akumulators. Gaisma, ierīces un siltumsūknis strādā ar dienā uzkrāto enerģiju.',
-      size: 'Sistēmas jauda',
-      stats: { production: 'indikatīvā ražošana gadā', panels: 'SUNPRO saules paneļi', area: 'aptuvenā paneļu platība', battery: 'akumulators vakaram un naktij' },
-      note: 'Indikatīvi, pieņemot ~{yield} kWh uz kWp gadā. Faktiskā ražošana atkarīga no jumta orientācijas, slīpuma un noēnojuma.',
-    },
     why: {
       title: 'Ko jūs iegūstat ar AIDEX',
       monitor: { title: 'Monitorings lietotnē', text: 'Ražošana, patēriņš un akumulators reāllaikā — telefonā un datorā.' },
@@ -466,7 +422,7 @@ const lv = {
   },
 
   pages: {
-    h1: { packages: 'Saules paneļu komplekti', calculator: 'Saules paneļu kalkulators', support: 'Valsts atbalsts saules paneļiem un akumulatoriem', projects: 'Saules enerģijas projekti', faq: 'Jautājumi un atbildes par saules paneļiem', business: 'Saules enerģija un enerģijas uzkrāšana uzņēmumiem' },
+    h1: { packages: 'Saules paneļu komplekti', support: 'Valsts atbalsts saules paneļiem un akumulatoriem', projects: 'Saules enerģijas projekti', faq: 'Jautājumi un atbildes par saules paneļiem', business: 'Saules enerģija un enerģijas uzkrāšana uzņēmumiem' },
     solar: {
       eyebrow: 'Saules paneļi',
       title: 'Saules paneļi privātmājai — pilna sistēma, ne tikai paneļi',

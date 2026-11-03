@@ -10,7 +10,6 @@ import { useT, path, units, fmtNum, type Locale } from '../i18n';
 import { company, known } from '../config/company';
 import { leadClientConfig, NETLIFY_FORM_NAME } from '../config/leads';
 import { packages, dcKwp } from '../data/packages';
-import { calculatorAssumptions as A } from '../data/calculator';
 
 interface Props { lang: Locale; id?: string; tone?: 'light' | 'dark'; source?: string }
 const { lang, id = 'lead', tone = 'light', source = 'form' } = Astro.props;
@@ -53,6 +52,10 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
   <input type="hidden" name="source" value={source} />
   {isNetlify && <input type="hidden" name="form-name" value={NETLIFY_FORM_NAME} />}
   <input type="hidden" name="page" value="" data-prefill="page" />
+  {/* Filled by the script; declared here so Netlify Forms registers these fields. */}
+  <input type="hidden" name="packageLabel" value="" />
+  <input type="hidden" name="utm" value="" />
+  <input type="hidden" name="submittedAt" value="" />
   <div class="lf__hp" aria-hidden="true"><label>{/* honeypot: hidden from people and assistive tech */}Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
 
   <!-- STEP 1 -->
@@ -71,15 +74,12 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
   <!-- STEP 2 -->
   <fieldset class="lf__step" data-step-panel="2">
     <legend class="lf__legend"><span class="tnum">02</span>{f.usageMode}</legend>
-    <div class="lf__seg" role="radiogroup">
-      <label><input type="radio" name="usageUnit" value="kwh" checked data-unit /><span>{f.usageKwh}</span></label>
-      <label><input type="radio" name="usageUnit" value="eur" data-unit /><span>{f.usageBill}</span></label>
-    </div>
+    <input type="hidden" name="usageUnit" value="kwh" />
     <div class="field">
-      <label for={`${id}-usage`} data-usage-label data-kwh={f.usageLabelKwh} data-eur={f.usageLabelBill}>{f.usageLabelKwh}</label>
+      <label for={`${id}-usage`}>{f.usageLabelKwh}</label>
       <div class="lf__iconinput lf__iconinput--unit">
-        <input class="input tnum" id={`${id}-usage`} name="usage" type="number" inputmode="decimal" min="1" max="100000" placeholder={String(A.defaultConsumption)} aria-describedby={`${id}-usage-err`} data-validate="usage" data-prefill="kwh" />
-        <span class="lf__unit" data-unit-label data-kwh={units[lang].kwh} data-eur="€">{units[lang].kwh}</span>
+        <input class="input tnum" id={`${id}-usage`} name="usage" type="number" inputmode="decimal" min="1" max="100000" placeholder="600" aria-describedby={`${id}-usage-err`} data-validate="usage" data-prefill="kwh" />
+        <span class="lf__unit">{units[lang].kwh}</span>
       </div>
       <p class="field-error" id={`${id}-usage-err`} data-error-for="usage"></p>
     </div>

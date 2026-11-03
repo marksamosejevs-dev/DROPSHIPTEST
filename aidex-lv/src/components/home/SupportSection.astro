@@ -4,6 +4,7 @@ import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
 import { useT, path, fmtEur, fmtDate, type Locale } from '../../i18n';
 import { activeProgrammes } from '../../data/support';
+import { SHOW_DEV_MARKERS } from '../../config/site';
 interface Props { lang: Locale; headingLevel?: 1 | 2; cta?: boolean; head?: boolean; tone?: 'white' | 'bg' }
 const { lang, headingLevel = 2, cta = true, head = true, tone = 'white' } = Astro.props;
 const t = useT(lang);
@@ -17,18 +18,21 @@ const itemIcons = ['panel', 'battery'];
     {activeProgrammes().map((p) => (
       <article class="prog" data-reveal>
         <div class="prog__hero">
-          <p class="prog__tl">{s.total}</p>
-          {p.maxTotal && <p class="prog__tv tnum"><small>{s.upTo}</small> {fmtEur(p.maxTotal, lang)}</p>}
+          {/* Amounts, conditions and deadlines are public only once verified (src/data/support.ts). */}
+          {p.verified && p.maxTotal ? <>
+            <p class="prog__tl">{s.total}</p>
+            <p class="prog__tv tnum"><small>{s.upTo}</small> {fmtEur(p.maxTotal, lang)}</p>
+          </> : <p class="prog__pending">{s.pending}</p>}
           <p class="prog__name">{p.name[lang]}</p>
-          {p.deadline && <p class="prog__dl"><Icon name="clock" size={16} />{s.deadline}: {fmtDate(p.deadline, lang)}</p>}
+          {p.verified && p.deadline && <p class="prog__dl"><Icon name="clock" size={16} />{s.deadline}: {fmtDate(p.deadline, lang)}</p>}
         </div>
         <div class="prog__body">
           <ul class="prog__items">
             {p.items.map((it, i) => (
               <li>
                 <span class="prog__ic"><Icon name={itemIcons[i] ?? 'check'} size={22} /></span>
-                <div><strong>{it.label[lang]}</strong><span>{it.condition[lang]}</span></div>
-                {it.maxAmount !== null && <p class="prog__amt tnum"><small>{s.upTo}</small> {fmtEur(it.maxAmount, lang)}</p>}
+                <div><strong>{it.label[lang]}</strong>{p.verified && <span>{it.condition[lang]}</span>}</div>
+                {p.verified && it.maxAmount !== null && <p class="prog__amt tnum"><small>{s.upTo}</small> {fmtEur(it.maxAmount, lang)}</p>}
               </li>
             ))}
           </ul>
@@ -38,7 +42,7 @@ const itemIcons = ['panel', 'battery'];
             <ol>{s.steps.map((st, i) => <li><span class="tnum">{i + 1}</span>{st}</li>)}</ol>
           </div>
           <p class="prog__note">{s.verifyNote}</p>
-          {!p.verified && <p class="dev-note">{s.unverified}</p>}
+          {SHOW_DEV_MARKERS && !p.verified && <p class="dev-note">{s.unverified}</p>}
         </div>
       </article>
     ))}
@@ -56,6 +60,7 @@ const itemIcons = ['panel', 'battery'];
   .prog__tl { font-weight: 600; font-size: .9375rem; }
   .prog__tv { font-family: var(--font-display); font-weight: 800; font-size: clamp(3.2rem, 6.4vw, 5rem); letter-spacing: -0.045em; line-height: 1; color: #fff; }
   .prog__tv small { font-size: .3em; font-weight: 700; letter-spacing: 0; color: #7fd6a8; margin-right: 4px; }
+  .prog__pending { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 2.6vw, 2.2rem); letter-spacing: -0.02em; line-height: 1.15; color: #fff; max-width: 18ch; }
   .prog__name { font-size: 1rem; max-width: 36ch; margin-top: 10px; }
   .prog__dl { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; color: #7fd6a8; margin-top: 4px; }
   .prog__body { display: grid; gap: 24px; align-content: center; padding: clamp(24px, 4vw, 48px); }

@@ -4,6 +4,7 @@ import { useT, path, fmtDate, type Locale, type RouteKey } from '../i18n';
 import { legalDoc, type LegalKey } from '../content/legal';
 import { LEGAL_UPDATED, CONSENT_REQUIRED } from '../config/company';
 import { breadcrumbLd } from '../lib/seo';
+import { SHOW_DEV_MARKERS } from '../config/site';
 interface Props { lang: Locale; route: RouteKey }
 const { lang, route } = Astro.props;
 const t = useT(lang);
@@ -34,7 +35,7 @@ const nav: { key: LegalKey; label: string }[] = [
           <p class="eyebrow">AIDEX.lv · GREEN ENERGY SIA</p>
           <h1>{doc.title}</h1>
           <p class="lg__meta">{t.legalNav.updated}: {fmtDate(LEGAL_UPDATED, lang)}</p>
-          <p class="dev-note">{t.legalNav.draft}</p>
+          {SHOW_DEV_MARKERS && <p class="dev-note">{t.legalNav.draft}</p>}
           <p class="lead">{doc.intro}</p>
         </header>
         <div class="prose">

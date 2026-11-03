@@ -32,27 +32,26 @@ const offerHref = await p.locator('.pc--featured a[data-cta]:visible').first().g
 ok(/package=home-8&battery=0/.test(offerHref), 'card CTA passes package + battery to the request form');
 await p.click('[data-mode-btn="with"]');
 
-// ---- hotspots + day/night + kW selector
+// ---- hotspots
 await p.click('[data-pin="battery"]');
 ok(await p.isVisible('[data-info="battery"]') && await p.isHidden('[data-info="panels"]'), 'hotspot switches info card');
-await p.click('[data-dn="night"]');
-ok((await p.getAttribute('[data-daynight]', 'data-mode')) === 'night', 'day/night toggles');
-const prod1 = await p.locator('[data-s="production"]').innerText();
-await p.click('[data-kw="home-10"]');
-ok(prod1 !== await p.locator('[data-s="production"]').innerText(), 'kW selector updates stats');
 
-// ---- calculator
-const kw1 = await p.locator('[data-out="kw"]').innerText();
-await p.fill('#calc-kwh', '1200');
-await p.dispatchEvent('#calc-kwh', 'input');
-const kw2 = await p.locator('[data-out="kw"]').innerText();
-ok(kw1 !== kw2, `calculator updates (${kw1} → ${kw2} kW)`);
-await p.check('input[name="mode"][value="bill"]', { force: true });
-ok(await p.isVisible('#calc-bill'), 'bill mode shows bill input');
-await p.uncheck('input[name="battery"]', { force: true });
-ok((await p.locator('[data-out="battery"]').innerText()).includes('Nav'), 'battery off → not included');
-ok(/^\d+$/.test(await p.locator('[data-out="panels"]').innerText()), 'calculator shows panel count');
-ok(!/€/.test(await p.locator('.calc__out').innerText()), 'calculator output contains no money amounts');
+// ---- calculator + day/night simulation removed
+ok(await p.locator('[data-daynight], #calculator, #calc-kwh, [data-out]').count() === 0, 'home: no calculator or day/night widget');
+{
+  const { execSync } = await import('child_process');
+  const hits = execSync(String.raw`grep -rliE "kalkul|калькул|calculator|data-daynight|calc-kwh" dist --include=*.html --include=*.js --include=*.xml || true`).toString().trim();
+  ok(hits === '', 'no calculator references in generated site' + (hits ? ': ' + hits : ''));
+  const r = await fetch(B + '/lv/kalkulators/');
+  ok(r.status === 404, 'old calculator URL is not a page (Netlify 301 → packages)');
+  const toml = (await import('fs')).readFileSync('../netlify.toml', 'utf8');
+  ok(['/lv/kalkulators/*', '/ru/kalkulyator/*', '/en/calculator/*'].every((u) => toml.includes(`from = "${u}"`)), 'netlify.toml redirects old calculator URLs');
+}
+
+// ---- subsidy: unverified amounts hidden
+await p.goto(B + '/lv/', { waitUntil: 'networkidle' });
+ok(!/€/.test(await p.locator('#support').innerText()), 'unverified subsidy amounts are not shown');
+ok(await p.locator('.dev-note').count() === 0, 'no development notes in production HTML');
 
 // ---- SUNPRO panel data
 {
@@ -77,6 +76,7 @@ await f.locator('[name="address"]').fill('Mārupe');
 await f.locator('[data-next]').click();
 ok(await f.locator('[data-step-panel="2"]').isVisible(), 'advance to step 2');
 ok((await f.locator('[name="usage"]').inputValue()) === '700', 'usage prefilled from URL');
+ok(await f.locator('[name="usageUnit"][value="eur"]').count() === 0, 'no electricity-bill (€) input in the form');
 await f.locator('[data-next]').click();
 ok(await f.locator('[data-step-panel="3"]').isVisible(), 'advance to step 3');
 ok(await f.locator('[data-prefill-interest="battery"]').isChecked(), 'battery interest prefilled');
@@ -144,6 +144,8 @@ console.log(head.alt.join('\n'));
 {
   const { execSync } = await import('child_process');
   const bad = execSync(String.raw`grep -rlE "(3[  ]?700|4[  ]?900|6[  ]?800|9[  ]?000|11[  ]?500|13[  ]?300|10[  ]?900|5[  ]?600|7[  ]?400|9[  ]?200)[  ]?€|€[  ]?(3,?700|4,?900|6,?800)|€/W" dist || true`).toString().trim();
+  const euro = execSync(String.raw`grep -rlE "€|&euro;|EUR\b" dist --include=*.html || true`).toString().trim();
+  ok(euro === '', 'no € amounts anywhere in generated HTML' + (euro ? ': ' + euro : ''));
   ok(bad === '', 'no package prices in generated site' + (bad ? ': ' + bad : ''));
 }
 ok(errors.length === 0, 'no JS errors ' + errors.join(' | '));

@@ -12,7 +12,7 @@ Nothing has been deployed yet. Do the steps below only after you have approved p
 | Build command | `npm run build` |
 | Publish directory | `dist` (= `aidex-lv/dist`) |
 | Node.js | `NODE_VERSION = 22` (Astro 7.3 requires ≥ 22.12; also `aidex-lv/.nvmrc` and `engines`) |
-| Redirect | `/` → `/lv/` (301) |
+| Redirects | `/` → `/lv/` (301); removed calculator URLs `/lv/kalkulators/`, `/ru/kalkulyator/`, `/en/calculator/` → packages page (301) |
 | Headers | `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, CSP `frame-ancestors/base-uri/object-src`, HSTS (1 year), immutable cache for `/_astro/*` |
 
 **Leave Base directory, Build command and Publish directory empty in the Netlify UI.** `netlify.toml` provides them, and values typed in the UI can override it.
@@ -29,7 +29,7 @@ Nothing has been deployed yet. Do the steps below only after you have approved p
 
 | Variable | When | Value |
 |---|---|---|
-| `PUBLIC_LEAD_PROVIDER` | to receive enquiries | `netlify` (recommended; see LEADS.md) or `web3forms` / `formspree` / `hubspot` / `webhook` |
+| `PUBLIC_LEAD_PROVIDER` | optional | not needed for Netlify Forms (used automatically on Netlify builds); set only to use `web3forms` / `formspree` / `hubspot` / `webhook` instead |
 | `PUBLIC_LEAD_ENDPOINT`, `PUBLIC_WEB3FORMS_ACCESS_KEY`, `PUBLIC_HUBSPOT_PORTAL_ID`, `PUBLIC_HUBSPOT_FORM_GUID` | only for the matching provider | public values only |
 | `PUBLIC_DEV_MARKERS` | **never in production** | — |
 

@@ -1,7 +1,8 @@
 /**
  * GOVERNMENT SUPPORT PROGRAMMES — the only source of support amounts/conditions.
  * ---------------------------------------------------------------------------
- * Components, package prices and the calculator all read from here.
+ * Components read from here. Amounts and deadlines are shown ONLY when
+ * `verified: true`; until then the site shows the programme without figures.
  *
  *  Public fields  → shown on the site (name, amounts, conditions, deadline).
  *  `internal`     → verification record for the team. NEVER rendered.

@@ -8,7 +8,7 @@ import { projectPath } from '../lib/projects';
 import { allProducts } from '../data/equipment';
 import { equipmentPath } from '../lib/equipment';
 
-const priority: Partial<Record<RouteKey, string>> = { home: '1.0', packages: '0.9', solar: '0.9', batteries: '0.8', offer: '0.8', calculator: '0.8', support: '0.8', business: '0.7' };
+const priority: Partial<Record<RouteKey, string>> = { home: '1.0', packages: '0.9', solar: '0.9', batteries: '0.8', offer: '0.8', support: '0.8', business: '0.7' };
 const legal: RouteKey[] = ['privacy', 'cookies', 'terms', 'legal'];
 
 export const GET: APIRoute = () => {

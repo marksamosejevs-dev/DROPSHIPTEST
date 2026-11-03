@@ -17,7 +17,6 @@ export const routes = {
   solar: { lv: 'saules-paneli', ru: 'solnechnye-paneli', en: 'solar-panels' },
   batteries: { lv: 'akumulatori', ru: 'akkumulyatory', en: 'batteries' },
   packages: { lv: 'saules-panelu-komplekti', ru: 'komplekty-solnechnyh-panelej', en: 'solar-packages' },
-  calculator: { lv: 'kalkulators', ru: 'kalkulyator', en: 'calculator' },
   support: { lv: 'valsts-atbalsts', ru: 'gosudarstvennaya-podderzhka', en: 'government-support' },
   projects: { lv: 'musu-darbi', ru: 'nashi-proekty', en: 'projects' },
   business: { lv: 'uznemumiem', ru: 'dlya-biznesa', en: 'business' },

@@ -46,9 +46,13 @@ export interface LeadConfig {
 const env = import.meta.env;
 const PROVIDERS: LeadProvider[] = ['disabled', 'netlify', 'formspree', 'web3forms', 'hubspot', 'webhook'];
 const envProvider = String(env.PUBLIC_LEAD_PROVIDER ?? '').trim() as LeadProvider;
+// Netlify sets NETLIFY=true in its build environment. When the site is built
+// there and no other provider is chosen, Netlify Forms is used automatically
+// (no keys needed). Local/other builds stay 'disabled' (honest notice).
+const builtOnNetlify = (globalThis as any).process?.env?.NETLIFY === 'true';
 
 export const leads: LeadConfig = {
-  provider: PROVIDERS.includes(envProvider) ? envProvider : 'disabled',
+  provider: PROVIDERS.includes(envProvider) ? envProvider : builtOnNetlify ? 'netlify' : 'disabled',
   endpoint: String(env.PUBLIC_LEAD_ENDPOINT ?? ''),
   accessKey: String(env.PUBLIC_WEB3FORMS_ACCESS_KEY ?? ''),
   portalId: String(env.PUBLIC_HUBSPOT_PORTAL_ID ?? ''),

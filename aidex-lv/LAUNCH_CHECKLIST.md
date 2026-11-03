@@ -14,7 +14,7 @@ The site is production-ready apart from the business facts and approvals below. 
 Until these are filled, the footer, contact page and legal pages show **no company data**: placeholders are hidden from visitors. A site without them is not ready to publish.
 
 **Enquiry destination** (see `LEADS.md`)
-- [ ] Choose a provider. Recommended: **Netlify Forms**, with `PUBLIC_LEAD_PROVIDER=netlify`, Form detection enabled and an e-mail notification.
+- [ ] Netlify Forms is used automatically on Netlify builds. In Netlify: **Forms → Enable form detection**, redeploy, add an e-mail notification, then send a real test enquiry.
 - [ ] Give the receiving e-mail address.
 - [ ] Until this is done, the form says openly that requests are not being sent. It never shows a false "Thank you".
 
@@ -30,12 +30,12 @@ Until these are filled, the footer, contact page and legal pages show **no compa
 
 ## 2. Content to confirm (currently shown in a neutral or qualified form)
 
-- [ ] **Government support (EKII)** — `src/data/support.ts`. The amounts (up to €4,000 / €2,500 / €6,500), the 5 kWh condition and the 2029-12-31 deadline come from public reporting and are **not verified**. They are shown as information with the note "conditions may change". Verify them against the official source, fill `internal`, and set `verified: true`.
+- [ ] **Government support (EKII)** — `src/data/support.ts`. The amounts (up to €4,000 / €2,500 / €6,500), the 5 kWh condition and the 2029-12-31 deadline come from public reporting and are **not verified**, so they are **hidden** on the site (only the programme name and "we confirm the amount in your quote" are shown). Verify them against the official source, fill `internal`, and set `verified: true` to show them.
 - [ ] **Package inverter and battery** — only generic sizes are shown: hybrid inverter 6 / 8 / 12 kW, battery 16 kWh. These sizes came from the earlier benchmark, so engineering should confirm them, and SUNPRO models should be linked once confirmed (`SUNPRO_EQUIPMENT_REQUEST.md`).
 - [ ] **Warranties** — no warranty periods are shown, because AIDEX terms are not confirmed (`defaultWarranty` is all `null`). Supply product, performance, equipment and installation warranty years if you want them shown.
 - [ ] **Monitoring app** — the "Why AIDEX" card and process step 6 mention app monitoring. Confirm it is included with the chosen inverter.
 - [ ] **"500 000+ tonnes of certified biomass"** (AIDEX Energy Group, from aidex-energy.com) — confirm it, or it should be removed.
-- [ ] **Calculator assumptions** (`src/data/calculator.ts`) — 950 kWh per kWp per year, and a €0.20/kWh tariff used only to convert a bill into kWh. Engineering should confirm both.
+- [ ] **FAQ rule of thumb** — "annual kWh ÷ ~950 ≈ system kW" and "900–1,000 kWh per kW per year" (general Latvian yield figures). Engineering should confirm. (The calculator has been removed.)
 - [ ] **Service promises removed** — "free estimate", "reply within working days" and "installation 1–3 days" were removed because they were unconfirmed. Tell me if any of them is a real commitment, and I can restore it.
 
 ## 3. Optional

@@ -26,10 +26,6 @@ const en: Dict = {
       title: 'Solar Panel Packages 6.16–10.12 kWp | AIDEX',
       description: 'Solar packages with 14, 18 or 23 SUNPRO POWER 440 W panels (6.16, 7.92 and 10.12 kWp), with or without a battery. Request an individual quote.',
     },
-    calculator: {
-      title: 'Solar Calculator — System Size and Production | AIDEX',
-      description: 'Estimate the recommended solar system size, number of panels, required area and indicative annual production for your home.',
-    },
     support: {
       title: 'Government Support for Solar Panels and Batteries in Latvia | AIDEX',
       description: 'Current Latvian support programmes for households installing solar panels and batteries. We help with the application and paperwork.',
@@ -60,7 +56,7 @@ const en: Dict = {
     },
     privacy: { title: 'Privacy Policy | AIDEX', description: 'How GREEN ENERGY SIA processes personal data on AIDEX.lv.' },
     cookies: { title: 'Cookie Policy | AIDEX', description: 'Which cookies AIDEX.lv uses and how to manage your consent.' },
-    terms: { title: 'Terms and Conditions | AIDEX', description: 'Terms of use for the AIDEX.lv website.' },
+    terms: { title: 'Terms and Conditions | AIDEX', description: 'Terms of use for the AIDEX.lv website: nature of the information, individual quotes, intellectual property and liability.' },
     legal: { title: 'Legal Information | AIDEX', description: 'Information about GREEN ENERGY SIA, the operator of AIDEX.lv.' },
     notFound: { title: 'Page Not Found | AIDEX', description: 'The requested page could not be found.' },
   },
@@ -75,7 +71,6 @@ const en: Dict = {
     about: 'About',
     faq: 'FAQ',
     contact: 'Contact',
-    calculator: 'Calculator',
     menu: 'Menu',
     close: 'Close',
     language: 'Language',
@@ -86,7 +81,6 @@ const en: Dict = {
 
   cta: {
     offer: 'Request a Quote',
-    calc: 'Size your system',
     support: 'Explore available support',
     group: 'AIDEX Energy Group',
     allPackages: 'All solar packages',
@@ -158,31 +152,6 @@ const en: Dict = {
     choose: 'Choose',
   },
 
-  calc: {
-    eyebrow: 'System calculator',
-    title: 'Which solar system suits your home?',
-    lead: 'Enter your monthly consumption or bill — the recommended system size appears instantly.',
-    mode: 'Calculate from',
-    byConsumption: 'Consumption',
-    byBill: 'Bill',
-    consumption: 'Average monthly consumption',
-    bill: 'Average monthly electricity bill',
-    kwhMonth: 'kWh/month',
-    eurMonth: '€/month',
-    battery: 'Include a battery',
-    results: {
-      system: 'Recommended system size',
-      production: 'Indicative annual production',
-      panels: 'SUNPRO POWER panels',
-      roof: 'Approximate panel area',
-      battery: 'Recommended battery',
-      noBattery: 'Not included',
-      package: 'Matching package',
-    },
-    note: 'Indicative estimate: ~{yield} kWh per kWp per year (south-facing, suitable tilt). A bill is converted to kWh using an average tariff of €{price}/kWh.',
-    quoteText: 'We prepare the exact system design and an individual quote after assessing your property.',
-    cta: 'Request a Quote',
-  },
 
 
 
@@ -190,6 +159,7 @@ const en: Dict = {
     eyebrow: 'Government support',
     title: 'Government support can cover part of the cost',
     lead: 'Latvian households can access support programmes for solar panels and batteries. We check the current conditions and help with the paperwork.',
+    pending: 'We confirm the support amount and conditions in your quote',
     upTo: 'up to',
     total: 'Total per household',
     deadline: 'Application deadline',
@@ -307,11 +277,8 @@ const en: Dict = {
     address: 'Property address or town',
     addressPh: 'e.g. Mārupe or Liepājas iela 1, Riga',
     addressHint: 'A town or municipality is enough — you can share the exact address later.',
-    usageMode: 'How would you like to enter consumption?',
-    usageKwh: 'kWh per month',
-    usageBill: '€ per month',
+    usageMode: 'Average electricity consumption',
     usageLabelKwh: 'Average monthly consumption, kWh',
-    usageLabelBill: 'Average monthly bill, €',
     usageUnknown: 'I don’t know — help me estimate',
     interests: 'What are you interested in?',
     interestOptions: { solar: 'Solar panels', battery: 'Battery', ev: 'EV charging', consult: 'Not sure — I’d like a consultation' },
@@ -431,17 +398,6 @@ const en: Dict = {
         ev: { label: 'EV charging', title: 'EV charging', text: 'Charge your car with your own energy — easy to plan into the system from day one.' },
       },
     },
-    dn: {
-      eyebrow: 'How it works',
-      title: 'Sun by day. Your own power by night.',
-      day: 'Day',
-      dayText: 'The panels power your home and charge the battery, and any surplus goes to the grid. During the day, your home runs on the electricity it produces.',
-      night: 'Night',
-      nightText: 'After sunset, the battery takes over. Lights, appliances and the heat pump run on energy stored during the day.',
-      size: 'System size',
-      stats: { production: 'indicative production per year', panels: 'SUNPRO solar panels', area: 'approximate panel area', battery: 'battery for evening and night' },
-      note: 'Indicative, assuming ~{yield} kWh per kWp per year. Actual production depends on roof orientation, tilt and shading.',
-    },
     why: {
       title: 'What you get with AIDEX',
       monitor: { title: 'In-app monitoring', text: 'Production, consumption and battery status in real time — on your phone and computer.' },
@@ -467,7 +423,7 @@ const en: Dict = {
   },
 
   pages: {
-    h1: { packages: 'Solar panel packages', calculator: 'Solar panel calculator', support: 'Government support for solar panels and batteries', projects: 'Solar energy projects', faq: 'Solar panel questions and answers', business: 'Solar power and energy storage for business' },
+    h1: { packages: 'Solar panel packages', support: 'Government support for solar panels and batteries', projects: 'Solar energy projects', faq: 'Solar panel questions and answers', business: 'Solar power and energy storage for business' },
     solar: {
       eyebrow: 'Solar panels',
       title: 'Solar panels for your home — a complete system, not just panels',

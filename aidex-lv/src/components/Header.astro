@@ -11,7 +11,6 @@ const nav: { key: RouteKey; label: string; low?: boolean }[] = [
   { key: 'solar', label: t.nav.solar },
   { key: 'batteries', label: t.nav.batteries },
   { key: 'packages', label: t.nav.packages },
-  { key: 'calculator', label: t.nav.calculator, low: true },
   { key: 'support', label: t.nav.support },
   { key: 'about', label: t.nav.about },
 ];
@@ -56,7 +55,7 @@ const phoneHref = tel();
       {phone && phoneHref ? (
         <a href={`tel:${phoneHref}`} class="hdr__icon" aria-label={`${t.v2.call} ${phone}`}><Icon name="phone" size={20} /></a>
       ) : (
-        <a href={path('calculator', lang)} class="hdr__icon" aria-label={t.nav.calculator} title={t.nav.calculator}><Icon name="chart" size={20} /></a>
+        <a href={path('contact', lang)} class="hdr__icon" aria-label={t.nav.contact} title={t.nav.contact}><Icon name="mail" size={20} /></a>
       )}
       <a href={path('offer', lang)} class="btn btn--primary btn--sm hdr__cta" data-cta="header">{t.cta.offer}</a>
       <button class="hdr__burger" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>
@@ -95,7 +94,7 @@ const phoneHref = tel();
     {phone && phoneHref ? (
       <a href={`tel:${phoneHref}`} class="btn btn--ghost btn--block"><Icon name="phone" />{phone}</a>
     ) : (
-      <a href={path('calculator', lang)} class="btn btn--ghost btn--block">{t.cta.calc}</a>
+      <a href={path('packages', lang)} class="btn btn--ghost btn--block">{t.cta.allPackages}</a>
     )}
   </div>
 </div>

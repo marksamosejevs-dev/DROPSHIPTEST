@@ -3,7 +3,6 @@ import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
 import FeatureSplit from '../components/FeatureSplit.astro';
 import Packages from '../components/home/Packages.astro';
-import Calculator from '../components/home/Calculator.astro';
 import Process from '../components/home/Process.astro';
 import FaqList from '../components/home/FaqList.astro';
 import EcosystemStrip from '../components/EcosystemStrip.astro';
@@ -18,10 +17,9 @@ const p = t.pages.solar;
 ---
 <Base lang={lang} route={route} title={t.meta.solar.title} description={t.meta.solar.description}
   jsonLd={[serviceLd(lang, p.title, t.meta.solar.description, 'solar'), breadcrumbLd(lang, [{ name: t.nav.home, key: 'home' }, { name: t.nav.solar, key: 'solar' }])]}>
-  <PageHero lang={lang} eyebrow={p.eyebrow} title={p.title} lead={p.lead} crumb={t.nav.solar} image={media.pkg10.src} imageAlt={media.pkg10.alt[lang]} secondary={{ href: path('solar', lang, 'calculator'), label: t.cta.calc }} />
+  <PageHero lang={lang} eyebrow={p.eyebrow} title={p.title} lead={p.lead} crumb={t.nav.solar} image={media.pkg10.src} imageAlt={media.pkg10.alt[lang]} secondary={{ href: path('solar', lang, 'packages'), label: t.cta.allPackages }} />
   <FeatureSplit lang={lang} items={p.sections} image={media.hotspot} checklistTitle={p.specsTitle} checklist={p.specs} icons={['layers', 'home', 'doc', 'chart']} />
   <Packages lang={lang}><EcosystemStrip lang={lang} bare /></Packages>
-  <Calculator lang={lang} />
   <Process lang={lang} />
   <FaqList lang={lang} limit={5} />
   <FinalCta lang={lang} source="solar" />

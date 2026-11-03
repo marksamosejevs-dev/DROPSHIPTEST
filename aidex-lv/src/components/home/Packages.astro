@@ -78,7 +78,6 @@ const batText = (p: SolarPackage) => { const b = p.battery; if (!b) return null;
                   <p class="pc__desc">{p.description?.[lang] ?? v.maxText}</p>
                   <div class="pc__btns">
                     <a href={`${path('offer', lang)}?package=${p.id}`} class="btn btn--primary" data-cta={`package-${p.id}`}>{t.cta.offer}<Icon name="arrow" /></a>
-                    <a href={path('calculator', lang)} class="btn btn--white">{t.cta.calc}</a>
                   </div>
                 </>
               ) : (

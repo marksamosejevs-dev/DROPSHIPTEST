@@ -2,7 +2,7 @@
 
 Website for **AIDEX.lv**, operated by **GREEN ENERGY SIA**. Residential solar, batteries and installation in Latvia, with a B2B section connected to AIDEX Energy Group (aidex-energy.com).
 
-Built with Astro (static output). There is no client framework: pages ship as static HTML plus small vanilla scripts for the calculator, forms, cookie consent and menu.
+Built with Astro (static output). There is no client framework: pages ship as static HTML plus small vanilla scripts for the request form, package toggle, hotspots, cookie consent and menu. There is no calculator (removed before launch; old calculator URLs 301 to the packages page in `netlify.toml`).
 
 ```bash
 npm install
@@ -43,7 +43,9 @@ Everything that still needs business input is listed in **LAUNCH_CHECKLIST.md**:
 ### QA scripts (with `npm run preview` running)
 
 ```bash
-node render/functest.mjs      # no-tracking/consent, packages, calculator, hotspots, day/night, form paths (disabled/500/200/Netlify), menu, hreflang, no-prices audit
+node render/functest.mjs      # no-tracking/consent, packages, hotspots, calculator-removal, hidden unverified subsidy figures, form paths (disabled/500/200/Netlify), menu, hreflang, no-prices/no-€ audit
+node render/linkcheck.mjs     # broken internal links, anchors and missing assets in dist/
+node render/netlifycheck.mjs  # builds as Netlify (NETLIFY=true) and verifies Netlify Forms markup/fields
 node render/qa.mjs            # every page × 4 widths: overflow, broken links/assets, canonical/hreflang, h1, titles
 node render/i18ncheck.mjs     # Latvian text leaking into RU/EN pages
 ```
@@ -57,7 +59,7 @@ src/
   config/company.ts      Legal entity, contacts, group relationship wording. Single source for footer, legal pages, JSON-LD
   config/leads.ts        Lead-form destination (disabled / Web3Forms / Formspree / HubSpot / webhook)
   config/site.ts         Production origin (canonical / hreflang / sitemap)
-  data/                  All commercial content: packages, equipment (manufacturer specs), support, calculator, projects, reviews
+  data/                  All commercial content: packages, equipment (manufacturer specs), support, projects, reviews
                          (testimonials.ts), FAQ, media registry
   assets/projects/       Real project photos, one folder per project slug
   i18n/                  lv.ts (source) · ru.ts · en.ts (typed against lv) · routes.ts (localized slugs)
@@ -67,7 +69,7 @@ src/
   pages/[lang]/[...slug].astro   One router that generates every /lv|ru|en/… page
   pages/[lang]/[section]/[item].astro   Case-study pages (data/projects.ts) and equipment pages (data/equipment.ts)
   scripts/               consent.ts · lead-form.ts · main.ts
-  lib/                   calc.ts (the calculator model, shared by server and browser) · seo.ts · images.ts
+  lib/                   seo.ts · images.ts
 render/                  Offline three.js renderer for the temporary imagery (not deployed)
 ```
 
@@ -87,7 +89,7 @@ render/                  Offline three.js renderer for the temporary imagery (no
 - To add a new opt-in script, use `<script type="text/plain" data-consent="analytics" data-src="…">`.
 
 ### Lead form
-Its destination is chosen with build environment variables (`PUBLIC_LEAD_PROVIDER` …; see LEADS.md). There are four steps: address, consumption (kWh, € or "don't know"), interests and package selection, then contact and an optional comment. Validation messages are localized. Spam protection: a honeypot field and a minimum fill time. While no destination is configured, the form says so up front and never shows a false success. It prefills from `?package=…&battery=1&kwh=…`, which the package cards and calculator set. A privacy notice links to the Privacy Policy in the current language. There is no bundled marketing consent. If newsletters are added later, use a separate, optional, unticked checkbox.
+On Netlify builds it submits to Netlify Forms automatically; other destinations can be chosen with build environment variables (`PUBLIC_LEAD_PROVIDER` …; see LEADS.md). There are four steps: address, consumption (kWh or "don't know"), interests and package selection, then contact and an optional comment. Validation messages are localized. Spam protection: a honeypot field and a minimum fill time. While no destination is configured, the form says so up front and never shows a false success. It prefills from `?package=…&battery=1&kwh=…`, which the package cards and calculator set. A privacy notice links to the Privacy Policy in the current language. There is no bundled marketing consent. If newsletters are added later, use a separate, optional, unticked checkbox.
 
 ### SEO
 Per-language titles and descriptions. JSON-LD covers Organization/LocalBusiness (verified fields only), WebSite, Service, BreadcrumbList and FAQPage on the FAQ page. `sitemap.xml` includes hreflang alternates; `robots.txt` is generated too. The heading structure is one H1 per page.

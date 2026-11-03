@@ -66,14 +66,14 @@ const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, 
 
     <slot name="head" />
 
-    <!-- Google Consent Mode v2 defaults: everything non-essential denied until consent. -->
-    <script is:inline define:vars={{ consentConfig }}>
-      document.documentElement.classList.replace('no-js', 'js');
+    <script is:inline>document.documentElement.classList.replace('no-js', 'js');</script>
+    {/* Google Consent Mode v2 defaults — only emitted when an analytics/ads integration is configured. */}
+    {CONSENT_REQUIRED && <script is:inline define:vars={{ consentConfig }}>
       window.__AIDEX_CONSENT_CFG = consentConfig;
       window.dataLayer = window.dataLayer || [];
       window.gtag = function () { window.dataLayer.push(arguments); };
       window.gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted', wait_for_update: 500 });
-    </script>
+    </script>}
     {ld.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o)} />)}
   </head>
   <body data-lang={lang}>

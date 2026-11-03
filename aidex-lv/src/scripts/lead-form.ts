@@ -75,16 +75,9 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
   if (qs.get('package') || qs.get('kwh')) form.querySelector<HTMLInputElement>('[data-prefill-interest="solar"]')!.checked = true;
   if (qs.get('battery') === '1') form.querySelector<HTMLInputElement>('[data-prefill-interest="battery"]')!.checked = true;
 
-  // ---- usage unit switch ----
+  // ---- consumption: "I don't know" disables the number field ----
   const usage = form.querySelector<HTMLInputElement>('[name="usage"]')!;
-  const usageLabel = form.querySelector<HTMLElement>('[data-usage-label]')!;
-  const unitLabel = form.querySelector<HTMLElement>('[data-unit-label]')!;
   const unknown = form.querySelector<HTMLInputElement>('[data-usage-unknown]')!;
-  form.querySelectorAll<HTMLInputElement>('[data-unit]').forEach((r) => r.addEventListener('change', () => {
-    const u = r.value as 'kwh' | 'eur';
-    usageLabel.textContent = usageLabel.dataset[u]!;
-    unitLabel.textContent = unitLabel.dataset[u]!;
-  }));
   unknown.addEventListener('change', () => { usage.disabled = unknown.checked; if (unknown.checked) clear('usage'); });
 
   // ---- validation ----

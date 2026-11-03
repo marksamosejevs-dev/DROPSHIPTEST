@@ -29,9 +29,9 @@ export const faq: FaqItem[] = [
       en: 'What system size do I need?',
     },
     a: {
-      lv: 'Vienkāršs orientieris: gada patēriņš kWh, dalīts ar aptuveni 950, dod nepieciešamo jaudu kW. Piemēram, 7 000 kWh gadā atbilst aptuveni 7–8 kW sistēmai. Kalkulators aprēķinās to jūsu vietā, bet inženieris ņems vērā arī jumta orientāciju, noēnojumu un pieslēguma jaudu.',
-      ru: 'Простой ориентир: годовое потребление в кВт·ч, делённое примерно на 950, даёт нужную мощность в кВт. Например, 7 000 кВт·ч в год — это система примерно на 7–8 кВт. Калькулятор посчитает это за вас, а инженер учтёт ориентацию крыши, затенение и мощность подключения.',
-      en: 'A simple rule of thumb: annual consumption in kWh divided by roughly 950 gives the system size in kW. For example, 7,000 kWh a year suggests a 7–8 kW system. The calculator does this for you, and an engineer then accounts for roof orientation, shading and your grid connection.',
+      lv: 'Vienkāršs orientieris: gada patēriņš kWh, dalīts ar aptuveni 950, dod nepieciešamo jaudu kW. Piemēram, 7 000 kWh gadā atbilst aptuveni 7–8 kW sistēmai. Precīzu jaudu nosaka inženieris, ņemot vērā arī jumta orientāciju, noēnojumu un pieslēguma jaudu.',
+      ru: 'Простой ориентир: годовое потребление в кВт·ч, делённое примерно на 950, даёт нужную мощность в кВт. Например, 7 000 кВт·ч в год — это система примерно на 7–8 кВт. Точную мощность определяет инженер с учётом ориентации крыши, затенения и мощности подключения.',
+      en: 'A simple rule of thumb: annual consumption in kWh divided by roughly 950 gives the system size in kW. For example, 7,000 kWh a year suggests a 7–8 kW system. The final size is set by an engineer, who also accounts for roof orientation, shading and your grid connection.',
     },
   },
   {

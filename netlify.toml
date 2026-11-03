@@ -9,8 +9,9 @@
 
 [build.environment]
   NODE_VERSION = "22"       # Astro 7 requires Node >= 22.12
-  # Enquiry destination (public values only). Set in the Netlify UI instead to
-  # keep the repository neutral, e.g. PUBLIC_LEAD_PROVIDER = "netlify".
+  # Enquiry destination: on Netlify builds the request form uses Netlify Forms
+  # automatically (form "aidex-request"; no keys). To use another destination,
+  # set PUBLIC_LEAD_PROVIDER etc. in the Netlify UI (public values only).
 
 # Root → Latvian (default language). Permanent, also when /index.html exists.
 [[redirects]]
@@ -18,6 +19,22 @@
   to = "/lv/"
   status = 301
   force = true
+
+# The calculator was removed — old URLs go to the packages page.
+[[redirects]]
+  from = "/lv/kalkulators/*"
+  to = "/lv/saules-panelu-komplekti/"
+  status = 301
+
+[[redirects]]
+  from = "/ru/kalkulyator/*"
+  to = "/ru/komplekty-solnechnyh-panelej/"
+  status = 301
+
+[[redirects]]
+  from = "/en/calculator/*"
+  to = "/en/solar-packages/"
+  status = 301
 
 [[headers]]
   for = "/*"

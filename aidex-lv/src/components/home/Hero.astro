@@ -34,7 +34,7 @@ const [lineA, lineB] = h.systemLine.split('{range}');
     <p class="hero__lead hero__in" style="--d:.22s">{h.lead}</p>
     <div class="hero__ctas hero__in" style="--d:.32s">
       <a href={path('offer', lang)} class="btn btn--primary" data-cta="hero-offer">{t.cta.offer}<Icon name="arrow" /></a>
-      <a href={path('home', lang, 'calculator')} class="btn btn--ghost-inv" data-cta="hero-calc"><Icon name="chart" />{t.cta.calc}</a>
+      <a href={path('packages', lang)} class="btn btn--ghost-inv" data-cta="hero-packages"><Icon name="panel" />{t.cta.allPackages}</a>
     </div>
     <p class="hero__price hero__in" style="--d:.42s">{lineA}<strong class="tnum">{range}</strong>{lineB}</p>
     <a href={path('home', lang, 'packages')} class="hero__down hero__in" style="--d:.5s">{h.seePrices}<Icon name="chevron" size={18} /></a>
