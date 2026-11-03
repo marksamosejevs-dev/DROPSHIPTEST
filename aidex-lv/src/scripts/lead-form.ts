@@ -19,10 +19,10 @@ async function send(cfg: LeadCfg, data: Record<string, unknown>) {
   try {
     let res: Response;
     if (cfg.provider === 'netlify') {
-      // Netlify Forms: URL-encoded POST (incl. form-name) to the current page; 2xx = stored by Netlify.
-      // Not "/" — the root is redirected to /lv/ in netlify.toml.
-      const body = new URLSearchParams({ 'form-name': 'aidex-request', ...flat(data) });
-      res = await fetch(location.pathname, { method: 'POST', signal: ctrl.signal, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+      // Netlify Forms: URL-encoded POST to the static form definition
+      // (public/__forms.html, never redirected). 2xx = stored by Netlify.
+      const body = new URLSearchParams({ 'form-name': 'aidex-request', ...netlifyFields(data) });
+      res = await fetch(NETLIFY_ENDPOINT, { method: 'POST', signal: ctrl.signal, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
       if (!res.ok) throw new Error(`netlify ${res.status}`);
     } else if (cfg.provider === 'web3forms') {
       res = await post('https://api.web3forms.com/submit', { access_key: cfg.accessKey, subject: cfg.subject, from_name: 'AIDEX.lv', ...flat(data) });
@@ -51,6 +51,31 @@ async function send(cfg: LeadCfg, data: Record<string, unknown>) {
     clearTimeout(timer);
   }
 }
+/** Static file holding the Netlify Forms definition (public/__forms.html). */
+const NETLIFY_ENDPOINT = '/__forms.html';
+/** Riga local time, e.g. "2026-11-03 17:25 (Europe/Riga)". */
+const rigaTime = (d = new Date()) => d.toLocaleString('sv-SE', { timeZone: 'Europe/Riga', hour12: false }).slice(0, 16) + ' (Europe/Riga)';
+/**
+ * The fields Netlify stores and e-mails — keep in sync with public/__forms.html.
+ * Readable values so the notification e-mail needs no decoding.
+ */
+const netlifyFields = (d: Record<string, unknown>) => {
+  const f = flat(d);
+  return {
+    name: f.name ?? '',
+    email: f.email ?? '',
+    phone: f.phone ?? '',
+    package: f.packageLabel || 'not selected',
+    consumption: f.usageUnknown ? 'not known (customer ticked "I don\'t know")' : f.usage ? `${f.usage} kWh per month` : 'not provided',
+    message: f.message || '',
+    address: f.address ?? '',
+    interests: f.interests ?? '',
+    language: ({ lv: 'Latviešu (LV)', ru: 'Русский (RU)', en: 'English (EN)' } as Record<string, string>)[f.lang] ?? f.lang ?? '',
+    submitted_at: rigaTime(),
+    page: f.page ?? '',
+    source: f.source ?? '',
+  };
+};
 /** Flattens arrays/objects for e-mail style providers. */
 const flat = (d: Record<string, unknown>) => Object.fromEntries(Object.entries(d).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v && typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')]));
 
@@ -159,7 +184,7 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
   // ---- submit ----
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    submitErr.textContent = '';
+    submitErr.hidden = true;
     for (let i = 1; i <= total; i++) {
       const bad = validate(i);
       if (bad) { go(i, false); bad.focus(); return; }
@@ -181,7 +206,7 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
     if (cfg.provider === 'disabled') {
       // No destination configured: nothing leaves the browser and we never
       // pretend it did. The visitor's input stays in the form.
-      console.info('[lead-form] destination not configured — payload NOT sent:', data);
+      console.info('[lead-form] destination not configured — nothing was sent.'); // never log personal data
       offBox.hidden = false;
       offBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       return;
@@ -197,8 +222,9 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
       done.focus();
       (window as any).dataLayer?.push({ event: 'generate_lead', form_source: data.source });
     } catch (err) {
-      console.warn('[lead-form] submission failed:', err);
-      submitErr.textContent = errors.submit;
+      console.warn('[lead-form] submission failed:', (err as Error)?.message);
+      submitErr.hidden = false;
+      submitErr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     } finally {
       submit.disabled = false;
       submit.innerHTML = label;

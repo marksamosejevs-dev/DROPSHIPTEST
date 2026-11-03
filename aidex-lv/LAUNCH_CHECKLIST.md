@@ -14,7 +14,7 @@ The site is production-ready apart from the business facts and approvals below. 
 Until these are filled, the footer, contact page and legal pages show **no company data**: placeholders are hidden from visitors. A site without them is not ready to publish.
 
 **Enquiry destination** (see `LEADS.md`)
-- [ ] Netlify Forms is used automatically on Netlify builds. In Netlify: **Forms → Enable form detection**, redeploy, add an e-mail notification, then send a real test enquiry.
+- [ ] Netlify Forms is used automatically on Netlify builds. In Netlify: **Forms → Enable form detection**, redeploy, add the e-mail notification to **info@aidex-energy.com**, then send a real test enquiry (see `LEADS.md`).
 - [ ] Give the receiving e-mail address.
 - [ ] Until this is done, the form says openly that requests are not being sent. It never shows a false "Thank you".
 
@@ -26,7 +26,7 @@ Until these are filled, the footer, contact page and legal pages show **no compa
 - [ ] Supply the exact wording for the relationship between AIDEX and SUNPRO POWER (`ecosystem.relationship`). Until then, AIDEX is never called an "official" or "exclusive" representative.
 
 **Brand**
-- [ ] Official AIDEX logo as SVG (header, footer, favicon). See `IMAGE_REQUIREMENTS.md`.
+- [x] Official AIDEX logo is in place: header, footer, favicon and Organization schema (`public/aidex-logo.svg`, vectorised from the supplied image). An original vector file from the designer can replace it 1:1.
 
 ## 2. Content to confirm (currently shown in a neutral or qualified form)
 

@@ -37,7 +37,7 @@ export function organizationLd(lang: Locale) {
     name: company.brand,
     legalName: company.legalName,
     url: abs(path('home', lang)),
-    logo: abs('/favicon.svg'),
+    logo: abs('/aidex-logo.png'),
     areaServed: { '@type': 'Country', name: 'Latvia' },
     // Relationship to the group is emitted only once its legal form is confirmed.
     ...(groupOrg()),

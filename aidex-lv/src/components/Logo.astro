@@ -1,29 +1,25 @@
 ---
 /**
- * AIDEX wordmark (development version). Replace the SVG mark and wordmark with
- * the official AIDEX / AIDEX Energy Group logo files once they are supplied.
+ * Official AIDEX wordmark (public/aidex-logo.svg, vectorised from the logo
+ * supplied by AIDEX). Drawn as a CSS mask filled with currentColor so a single
+ * cached file serves every tone: brand green #395723 on light backgrounds,
+ * white on dark ones (header over the hero, footer).
  */
 interface Props { class?: string; tone?: 'dark' | 'light'; sub?: string }
 const { class: cls, tone = 'dark', sub } = Astro.props;
 ---
 <span class:list={['logo', `logo--${tone}`, cls]}>
-  <svg class="logo__mark" viewBox="0 0 36 36" aria-hidden="true">
-    <rect width="36" height="36" rx="9" fill="var(--brand)" />
-    <circle cx="18" cy="20.5" r="8.5" fill="none" stroke="#fff" stroke-width="2" />
-    <path d="M6.5 20.5h23" stroke="#fff" stroke-width="2" />
-    <path d="M11.8 20.5a6.2 6.2 0 0 1 12.4 0z" fill="var(--sun)" />
-  </svg>
-  <span class="logo__text">
-    <span class="logo__word">AIDEX</span>
-    {sub && <span class="logo__sub">{sub}</span>}
-  </span>
+  <span class="logo__img" aria-hidden="true"></span>
+  <span class="sr-only">AIDEX</span>
+  {sub && <span class="logo__sub">{sub}</span>}
 </span>
 
 <style>
-  .logo { display: inline-flex; align-items: center; gap: 11px; line-height: 1; color: var(--ink); }
+  .logo { display: inline-flex; align-items: center; gap: 12px; line-height: 1; color: #395723; }
   .logo--light { color: #fff; }
-  .logo__mark { width: 36px; height: 36px; flex: none; }
-  .logo__text { display: grid; gap: 4px; }
-  .logo__word { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; letter-spacing: 0.14em; }
-  .logo__sub { font-size: .75rem; font-weight: 500; letter-spacing: .02em; opacity: .7; }
+  .logo__img {
+    display: block; flex: none; width: 112px; aspect-ratio: 2984 / 840; background: currentColor;
+    -webkit-mask: url('/aidex-logo.svg') center / contain no-repeat; mask: url('/aidex-logo.svg') center / contain no-repeat;
+  }
+  .logo__sub { font-size: .75rem; font-weight: 500; letter-spacing: .02em; opacity: .75; padding-left: 12px; border-left: 1px solid currentColor; line-height: 1.3; max-width: 9ch; }
 </style>

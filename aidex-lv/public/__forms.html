@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<title>AIDEX.lv form definition</title>
+</head>
+<body>
+<!--
+  Netlify Forms definition for every AIDEX.lv request form (LV / RU / EN).
+  Netlify reads this file at deploy time ("Forms → Enable form detection" must
+  be ON). The site's JavaScript posts every enquiry to /__forms.html with
+  form-name=aidex-request. Only the fields listed here are stored and e-mailed,
+  so keep this list in sync with netlifyFields() in src/scripts/lead-form.ts
+  (checked by render/netlifycheck.mjs).
+-->
+<form name="aidex-request" method="POST" data-netlify="true" netlify-honeypot="website" hidden>
+  <input type="hidden" name="form-name" value="aidex-request">
+  <input name="website">
+  <input name="name">
+  <input name="email">
+  <input name="phone">
+  <input name="package">
+  <input name="consumption">
+  <textarea name="message"></textarea>
+  <input name="address">
+  <input name="interests">
+  <input name="language">
+  <input name="submitted_at">
+  <input name="page">
+  <input name="source">
+</form>
+</body>
+</html>

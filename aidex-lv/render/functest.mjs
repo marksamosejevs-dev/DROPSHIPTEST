@@ -7,7 +7,7 @@ async function newPage(w = 1440, h = 900) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h } });
   const p = await ctx.newPage();
   p.on('pageerror', (e) => errors.push(e.message));
-  p.on('console', (m) => m.type() === 'error' && !/status of 500/.test(m.text()) && errors.push(m.text())); // the 500 is the simulated backend failure
+  p.on('console', (m) => m.type() === 'error' && !/status of (500|404)/.test(m.text()) && errors.push(m.text())); // 500/404 are the simulated backend failures
   return p;
 }
 // ---- cookie consent: no non-essential integrations configured → no banner, no cookies
@@ -102,7 +102,7 @@ await f.evaluate((el, h) => { el.dataset.leads = JSON.stringify({ provider: 'web
 await p.route(hook, (r) => r.fulfill({ status: 500, contentType: 'application/json', body: '{"ok":false}' }));
 await f.locator('[data-submit]').click();
 await p.waitForTimeout(500);
-ok(!(await f.locator('[data-done]').isVisible()) && (await f.locator('[data-submit-error]').innerText()).length > 0, 'backend 500 → error, no success');
+ok(!(await f.locator('[data-done]').isVisible()) && await f.locator('[data-submit-error]').isVisible() && (await f.locator('[data-submit-error] a').first().getAttribute('href')) === 'mailto:info@aidex-energy.com', 'backend 500 → error with e-mail fallback link, no success');
 await p.unroute(hook);
 let received = null;
 await p.route(hook, (r) => { received = JSON.parse(r.request().postData()); r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); });
@@ -110,21 +110,45 @@ await f.locator('[data-submit]').click();
 await p.waitForTimeout(500);
 ok(await f.locator('[data-done]').isVisible() && received?.email === 'test@example.com' && received?.package === 'home-8' && /7,92 kWp/.test(received?.packageLabel ?? '') && received?.message === 'Testa komentārs', 'backend 200 → success with payload (package, label, message)');
 ok(await f.locator('.lf__privacy a').getAttribute('href') === '/lv/privatuma-politika/', 'privacy link localized');
-// Netlify Forms adapter: URL-encoded POST to "/" with form-name; success only on 2xx
-{
-  const q = await newPage();
-  await q.goto(B + '/en/request-a-quote/?package=home-6', { waitUntil: 'networkidle' }).catch(() => {});
+// Netlify Forms adapter (all languages, mobile): URL-encoded POST to /__forms.html; success only on 2xx
+const runNetlify = async (lang, url, { status = 200, honeypot = false } = {}) => {
+  const q = await newPage(390, 844);
+  await q.goto(B + url, { waitUntil: 'networkidle' }).catch(() => {});
   const g = q.locator('form[data-lead-form]').first();
   await g.evaluate((el) => { el.dataset.leads = JSON.stringify({ provider: 'netlify', endpoint: '', accessKey: '', portalId: '', formGuid: '', subject: '', timeoutMs: 4000 }); });
-  let body = null;
-  await q.route(B + '/en/request-a-quote/', (r) => { if (r.request().method() === 'POST') { body = r.request().postData(); r.fulfill({ status: 200, body: 'ok' }); } else r.continue(); });
+  let body = null, posts = 0;
+  await q.route(B + '/__forms.html', (r) => { if (r.request().method() === 'POST') { posts++; body = r.request().postData(); r.fulfill({ status, body: status === 200 ? 'ok' : 'Not found' }); } else r.continue(); });
   await g.locator('[name="address"]').fill('Rīga'); await g.locator('[data-next]').click();
-  await g.locator('[data-usage-unknown]').check({ force: true }); await g.locator('[data-next]').click();
+  await g.locator('[name="usage"]').fill('650'); await g.locator('[data-next]').click();
   await g.locator('[data-prefill-interest="solar"]').check({ force: true }); await g.locator('[data-next]').click();
   await q.waitForTimeout(3000);
-  await g.locator('[name="name"]').fill('Test'); await g.locator('[name="phone"]').fill('+371 20000000'); await g.locator('[name="email"]').fill('t@example.com');
-  await g.locator('[data-submit]').click(); await q.waitForTimeout(600);
-  ok(!!body && body.includes('form-name=aidex-request') && body.includes('package=home-6') && await g.locator('[data-done]').isVisible(), 'Netlify Forms adapter posts form-name + data to the page URL, success on 200');
+  await g.locator('[name="name"]').fill('Test Klients'); await g.locator('[name="phone"]').fill('+371 20000000'); await g.locator('[name="email"]').fill('t@example.com');
+  await g.locator('[name="message"]').fill('Testa ziņa');
+  if (honeypot) await g.locator('[name="website"]').evaluate((el) => { el.value = 'spam'; });
+  await g.locator('[data-submit]').click(); await q.waitForTimeout(700);
+  const params = body ? Object.fromEntries(new URLSearchParams(body)) : {};
+  const res = { q, g, params, posts, done: await g.locator('[data-done]').isVisible(), err: await g.locator('[data-submit-error]').isVisible(), url: q.url() };
+  return res;
+};
+const SUCCESS = { lv: 'Paldies! Jūsu pieteikums ir veiksmīgi nosūtīts. Mēs ar jums sazināsimies.', ru: 'Спасибо! Ваша заявка успешно отправлена. Мы с вами свяжемся.', en: 'Thank you! Your request has been successfully submitted. We will contact you.' };
+for (const [lang, url, pkg] of [['lv', '/lv/pieprasit-piedavajumu/?package=home-8', '7,92 kWp'], ['ru', '/ru/zaprosit-predlozhenie/?package=home-10', '10,12 кВтп'], ['en', '/en/request-a-quote/?package=home-6', '6.16 kWp']]) {
+  const r = await runNetlify(lang, url);
+  const doneText = (await r.g.locator('[data-done]').innerText()).replace(/\s+/g, ' ').trim();
+  const P = r.params;
+  ok(r.done && doneText === SUCCESS[lang], `${lang.toUpperCase()} mobile: Netlify 200 → translated success "${doneText}"`);
+  ok(P['form-name'] === 'aidex-request' && P.name === 'Test Klients' && P.email === 't@example.com' && P.phone === '+371 20000000' && P.package.includes(pkg) && P.consumption === '650 kWh per month' && P.message === 'Testa ziņa' && /^\d{4}-\d\d-\d\d \d\d:\d\d \(Europe\/Riga\)$/.test(P.submitted_at) && P.language.includes(`(${lang.toUpperCase()})`), `${lang.toUpperCase()}: payload has name, email, phone, package (${P.package}), consumption, message, time, language`);
+  ok(!/t%40example|Test\+Klients|20000000/.test(r.url), `${lang.toUpperCase()}: no customer data in the URL`);
+  await r.q.context().close();
+}
+{
+  const r = await runNetlify('lv', '/lv/kontakti/', { status: 404 });
+  const href = await r.g.locator('[data-submit-error] a[href^="mailto:"]').getAttribute('href');
+  ok(!r.done && r.err && href === 'mailto:info@aidex-energy.com', 'Netlify 404 → error with mailto:info@aidex-energy.com, no success');
+  ok((await r.g.locator('[name="name"]').inputValue()) === 'Test Klients', 'input kept after failed submission');
+  await r.q.context().close();
+  const h = await runNetlify('en', '/en/request-a-quote/', { honeypot: true });
+  ok(h.posts === 0 && !h.done, 'spam honeypot filled → nothing sent, no success');
+  await h.q.context().close();
 }
 
 // ---- mobile menu + language

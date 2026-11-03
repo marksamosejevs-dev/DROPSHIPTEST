@@ -33,7 +33,7 @@ Nothing has been deployed yet. Do the steps below only after you have approved p
 | `PUBLIC_LEAD_ENDPOINT`, `PUBLIC_WEB3FORMS_ACCESS_KEY`, `PUBLIC_HUBSPOT_PORTAL_ID`, `PUBLIC_HUBSPOT_FORM_GUID` | only for the matching provider | public values only |
 | `PUBLIC_DEV_MARKERS` | **never in production** | — |
 
-For Netlify Forms, also open **Forms → Enable form detection**, redeploy, and add an e-mail notification.
+For Netlify Forms: **Forms → Enable form detection** → redeploy → check that the form `aidex-request` is listed → **Form notifications → Email notification → `info@aidex-energy.com`**. Details are in `LEADS.md`.
 
 ## 3. Domains (aidex.lv and www.aidex.lv)
 

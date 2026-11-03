@@ -22,6 +22,13 @@
  */
 export type LeadProvider = 'disabled' | 'netlify' | 'formspree' | 'web3forms' | 'hubspot' | 'webhook';
 
+/**
+ * Where enquiries should be delivered. Netlify Forms e-mails it via a form
+ * notification set in the Netlify dashboard (Forms → aidex-request → Form
+ * notifications); it is also the fallback link shown if sending fails.
+ */
+export const LEAD_EMAIL = 'info@aidex-energy.com';
+
 /** Netlify Forms form name (all AIDEX request forms submit to this one form). */
 export const NETLIFY_FORM_NAME = 'aidex-request';
 

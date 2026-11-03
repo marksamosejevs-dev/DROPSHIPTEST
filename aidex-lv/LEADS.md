@@ -1,6 +1,6 @@
 # Lead form: connecting the enquiry destination
 
-Every request form on the site uses one component: the homepage, the request page, the contact and business pages, and the package buttons. **On Netlify builds it uses Netlify Forms automatically** (Netlify sets `NETLIFY=true` during its build). Another destination can be chosen with **build environment variables**, which you set in the Netlify dashboard (Site configuration → Environment variables). No code change is needed. The logic is in `src/config/leads.ts`.
+Every request form on the site uses one component: the homepage, the request page, the contact and business pages, and the package buttons. Enquiries go to **info@aidex-energy.com** (Netlify Forms e-mail notification). **On Netlify builds it uses Netlify Forms automatically** (Netlify sets `NETLIFY=true` during its build). Another destination can be chosen with **build environment variables**, which you set in the Netlify dashboard (Site configuration → Environment variables). No code change is needed. The logic is in `src/config/leads.ts`.
 
 > Only **public** values go into these variables, because they end up in the page source. Never put a secret API key in them.
 
@@ -32,15 +32,23 @@ Spam protection: a hidden honeypot field, plus a minimum fill time of 3 s. The f
 
 ## Recommended: Netlify Forms (no keys, no extra service)
 
-Use this when the site is hosted on Netlify.
+**How it works**
+- Netlify detects one form, `aidex-request`, from the static file `public/__forms.html` (published as `/__forms.html`).
+- Every request form (LV / RU / EN, every page) is sent by JavaScript as a URL-encoded POST to `/__forms.html` with `form-name=aidex-request`. No redirect rule touches that path.
+- Netlify builds use this automatically (Netlify sets `NETLIFY=true`), so no environment variable is needed.
+- The thank-you message appears only after Netlify answers 2xx. Any other answer shows an error with a link to **info@aidex-energy.com**.
 
-1. Nothing to set in environment variables: Netlify builds select Netlify Forms automatically. (Optionally set `PUBLIC_LEAD_PROVIDER` = `netlify` to make it explicit.)
-2. Open **Forms** and click **Enable form detection**.
-3. Redeploy (**Deploys → Trigger deploy**). Netlify detects the form `aidex-request` (all fields are declared in the static HTML; verified by `node render/netlifycheck.mjs`).
-4. Open **Forms → aidex-request → Form notifications → Add notification → Email notification**, and enter the e-mail address that should receive enquiries.
-5. Test from LV, RU and EN. Each submission appears under Forms, and a notification e-mail is sent.
+**Fields stored and e-mailed:** `name`, `email`, `phone`, `package` (e.g. "AIDEX Home 8 · 7,92 kWp" or "not selected"), `consumption` ("650 kWh per month" / "not known" / "not provided"), `message`, `address`, `interests`, `language`, `submitted_at` (Europe/Riga time), `page`, `source`. Keep `public/__forms.html` in sync with `netlifyFields()` in `src/scripts/lead-form.ts`; `node render/netlifycheck.mjs` checks this.
 
-**What I need from you:** the receiving e-mail address, and confirmation that you accept Netlify (Netlify, Inc.) as a data processor. It must be added to the Privacy Policy recipients.
+**Dashboard steps (one time)**
+1. **Forms → Enable form detection.** New Netlify sites have it OFF; while it is off, every POST is rejected and the visitor sees "Neizdevās nosūtīt pieteikumu".
+2. **Deploys → Trigger deploy → Deploy project without cache**, so the form is detected.
+3. Check that **Forms** lists `aidex-request`.
+4. **Forms → aidex-request → Form notifications → Add notification → Email notification** → *Email to notify*: `info@aidex-energy.com`.
+5. Send a test request in LV, RU and EN. Each one must appear under **Forms → aidex-request**, and an e-mail must arrive at info@aidex-energy.com. Check spam the first time; the sender is Netlify (formresponses@netlify.com).
+6. Spam: Netlify filters submissions with Akismet and the honeypot. Check **Forms → aidex-request → Spam submissions** if a test does not appear.
+
+Netlify (Netlify, Inc.) then processes visitor data, so add it to the Privacy Policy recipients.
 
 ## Option A: e-mail through a form-relay service
 
