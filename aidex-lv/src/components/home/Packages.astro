@@ -92,7 +92,7 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
                     <span data-variant="with">{p.battery && <> · {v.withBat.replace('{kwh}', fmtNum(p.battery.kwh, lang))}</>}</span>
                     <span data-variant="without"> · {v.noBat}</span>
                   </p>
-                  {p.panel && <p class="pc__brand tnum">{v.panelLine(p.panel.count ?? 0, p.panel.manufacturer, `${fmtNum(p.panel.watt, lang)} ${u.w}`, panelOf(p)?.technology ?? '')}</p>}
+                  {p.panel && <p class="pc__brand tnum">{v.panelLine(p.panel.count ?? 0, p.panel.manufacturer, `${fmtNum(p.panel.watt, lang)} ${u.w}`, panelOf(p)?.technology[lang] ?? '')}</p>}
                   {(p.householdProfile || p.description) && <p class="pc__desc">{(p.householdProfile ?? p.description)![lang]}</p>}
                   {variants.map((vv) => {
                     const o = pickOffer(p, vv.key);
@@ -144,7 +144,7 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
               {has((p) => p.fitsConsumption) && <tr><th scope="row">{v.consumption}</th>{std.map((p) => <td class="tnum">{useRange(p)}</td>)}</tr>}
               {has((p) => dcKwp(p)) && <tr><th scope="row">{v.dc}</th>{std.map((p) => <td class="tnum cmp__strong">{kwp(p)}</td>)}</tr>}
               {has((p) => p.panel?.count) && <tr><th scope="row">{v.panelCount}</th>{std.map((p) => <td class="tnum">{p.panel?.count}</td>)}</tr>}
-              {has((p) => p.panel) && <tr><th scope="row">{pk.specs.panels}</th>{std.map((p) => { const pr = panelOf(p); return <td>{p.panel && <>{p.panel.manufacturer} {fmtNum(p.panel.watt, lang)} {u.w}{pr && <a class="cmp__more" href={equipmentPath(pr, lang)}>{pr.model} · {pr.technology}</a>}</>}</td>; })}</tr>}
+              {has((p) => p.panel) && <tr><th scope="row">{pk.specs.panels}</th>{std.map((p) => { const pr = panelOf(p); return <td>{p.panel && <>{p.panel.manufacturer} {fmtNum(p.panel.watt, lang)} {u.w}{pr && <a class="cmp__more" href={equipmentPath(pr, lang)}>{pr.model} · {pr.technology[lang]}</a>}</>}</td>; })}</tr>}
               {has((p) => p.inverter) && <tr><th scope="row">{pk.specs.inverter}</th>{std.map((p) => <td>{invText(p)}</td>)}</tr>}
               {has((p) => p.battery) && <tr><th scope="row">{pk.specs.battery}</th>{std.map((p) => <td><span data-variant="with">{batText(p)}</span><span data-variant="without">{pk.specs.noBattery}</span></td>)}</tr>}
               <tr><th scope="row">{pk.specs.installation}</th>{std.map(() => <td><Icon name="check" size={18} class="cmp__ok" />{pk.specs.installationValue}</td>)}</tr>

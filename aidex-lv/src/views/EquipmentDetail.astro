@@ -44,7 +44,7 @@ const key: K[] = (p.kind === 'panel'
       p.chemistry && { v: p.chemistry, l: e.bat.chemistry },
       p.cycleLife && { v: p.cycleLife, l: e.bat.cycles },
     ]).filter(Boolean) as K[];
-const subline = p.kind === 'panel' ? `${p.technology} · ${p.variant[lang]}` : p.kind === 'inverter' ? `${e.inv.types[p.type]} · ${e.inv.phasesN(p.phases)}` : [p.chemistry, p.voltageClass && e.inv.voltage[p.voltageClass]].filter(Boolean).join(' · ');
+const subline = p.kind === 'panel' ? `${p.technology[lang]} · ${p.variant[lang]}` : p.kind === 'inverter' ? `${e.inv.types[p.type]} · ${e.inv.phasesN(p.phases)}` : [p.chemistry, p.voltageClass && e.inv.voltage[p.voltageClass]].filter(Boolean).join(' · ');
 const usedLine = (x: SolarPackage) => p.kind === 'panel'
   ? `${e.panelsCount(x.panel!.count!)} × ${fmtNum(x.panel!.watt, lang)} ${u.w} = ${fmtNum(dcKwp(x)!, lang, 2)} ${u.kwp}`
   : p.kind === 'battery' ? `${fmtNum(x.battery!.kwh, lang)} ${u.kwh}` : `${fmtNum(x.inverter!.kw ?? 0, lang)} ${u.kw}`;

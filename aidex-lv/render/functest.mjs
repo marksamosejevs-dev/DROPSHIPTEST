@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
 const B = 'http://localhost:4321';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
 const errors = [];
 async function newPage(w = 1440, h = 900) {

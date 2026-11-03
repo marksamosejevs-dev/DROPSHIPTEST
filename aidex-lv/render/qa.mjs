@@ -37,7 +37,7 @@ for (const pg of pages) {
 for (const [t, ps] of Object.entries(titles)) if (ps.length > 1) problems.push(`duplicate title "${t}": ${ps.join(', ')}`);
 for (const [d, ps] of Object.entries(descs)) if (ps.length > 1) problems.push(`duplicate description: ${ps.join(', ')}`);
 // ---- rendered overflow
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 let checks = 0;
 for (const w of [1440, 1280, 768, 390]) {
   const ctx = await b.newContext({ viewport: { width: w, height: 900 }, reducedMotion: 'reduce' });

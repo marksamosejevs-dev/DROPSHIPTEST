@@ -1,7 +1,7 @@
 // Usage: node render/shot.mjs <url-path> <width> <out> [full] [height]
 import { chromium } from 'playwright-core';
 const [,, p = '/lv/', w = '1440', out = 'shot.png', full = '0', h = '900'] = process.argv;
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const ctx = await browser.newContext({ viewport: { width: +w, height: +h }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
 const page = await ctx.newPage();
 page.on('pageerror', (e) => console.log('PAGEERROR', e.message));

@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
 const [,, p = '/en/', w = '768'] = process.argv;
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const pg = await b.newPage({ viewport: { width: +w, height: 900 } });
 await pg.goto('http://localhost:4321' + p, { waitUntil: 'networkidle' }); await pg.evaluate(() => document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in'))); await pg.waitForTimeout(1200); console.log('sw', await pg.evaluate(() => document.documentElement.scrollWidth));
 const r = await pg.evaluate(() => {

@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
 const S = process.argv[2];
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: 'reduce' });
 const p = await ctx.newPage();
 await p.goto('http://localhost:4321/ru/', { waitUntil: 'networkidle' });

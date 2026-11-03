@@ -28,7 +28,7 @@ export interface PanelProduct {
   /** Model family / series as named by the manufacturer. */
   series: string;
   variant: Localized;
-  technology: string;
+  technology: Localized;
   cellType: Localized | null;
   cellCount: number | null;
   /** Rated power (W, STC) of the model used in packages. */
@@ -80,8 +80,8 @@ export const sunproSp440: PanelProduct = {
   model: 'SP440-N108M10',
   series: 'SPxxx-N108M10 Black Frame (410–440 W)',
   variant: { lv: 'Melns rāmis (Black Frame)', ru: 'Чёрная рама (Black Frame)', en: 'Black Frame' },
-  technology: 'N-type TOPCon',
-  cellType: { lv: 'N tipa monokristāliskās, 182 × 91 mm', ru: 'Монокристаллические N-типа, 182 × 91 мм', en: 'N-type monocrystalline, 182 × 91 mm' },
+  technology: { lv: 'N tipa TOPCon', ru: 'N-type TOPCon', en: 'N-type TOPCon' },
+  cellType: { lv: 'N tipa monokristāliskās šūnas, 182 × 91 mm', ru: 'Монокристаллические N-типа, 182 × 91 мм', en: 'N-type monocrystalline, 182 × 91 mm' },
   cellCount: 108,
   watt: 440,
   powerRange: [410, 440],
@@ -89,7 +89,7 @@ export const sunproSp440: PanelProduct = {
   bifacial: null,
   construction: null,
   glass: {
-    lv: '3,2 mm īpaši caurspīdīgs, reljefs, rūdīts stikls ar pārklājumu',
+    lv: '3,2 mm īpaši caurspīdīgs rūdīts stikls ar reljefu virsmu un pārklājumu',
     ru: 'Сверхпрозрачное рифлёное закалённое стекло 3,2 мм с покрытием',
     en: '3.2 mm ultra-clear embossed tempered coated glass',
   },
@@ -98,7 +98,7 @@ export const sunproSp440: PanelProduct = {
   weightKg: 21,
   maxSystemVoltage: 'DC 1500 V (TÜV)',
   maxSeriesFuseA: 25,
-  connector: { lv: 'MC4 saderīgs, IP68', ru: 'Совместимый с MC4, IP68', en: 'MC4-compatible, IP68' },
+  connector: { lv: 'Saderīgs ar MC4, IP68', ru: 'Совместимый с MC4, IP68', en: 'MC4-compatible, IP68' },
   tempCoeffPmax: null,
   snowLoadPa: null,
   windLoadPa: null,
@@ -115,9 +115,9 @@ export const sunproSp440: PanelProduct = {
   benefits: [
     {
       basis: 'technology, cellType',
-      title: { lv: 'N-type TOPCon tehnoloģija', ru: 'Технология N-type TOPCon', en: 'N-type TOPCon technology' },
+      title: { lv: 'N tipa TOPCon tehnoloģija', ru: 'Технология N-type TOPCon', en: 'N-type TOPCon technology' },
       text: {
-        lv: 'Mūsdienīgas N tipa monokristāliskās TOPCon šūnas — 108 pusšūnas vienā modulī.',
+        lv: 'Modulī izmantotas 108 mūsdienīgas N tipa monokristāliskās TOPCon pusšūnas.',
         ru: 'Современные монокристаллические ячейки N-типа TOPCon — 108 полуячеек в модуле.',
         en: 'Modern N-type monocrystalline TOPCon cells — 108 half-cells per module.',
       },
@@ -126,7 +126,7 @@ export const sunproSp440: PanelProduct = {
       basis: 'efficiency',
       title: { lv: 'Līdz 22,53 % moduļa efektivitāte', ru: 'КПД модуля до 22,53 %', en: 'Up to 22.53% module efficiency' },
       text: {
-        lv: '440 W versijas efektivitāte ir 22,53 % — vairāk jaudas no katra jumta kvadrātmetra.',
+        lv: '440 W modeļa efektivitāte ir 22,53 % — augsta jauda uz katru jumta kvadrātmetru.',
         ru: 'КПД версии 440 Вт — 22,53 %: больше мощности с каждого квадратного метра крыши.',
         en: 'The 440 W version reaches 22.53% efficiency — more power from every square metre of roof.',
       },
@@ -135,7 +135,7 @@ export const sunproSp440: PanelProduct = {
       basis: 'dimensions, weightKg',
       title: { lv: 'Kompakts formāts privātmājai', ru: 'Компактный формат для частного дома', en: 'Compact residential format' },
       text: {
-        lv: '1722 × 1134 mm un 21 kg — izmērs, kas ērti izvietojams uz privātmāju jumtiem.',
+        lv: 'Izmēri 1722 × 1134 mm un svars 21 kg — formāts, kas piemērots privātmāju jumtiem.',
         ru: '1722 × 1134 мм и 21 кг — размер, который удобно размещать на крышах частных домов.',
         en: '1722 × 1134 mm and 21 kg — a size that fits residential roofs well.',
       },
@@ -144,25 +144,25 @@ export const sunproSp440: PanelProduct = {
       basis: 'frameColour',
       title: { lv: 'Melns rāmis', ru: 'Чёрная рама', en: 'Black frame' },
       text: {
-        lv: 'Melns rāmis — tīrs, vienmērīgs izskats uz jumta.',
+        lv: 'Melns rāmis nodrošina vienotu un estētisku izskatu uz jumta.',
         ru: 'Чёрная рама — аккуратный, однородный вид на крыше.',
         en: 'A black frame for a clean, even look on the roof.',
       },
     },
     {
       basis: 'connector',
-      title: { lv: 'IP68 savienotāji', ru: 'Разъёмы IP68', en: 'IP68 connectors' },
+      title: { lv: 'IP68 aizsardzības klases savienotāji', ru: 'Разъёмы IP68', en: 'IP68 connectors' },
       text: {
-        lv: 'MC4 saderīgi savienotāji ar IP68 aizsardzības klasi pret putekļiem un ūdeni.',
+        lv: 'Ar MC4 saderīgi savienotāji ar IP68 aizsardzību pret putekļiem un ūdeni.',
         ru: 'Разъёмы, совместимые с MC4, с классом защиты IP68 от пыли и воды.',
         en: 'MC4-compatible connectors rated IP68 against dust and water.',
       },
     },
     {
       basis: 'series (residential rooftop)',
-      title: { lv: 'Paredzēts jumta sistēmām', ru: 'Для крышных систем', en: 'Made for rooftop systems' },
+      title: { lv: 'Paredzēts jumta saules sistēmām', ru: 'Для крышных систем', en: 'Made for rooftop systems' },
       text: {
-        lv: 'Modulis paredzēts privātmāju jumta saules sistēmām.',
+        lv: 'Modulis paredzēts privātmāju saules elektrostacijām uz jumta.',
         ru: 'Модуль предназначен для солнечных систем на крышах частных домов.',
         en: 'The module is designed for residential rooftop solar systems.',
       },

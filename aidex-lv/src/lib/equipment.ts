@@ -23,7 +23,7 @@ export function panelSpecGroups(p: PanelProduct, lang: Locale) {
       row(p.manufacturer, L.manufacturer, () => p.manufacturer),
       row(p.model, L.model, () => p.model),
       row(p.series, L.series, () => p.series),
-      row(p.technology, L.technology, () => p.technology),
+      row(p.technology, L.technology, () => p.technology[lang]),
       row(p.cellCount, L.cellCount, () => `${p.cellCount} ${e.halfCells}`),
       row(p.cellType, L.cells, () => p.cellType![lang]),
       row(p.bifacial, L.bifacial, () => (p.bifacial ? e.yes : e.no)),

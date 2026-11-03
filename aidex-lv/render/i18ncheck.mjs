@@ -1,7 +1,7 @@
 import { chromium } from 'playwright-core';
 import { readdirSync, statSync } from 'fs';
 const walk = (d) => readdirSync(d).flatMap((f) => { const p = d + '/' + f; return statSync(p).isDirectory() ? walk(p) : p.endsWith('index.html') ? [p] : []; });
-const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const pg = await b.newPage();
 for (const lang of ['en', 'ru']) {
   for (const f of walk('dist/' + lang)) {

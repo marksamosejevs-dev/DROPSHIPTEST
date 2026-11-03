@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
 const [,, scene='hero', w='1600', h='900', out=`render/out/${scene}.png`] = process.argv;
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width: +w, height: +h } });
 page.on('console', m => console.log('console:', m.text()));
 page.on('pageerror', e => console.log('ERR', e.message));

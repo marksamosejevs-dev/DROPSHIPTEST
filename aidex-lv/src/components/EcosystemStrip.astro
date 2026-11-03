@@ -16,7 +16,7 @@ const u = units[lang];
 const list = allProducts();
 const facts = (p: AnyProduct) =>
   p.kind === 'panel'
-    ? [p.technology, `${fmtNum(p.watt, lang)} ${u.w}`, p.variant[lang], p.efficiency != null ? `${e.keyEff} ${fmtNum(p.efficiency, lang, 2)} %` : null]
+    ? [p.technology[lang], `${fmtNum(p.watt, lang)} ${u.w}`, p.variant[lang], p.efficiency != null ? `${e.keyEff} ${fmtNum(p.efficiency, lang, 2)} %` : null]
     : p.kind === 'inverter'
     ? [e.inv.types[p.type], `${fmtNum(p.ratedAcKw, lang, 1)} ${u.kw}`, e.inv.phasesN(p.phases)]
     : [p.chemistry, p.usableKwh != null ? `${fmtNum(p.usableKwh, lang, 1)} ${u.kwh}` : null];
