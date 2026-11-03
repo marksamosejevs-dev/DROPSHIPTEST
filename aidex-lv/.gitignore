@@ -3,3 +3,6 @@ dist/
 .astro/
 render/out/
 .env
+.env
+.env.*
+!.env.example

@@ -1,9 +1,9 @@
 ---
 import Icon from '../Icon.astro';
-import { useT, path, fmtEur, type Locale } from '../../i18n';
+import { useT, path, fmtNum, units, type Locale } from '../../i18n';
 import { media } from '../../data/media';
 import { responsive } from '../../lib/images';
-import { lowestFinalPrice } from '../../data/packages';
+import { standardPackages, dcKwp } from '../../data/packages';
 
 interface Props { lang: Locale }
 const { lang } = Astro.props;
@@ -11,9 +11,10 @@ const t = useT(lang);
 const h = t.v2.hero;
 const wide = await responsive(media.hero.src, [960, 1440, 1920, 2400], 72);
 const tall = await responsive(media.heroPortrait.src, [540, 810, 1080], 72);
-const fromBattery = lowestFinalPrice('withBattery');
+const caps = standardPackages().map((p) => dcKwp(p)).filter((x): x is number => x != null);
+const range = `${fmtNum(Math.min(...caps), lang, 2)}–${fmtNum(Math.max(...caps), lang, 2)} ${units[lang].kwp}`;
 const trustIcons = ['layers', 'battery', 'doc', 'globe'];
-const [priceA, priceB] = h.priceLine.split('{price}');
+const [lineA, lineB] = h.systemLine.split('{range}');
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero__media">
@@ -35,7 +36,7 @@ const [priceA, priceB] = h.priceLine.split('{price}');
       <a href={path('offer', lang)} class="btn btn--primary" data-cta="hero-offer">{t.cta.offer}<Icon name="arrow" /></a>
       <a href={path('home', lang, 'calculator')} class="btn btn--ghost-inv" data-cta="hero-calc"><Icon name="chart" />{t.cta.calc}</a>
     </div>
-    <p class="hero__price hero__in" style="--d:.42s">{priceA}<strong class="tnum">{fmtEur(fromBattery, lang)}</strong>{priceB}</p>
+    <p class="hero__price hero__in" style="--d:.42s">{lineA}<strong class="tnum">{range}</strong>{lineB}</p>
     <a href={path('home', lang, 'packages')} class="hero__down hero__in" style="--d:.5s">{h.seePrices}<Icon name="chevron" size={18} /></a>
   </div>
 </section>

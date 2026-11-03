@@ -6,27 +6,32 @@
 import SectionHead from '../SectionHead.astro';
 import Picture from '../Picture.astro';
 import Icon from '../Icon.astro';
-import { useT, fmtEur, fmtNum, units, type Locale } from '../../i18n';
+import { useT, fmtNum, units, type Locale } from '../../i18n';
 import { media } from '../../data/media';
-import { calculate } from '../../lib/calc';
+import { standardPackages, dcKwp } from '../../data/packages';
+import { panelById, panelArea } from '../../data/equipment';
 import { calculatorAssumptions as A } from '../../data/calculator';
 interface Props { lang: Locale }
 const { lang } = Astro.props;
 const t = useT(lang);
 const d = t.v2.dn;
 const u = units[lang];
-const sizes = [6, 8, 10, 12];
-const stats = sizes.map((kw) => {
-  const r = calculate({ mode: 'kwh', value: (kw * A.specificYield) / 12, battery: true, support: true });
+const m2 = lang === 'ru' ? 'м²' : 'm²';
+// Technical figures per package configuration (no prices, savings or payback).
+const stats = standardPackages().map((p) => {
+  const kwp = dcKwp(p)!;
+  const panel = p.panel?.productId ? panelById(p.panel.productId) : null;
+  const area = panel ? panelArea(panel) : null;
   return {
-    kw,
-    production: `${fmtNum(Math.round(r.productionKwh / 100) * 100, lang)} ${u.kwh}`,
-    savings: fmtEur(Math.round(r.savings / 10) * 10, lang),
-    battery: `${fmtNum(r.batteryKwh, lang)} ${u.kwh}`,
-    payback: r.paybackYears ? `~${fmtNum(Math.round(r.paybackYears), lang)} ${t.calc.results.years}` : '—',
+    id: p.id,
+    label: `${fmtNum(kwp, lang, 2)} ${u.kwp}`,
+    production: `~${fmtNum(Math.round((kwp * A.specificYield) / 100) * 100, lang)} ${u.kwh}`,
+    panels: `${p.panel!.count} × ${fmtNum(p.panel!.watt, lang)} ${u.w}`,
+    area: area ? `~${fmtNum(Math.round(p.panel!.count! * area), lang)} ${m2}` : '—',
+    battery: p.battery ? `${fmtNum(p.battery.kwh, lang)} ${u.kwh}` : '—',
   };
 });
-const def = 1; // 8 kW
+const def = Math.max(0, standardPackages().findIndex((p) => p.featured));
 ---
 <section class="section dn" aria-labelledby="dn-title" data-daynight data-mode="day">
   <div class="container">
@@ -63,16 +68,16 @@ const def = 1; // 8 kW
     <div class="dn__sizes" data-reveal>
       <p class="dn__sizel">{d.size}</p>
       <div class="seg" role="radiogroup" aria-label={d.size}>
-        {stats.map((s, i) => <button type="button" role="radio" aria-checked={i === def ? 'true' : 'false'} data-kw={s.kw}>{fmtNum(s.kw, lang)} {u.kw}</button>)}
+        {stats.map((s, i) => <button type="button" role="radio" aria-checked={i === def ? 'true' : 'false'} data-kw={s.id}>{s.label}</button>)}
       </div>
     </div>
     <ul class="dn__stats" data-reveal data-stats={JSON.stringify(stats)}>
       <li><strong data-s="production">{stats[def].production}</strong><span>{d.stats.production}</span></li>
-      <li><strong data-s="savings">{stats[def].savings}</strong><span>{d.stats.savings}</span></li>
+      <li><strong data-s="panels">{stats[def].panels}</strong><span>{d.stats.panels}</span></li>
+      <li><strong data-s="area">{stats[def].area}</strong><span>{d.stats.area}</span></li>
       <li><strong data-s="battery">{stats[def].battery}</strong><span>{d.stats.battery}</span></li>
-      <li><strong data-s="payback">{stats[def].payback}</strong><span>{d.stats.payback}</span></li>
     </ul>
-    <p class="dn__note">{d.note}</p>
+    <p class="dn__note">{d.note.replace('{yield}', fmtNum(A.specificYield, lang))}</p>
   </div>
 </section>
 
@@ -93,8 +98,8 @@ const def = 1; // 8 kW
     const stats = JSON.parse(list.dataset.stats!);
     root.querySelectorAll<HTMLButtonElement>('[data-kw]').forEach((b) => b.addEventListener('click', () => {
       root.querySelectorAll('[data-kw]').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
-      const s = stats.find((x: { kw: number }) => x.kw === Number(b.dataset.kw));
-      for (const k of ['production', 'savings', 'battery', 'payback']) {
+      const s = stats.find((x: { id: string }) => x.id === b.dataset.kw);
+      for (const k of ['production', 'panels', 'area', 'battery']) {
         const el = list.querySelector<HTMLElement>(`[data-s="${k}"]`)!;
         el.textContent = s[k]; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
       }

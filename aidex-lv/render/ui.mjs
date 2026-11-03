@@ -14,7 +14,7 @@ await p.keyboard.press('Escape');
 await p.evaluate(() => document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in')));
 await p.locator('#packages .pk__rail').scrollIntoViewIfNeeded(); await p.evaluate(() => window.scrollBy(0, -60)); await p.waitForTimeout(500);
 await p.screenshot({ path: `${S}/u_pk.png` });
-await p.goto('http://localhost:4321/ru/poluchit-predlozhenie/', { waitUntil: 'networkidle' });
+await p.goto('http://localhost:4321/ru/zaprosit-predlozhenie/', { waitUntil: 'networkidle' });
 await p.fill('#lead-offer-address', 'Рига'); await p.click('#lead-offer [data-next]'); await p.click('#lead-offer [data-next]'); await p.waitForTimeout(300);
 await p.screenshot({ path: `${S}/u_form.png` });
 await b.close();

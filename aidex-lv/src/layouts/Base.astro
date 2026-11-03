@@ -8,7 +8,7 @@ import MobileCta from '../components/MobileCta.astro';
 import { useT, localeMeta, locales, path, type Locale, type RouteKey } from '../i18n';
 import { abs, alternates, organizationLd, websiteLd } from '../lib/seo';
 import { media } from '../data/media';
-import { integrations, CONSENT_VERSION } from '../config/company';
+import { integrations, CONSENT_VERSION, CONSENT_REQUIRED } from '../config/company';
 import { SHOW_DEV_MARKERS } from '../config/site';
 
 interface Props {
@@ -84,7 +84,7 @@ const consentConfig = { v: CONSENT_VERSION, ga: integrations.googleAnalyticsId, 
     </main>
     <Footer lang={lang} />
     {mobileCta && <MobileCta lang={lang} />}
-    <CookieConsent lang={lang} />
+    {CONSENT_REQUIRED && <CookieConsent lang={lang} />}
     <script>
       import '../scripts/main';
     </script>

@@ -149,6 +149,13 @@ export const integrations = {
   googlePlaceId: '',
 };
 
+/**
+ * A cookie-consent banner is shown ONLY when a non-essential integration is
+ * configured. With no analytics/marketing IDs the site sets no non-essential
+ * cookies, so no banner (and no consent cookie) is used.
+ */
+export const CONSENT_REQUIRED = !!(integrations.googleAnalyticsId || integrations.metaPixelId);
+
 /** Bump when the cookie categories or vendors change: visitors are asked again. */
 export const CONSENT_VERSION = 1;
 /** Date shown on legal pages. Update whenever a policy changes. */

@@ -3,7 +3,7 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import Field from './Field.astro';
 import { useT, path, type Locale } from '../i18n';
-import { company, group, known, phoneHref as tel, officeAddress } from '../config/company';
+import { company, group, known, phoneHref as tel, officeAddress, CONSENT_REQUIRED } from '../config/company';
 
 interface Props { lang: Locale }
 const { lang } = Astro.props;
@@ -59,7 +59,7 @@ const email = known(company.email);
             <li><a href={path('privacy', lang)}>{t.legalNav.privacy}</a></li>
             <li><a href={path('cookies', lang)}>{t.legalNav.cookies}</a></li>
             <li><a href={path('terms', lang)}>{t.legalNav.terms}</a></li>
-            <li><button type="button" class="ftr__linkbtn" data-cookie-settings>{f.cookieSettings}</button></li>
+            {CONSENT_REQUIRED && <li><button type="button" class="ftr__linkbtn" data-cookie-settings>{f.cookieSettings}</button></li>}
           </ul>
         </div>
       </nav>

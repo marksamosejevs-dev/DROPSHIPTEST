@@ -1,10 +1,10 @@
 /** Multi-step lead form behaviour: validation, step navigation, prefill, submit. */
-type Errors = Record<'required' | 'address' | 'usage' | 'number' | 'interests' | 'name' | 'phone' | 'email' | 'submit', string>;
+type Errors = Record<'required' | 'address' | 'usage' | 'number' | 'interests' | 'name' | 'phone' | 'email' | 'message' | 'submit', string>;
 
 const PHONE = /^\+?[0-9 ()-]{7,20}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-interface LeadCfg { provider: 'disabled' | 'formspree' | 'web3forms' | 'hubspot' | 'webhook'; endpoint: string; accessKey: string; portalId: string; formGuid: string; subject: string; timeoutMs: number }
+interface LeadCfg { provider: 'disabled' | 'netlify' | 'formspree' | 'web3forms' | 'hubspot' | 'webhook'; endpoint: string; accessKey: string; portalId: string; formGuid: string; subject: string; timeoutMs: number }
 
 /** Posts the enquiry and resolves ONLY when the destination confirms receipt. */
 async function send(cfg: LeadCfg, data: Record<string, unknown>) {
@@ -18,7 +18,13 @@ async function send(cfg: LeadCfg, data: Record<string, unknown>) {
   const json = async (res: Response) => { try { return await res.json(); } catch { return null; } };
   try {
     let res: Response;
-    if (cfg.provider === 'web3forms') {
+    if (cfg.provider === 'netlify') {
+      // Netlify Forms: URL-encoded POST (incl. form-name) to the current page; 2xx = stored by Netlify.
+      // Not "/" — the root is redirected to /lv/ in netlify.toml.
+      const body = new URLSearchParams({ 'form-name': 'aidex-request', ...flat(data) });
+      res = await fetch(location.pathname, { method: 'POST', signal: ctrl.signal, headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+      if (!res.ok) throw new Error(`netlify ${res.status}`);
+    } else if (cfg.provider === 'web3forms') {
       res = await post('https://api.web3forms.com/submit', { access_key: cfg.accessKey, subject: cfg.subject, from_name: 'AIDEX.lv', ...flat(data) });
       const j = await json(res);
       if (!res.ok || j?.success !== true) throw new Error(`web3forms ${res.status}`);
@@ -58,6 +64,7 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
   const stepOf = form.querySelector<HTMLElement>('[data-stepof]')!;
   const submitErr = form.querySelector<HTMLElement>('[data-submit-error]')!;
   let step = 1;
+  const startedAt = Date.now(); // submissions faster than this are treated as bots
 
   // ---- prefill from URL (?package=home-8&battery=1&kwh=600) ----
   const qs = new URLSearchParams(location.search);
@@ -115,10 +122,13 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
       const name = form.querySelector<HTMLInputElement>('[name="name"]')!;
       const phone = form.querySelector<HTMLInputElement>('[name="phone"]')!;
       const email = form.querySelector<HTMLInputElement>('[name="email"]')!;
-      ['name', 'phone', 'email'].forEach(clear);
+      ['name', 'phone', 'email', 'message'].forEach(clear);
       if (name.value.trim().length < 2) fail('name', errors.name, name);
       if (!PHONE.test(phone.value.trim())) fail('phone', phone.value.trim() ? errors.phone : errors.required, phone);
       if (!EMAIL.test(email.value.trim())) fail('email', email.value.trim() ? errors.email : errors.required, email);
+      const message = form.querySelector<HTMLTextAreaElement>('[name="message"]');
+      clear('message');
+      if (message && message.value.length > 1000) fail('message', errors.message, message);
     }
     return first;
   }
@@ -163,8 +173,11 @@ document.querySelectorAll<HTMLFormElement>('[data-lead-form]').forEach((form) =>
     }
     const fd = new FormData(form);
     if (fd.get('website')) return; // honeypot
+    if (Date.now() - startedAt < 3000) return; // too fast for a person
     const data: Record<string, unknown> = Object.fromEntries(fd.entries());
     data.interests = fd.getAll('interests');
+    const pkgSel = form.querySelector<HTMLSelectElement>('[name="package"]');
+    if (pkgSel?.value) data.packageLabel = pkgSel.selectedOptions[0]?.textContent?.trim() ?? '';
     data.utm = Object.fromEntries([...qs.entries()].filter(([k]) => k.startsWith('utm_')));
     data.submittedAt = new Date().toISOString();
     delete data.website;

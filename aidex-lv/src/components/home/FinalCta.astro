@@ -1,7 +1,7 @@
 ---
 import LeadForm from '../LeadForm.astro';
 import Icon from '../Icon.astro';
-import PriceDisclaimer from '../PriceDisclaimer.astro';
+import InfoDisclaimer from '../InfoDisclaimer.astro';
 import { useT, type Locale } from '../../i18n';
 interface Props { lang: Locale; source?: string }
 const { lang, source = 'final-cta' } = Astro.props;
@@ -16,7 +16,7 @@ const v = t.v2.final;
         <h2 id="fcta-title">{v.title}</h2>
         <p class="lead">{v.lead}</p>
         <ul class="fcta__points">{f.points.map((p) => <li><Icon name="check" size={18} />{p}</li>)}</ul>
-        <PriceDisclaimer lang={lang} />
+        <InfoDisclaimer lang={lang} />
       </div>
       <div class="fcta__form" data-reveal style="--d:.1s">
         <LeadForm lang={lang} id={`lead-${source}`} source={source} />

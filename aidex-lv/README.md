@@ -12,7 +12,11 @@ npm run preview
 npm run check     # type-check
 ```
 
-Hosting: any static host (Netlify, Vercel, Cloudflare Pages, S3 + CDN). `/` redirects to `/lv/`, and `dist/404.html` is the error page.
+Hosting: **Netlify** (configured in `../netlify.toml`; see **DEPLOY_NETLIFY.md**). `/` redirects to `/lv/`, and `dist/404.html` is the error page. Node.js ≥ 22.12.
+
+**Pricing policy:** AIDEX.lv publishes **no prices**: none for products, packages, installation or batteries, and no €/W. Packages are technical configurations (kWp, panel count, SUNPRO model), and every call to action is "Pieprasīt piedāvājumu / Запросить предложение / Request a Quote". The calculator sizes a system (kW, production, panels, area, battery); it does not compute cost, savings or payback. `render/functest.mjs` fails the build check if package prices reappear in `dist/`.
+
+**Before launch:** see **LAUNCH_CHECKLIST.md**.
 
 ---
 
@@ -34,34 +38,12 @@ All images in `src/assets/img` are original renders made with the offline three.
 
 ## Before public launch
 
-Nothing here is deployed yet. Every item below is still temporary (visible as a marker with `PUBLIC_DEV_MARKERS=1`).
-
-| What | Where | Action |
-|---|---|---|
-| Company details (reg. no., VAT, addresses, phone, e-mail, hours) | `src/config/company.ts` → `company` | Replace each `placeholder(...)`. This updates the footer, contact page, About, legal pages, Privacy Policy, Terms and JSON-LD |
-| Relationship with AIDEX Energy Group | `src/config/company.ts` → `groupRelationship` | Replace `statement` / `short` / `legal` with the approved wording, set `schema` and `confirmed: true`. Every sentence on the site uses `{groupRel}` / `{groupRelShort}` |
-| Biomass figure from aidex-energy.com | `group.facts` | Confirm, then set `biomassTonnesConfirmed: true` |
-| Panels | `src/data/equipment.ts` | **Done:** SUNPRO POWER SP440-N108M10 Black Frame (verified by AIDEX), 14 / 18 / 23 panels = 6.16 / 7.92 / 10.12 kWp. It has its own page at `/lv/saules-paneli/sunpro-power-sp440-n108m10/`. Warranty, loads and certifications are still empty until confirmed; add a product photo via `photos` |
-| Inverter and battery (SUNPRO POWER only) | `src/data/equipment.ts` → `inverterCatalogue` / `batteryCatalogue`, then `productId` in `src/data/packages.ts` | See **SUNPRO_EQUIPMENT_REQUEST.md**. Until then the site shows only generic sizes (no brand) |
-| AIDEX – SUNPRO POWER relationship wording | `src/config/company.ts` → `ecosystem.relationship` | Hidden until the legally approved wording is supplied (never "official"/"exclusive" before that) |
-| **Prices, support, warranties** (TEMPORARY ENERGUM benchmark) | `src/data/packages.ts` | Fill from the template at the bottom of the file, set `source: 'aidex'` and `BENCHMARK_MODE = false`. `null` fields are hidden |
-| Government support | `src/data/support.ts` | Verify, fill `internal` (never rendered), set `verified: true` |
-| Calculator assumptions | `src/data/calculator.ts` | Have engineering tune yield, prices and self-use shares |
-| Projects / case studies | `src/data/projects.ts` + `src/assets/projects/<slug>/` | Each published, consented project becomes a card and its own page `/lv/musu-darbi/<slug>/` |
-| Reviews | `src/data/testimonials.ts` | Genuine, consented reviews only. The section stays hidden until one exists |
-| Photography | `src/data/media.ts` | See **IMAGE_REQUIREMENTS.md** |
-| Logo | `src/components/Logo.astro`, `public/favicon.svg` | Swap in the official AIDEX logo |
-| Lead form destination | `src/config/leads.ts` | See **LEADS.md**. Until configured, the form sends nothing and says so honestly (it never shows a fake success) |
-| Analytics / Meta Pixel | `integrations.googleAnalyticsId`, `metaPixelId` | Optional. These load only after consent |
-| Legal texts | `src/content/legal/index.ts` | Drafts. Have a lawyer review them. Confirm the retention period and the group-company wording |
-| Service promises ("reply within working days", "free estimate", installation "1–3 days" in the FAQ) | `src/i18n/*.ts` → `final.points`, `src/data/faq.ts` | Confirm these are real commitments |
-
-To find what is left: `grep -rn "placeholder(\|TEMPORARY\|verified: false\|confirmed: false" src`
+Everything that still needs business input is listed in **LAUNCH_CHECKLIST.md**: company details, enquiry destination, legal approval, SUNPRO inverter and battery, and warranties. To find remaining placeholders: `grep -rn "placeholder(\|verified: false\|confirmed: false" src`
 
 ### QA scripts (with `npm run preview` running)
 
 ```bash
-node render/functest.mjs      # consent, packages, calculator, hotspots, day/night, form paths, menu, hreflang
+node render/functest.mjs      # no-tracking/consent, packages, calculator, hotspots, day/night, form paths (disabled/500/200/Netlify), menu, hreflang, no-prices audit
 node render/qa.mjs            # every page × 4 widths: overflow, broken links/assets, canonical/hreflang, h1, titles
 node render/i18ncheck.mjs     # Latvian text leaking into RU/EN pages
 ```
@@ -96,7 +78,8 @@ render/                  Offline three.js renderer for the temporary imagery (no
 - `ru.ts` and `en.ts` are typed as `Dict`, so a missing key fails the build.
 
 ### Cookie consent (GDPR / ePrivacy)
-- The first layer offers **Accept all**, **Reject non-essential** and **Manage preferences**, with equal visual weight.
+- **The banner is shown only when a non-essential integration is configured** (`integrations.googleAnalyticsId` / `metaPixelId` → `CONSENT_REQUIRED`). With none configured, the site sets no cookies, shows no banner, and the Cookie Policy says so.
+- When enabled, the first layer offers **Accept all**, **Reject non-essential** and **Manage preferences**, with equal visual weight.
 - Nothing non-essential loads before a choice is made. Google Consent Mode v2 starts with everything denied.
 - The choice is stored in the first-party `aidex_consent` cookie and localStorage for 6 months. Bumping `CONSENT_VERSION` asks everyone again.
 - **Cookie settings** in the footer and on the legal pages reopens the preferences at any time.
@@ -104,7 +87,7 @@ render/                  Offline three.js renderer for the temporary imagery (no
 - To add a new opt-in script, use `<script type="text/plain" data-consent="analytics" data-src="…">`.
 
 ### Lead form
-Its destination is set in `src/config/leads.ts`; see LEADS.md. There are four steps: address, consumption (kWh, € or "don't know"), interests and contact. Validation messages are localized. The form includes a honeypot field. It prefills from `?package=…&battery=1&kwh=…`, which the package cards and calculator set. A privacy notice links to the Privacy Policy in the current language. There is no bundled marketing consent. If newsletters are added later, use a separate, optional, unticked checkbox.
+Its destination is chosen with build environment variables (`PUBLIC_LEAD_PROVIDER` …; see LEADS.md). There are four steps: address, consumption (kWh, € or "don't know"), interests and package selection, then contact and an optional comment. Validation messages are localized. Spam protection: a honeypot field and a minimum fill time. While no destination is configured, the form says so up front and never shows a false success. It prefills from `?package=…&battery=1&kwh=…`, which the package cards and calculator set. A privacy notice links to the Privacy Policy in the current language. There is no bundled marketing consent. If newsletters are added later, use a separate, optional, unticked checkbox.
 
 ### SEO
 Per-language titles and descriptions. JSON-LD covers Organization/LocalBusiness (verified fields only), WebSite, Service, BreadcrumbList and FAQPage on the FAQ page. `sitemap.xml` includes hreflang alternates; `robots.txt` is generated too. The heading structure is one H1 per page.

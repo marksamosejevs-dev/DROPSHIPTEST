@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import LeadForm from '../components/LeadForm.astro';
 import Icon from '../components/Icon.astro';
-import PriceDisclaimer from '../components/PriceDisclaimer.astro';
+import InfoDisclaimer from '../components/InfoDisclaimer.astro';
 import { useT, path, type Locale, type RouteKey } from '../i18n';
 import { breadcrumbLd } from '../lib/seo';
 interface Props { lang: Locale; route: RouteKey }
@@ -26,7 +26,7 @@ const o = t.pages.offer;
         <ul class="of__points">
           {t.final.points.map((p) => <li><Icon name="check" size={18} />{p}</li>)}
         </ul>
-        <PriceDisclaimer lang={lang} />
+        <InfoDisclaimer lang={lang} />
       </div>
       <div class="of__form">
         <LeadForm lang={lang} id="lead-offer" source="offer-page" />

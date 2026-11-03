@@ -6,9 +6,10 @@
  * SEPARATE, optional, unticked checkbox — never pre-ticked, never required.
  */
 import Icon from './Icon.astro';
-import { useT, path, units, type Locale } from '../i18n';
+import { useT, path, units, fmtNum, type Locale } from '../i18n';
 import { company, known } from '../config/company';
-import { leadClientConfig } from '../config/leads';
+import { leadClientConfig, NETLIFY_FORM_NAME } from '../config/leads';
+import { packages, dcKwp } from '../data/packages';
 import { calculatorAssumptions as A } from '../data/calculator';
 
 interface Props { lang: Locale; id?: string; tone?: 'light' | 'dark'; source?: string }
@@ -20,12 +21,17 @@ const interests = Object.entries(f.interestOptions) as [string, string][];
 const cfg = leadClientConfig();
 const fallbackEmail = known(company.email);
 const fallbackPhone = known(company.phone);
+const isNetlify = cfg.provider === 'netlify';
+const pkgOptions = packages.map((p) => ({ id: p.id, label: dcKwp(p) != null ? `${p.name} · ${fmtNum(dcKwp(p)!, lang, 2)} ${units[lang].kwp}` : `${p.name} · ${t.packages.custom.kw}` }));
 const interestIcons: Record<string, string> = { solar: 'panel', battery: 'battery', ev: 'ev', consult: 'phone' };
 ---
 <form
   class:list={['lf', `lf--${tone}`]}
   id={id}
   method="post"
+  name={isNetlify ? NETLIFY_FORM_NAME : undefined}
+  data-netlify={isNetlify ? 'true' : undefined}
+  netlify-honeypot={isNetlify ? 'website' : undefined}
   novalidate
   data-lead-form
   data-leads={JSON.stringify(cfg)}
@@ -37,6 +43,7 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
     <p class="lf__title">{f.title}</p>
     <p class="lf__quick"><Icon name="clock" size={16} />{f.quick}</p>
   </div>
+  {cfg.provider === 'disabled' && <p class="lf__notice" role="note">{f.notConnected.banner}</p>}
   <div class="lf__progress" aria-hidden="true">
     {f.steps.map((s, i) => <span class="lf__pstep" data-pstep={i + 1}><i></i><em>{s}</em></span>)}
   </div>
@@ -44,7 +51,7 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
 
   <input type="hidden" name="lang" value={lang} />
   <input type="hidden" name="source" value={source} />
-  <input type="hidden" name="package" value="" data-prefill="package" />
+  {isNetlify && <input type="hidden" name="form-name" value={NETLIFY_FORM_NAME} />}
   <input type="hidden" name="page" value="" data-prefill="page" />
   <div class="lf__hp" aria-hidden="true"><label>{/* honeypot: hidden from people and assistive tech */}Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
 
@@ -95,6 +102,14 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
       ))}
     </div>
     <p class="field-error" id={`${id}-interests-err`} data-error-for="interests"></p>
+    <div class="field">
+      <label for={`${id}-package`}>{f.packageLabel}</label>
+      <select class="input lf__select" id={`${id}-package`} name="package" data-prefill="package">
+        <option value="">{f.packageNone}</option>
+        {pkgOptions.map((o) => <option value={o.id}>{o.label}</option>)}
+        <option value="business">{f.packageBusiness}</option>
+      </select>
+    </div>
   </fieldset>
 
   <!-- STEP 4 -->
@@ -115,6 +130,11 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
         <label for={`${id}-email`}>{f.email}</label>
         <input class="input" id={`${id}-email`} name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby={`${id}-email-err`} data-validate="email" />
         <p class="field-error" id={`${id}-email-err`} data-error-for="email"></p>
+      </div>
+      <div class="field lf__full">
+        <label for={`${id}-message`}>{f.message}</label>
+        <textarea class="input lf__textarea" id={`${id}-message`} name="message" rows="3" maxlength="1000" aria-describedby={`${id}-message-err`} data-validate="message"></textarea>
+        <p class="field-error" id={`${id}-message-err`} data-error-for="message"></p>
       </div>
     </div>
     <p class="lf__privacy">
@@ -149,6 +169,9 @@ const interestIcons: Record<string, string> = { solar: 'panel', battery: 'batter
 </script>
 
 <style>
+  .lf__notice { margin: -6px 0 0; padding: 10px 14px; border-radius: var(--r-sm); background: #fff7df; color: #5a4300; font-size: .8438rem; line-height: 1.45; box-shadow: inset 0 0 0 1px #f0d98a; }
+  .lf__select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 44px; }
+  .lf__textarea { min-height: 96px; resize: vertical; font: inherit; line-height: 1.5; }
   .lf__off { display: grid; gap: 4px; padding: 14px 16px; border-radius: var(--r-sm); background: #fff7df; color: #5a4300; font-size: .9063rem; line-height: 1.5; box-shadow: inset 0 0 0 1px #f0d98a; }
   .lf__off[hidden] { display: none; }
   .lf__offtitle { font-weight: 700; color: #3f2f00; }

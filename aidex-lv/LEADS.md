@@ -1,19 +1,17 @@
 # Lead form: connecting the enquiry destination
 
-All request forms on the site (homepage, offer page, contact page, package and
-calculator buttons) use one component. Its destination is set in one file:
-**`src/config/leads.ts`**.
+Every request form on the site uses one component: the homepage, the request page, the contact and business pages, and the package and calculator buttons. Its destination is chosen with **build environment variables**, which you set in the Netlify dashboard (Site configuration → Environment variables). No code change is needed. The logic is in `src/config/leads.ts`.
+
+> Only **public** values go into these variables, because they end up in the page source. Never put a secret API key in them.
 
 ## Current behaviour (nothing configured)
 
-`provider: 'disabled'`. When a visitor submits:
+`PUBLIC_LEAD_PROVIDER` is not set, so the provider is `disabled`:
 
-- **nothing is sent**, and the thank-you screen is **not** shown;
-- an honest notice appears: *"The request form is not connected yet — your request has not been sent"*. The phone number and e-mail from `src/config/company.ts` are added to it once they are filled in;
-- what the visitor typed stays in the form;
-- the payload is written to the browser console (for testing only).
+- the form shows a notice up front: *"Online requests are not connected yet — requests are not being sent at the moment"*;
+- on submit, **nothing is sent** and the thank-you screen is **not** shown. An honest "not connected" message appears, with the phone number and e-mail added once they are filled in `src/config/company.ts`, and what the visitor typed stays in the form.
 
-Once a destination is configured, the thank-you screen appears **only** after the service confirms it received the enquiry. A network error, timeout (15 s), non-2xx status or a negative JSON reply shows an error message instead, and the visitor's input is kept.
+Once a destination is configured, the thank-you screen appears **only** after the service confirms it received the enquiry. A network error, a timeout (15 s), a non-2xx status or a negative JSON reply shows an error instead, and the visitor's input is kept.
 
 ## What each enquiry contains
 
@@ -22,99 +20,49 @@ Once a destination is configured, the thank-you screen appears **only** after th
 | `address` | Mārupe |
 | `usageUnit` / `usage` / `usageUnknown` | `kwh` or `eur` / 600 / set when "I don't know" is ticked |
 | `interests` | solar, battery, ev, consult |
-| `name`, `phone`, `email` | — |
-| `package` | e.g. `home-8` (when the visitor came from a package card) |
-| `lang` | lv / ru / en |
-| `source` | form location, e.g. `home`, `offer-page`, `contact`, `business`, `packages` |
-| `page` | page path |
-| `utm` | utm_* parameters, if present |
-| `submittedAt` | ISO timestamp |
+| `package` / `packageLabel` | `home-8` / "AIDEX Home 8 · 7,92 kWp" (chosen in the form, or pre-filled from a package card or the calculator) |
+| `name`, `phone`, `email` | required |
+| `message` | optional comment (max. 1,000 characters) |
+| `lang`, `source`, `page` | lv / ru / en, where the form was used, page path |
+| `utm`, `submittedAt` | campaign parameters, ISO timestamp |
 
-There is no marketing consent in the form. The Privacy Policy covers how enquiry data is processed.
+Spam protection: a hidden honeypot field, plus a minimum fill time of 3 s. The form also explains how enquiry data is processed and links to the Privacy Policy. There is no marketing consent in the form.
 
 ---
 
-## Option A: receive enquiries by e-mail
+## Recommended: Netlify Forms (no keys, no extra service)
 
-A static website cannot send e-mail by itself, so it needs a small form-relay service. The two below work without our own server, and their keys are safe to be public.
+Use this when the site is hosted on Netlify.
 
-### A1. Web3Forms (simplest; free tier available)
+1. In Netlify, open **Site configuration → Environment variables** and add `PUBLIC_LEAD_PROVIDER` = `netlify`.
+2. Open **Forms** and click **Enable form detection**.
+3. Redeploy (**Deploys → Trigger deploy**). Netlify detects the form `aidex-request`.
+4. Open **Forms → aidex-request → Form notifications → Add notification → Email notification**, and enter the e-mail address that should receive enquiries.
+5. Test from LV, RU and EN. Each submission appears under Forms, and a notification e-mail is sent.
 
-**What I need from you:**
+**What I need from you:** the receiving e-mail address, and confirmation that you accept Netlify (Netlify, Inc.) as a data processor. It must be added to the Privacy Policy recipients.
 
-1. The e-mail address that should receive enquiries (e.g. `info@aidex.lv`).
-2. A Web3Forms **access key**. Create it at web3forms.com with that e-mail address; the key is e-mailed to you.
-3. Optional: the subject line (default: *"AIDEX.lv — jauns pieteikums"*).
+## Option A: e-mail through a form-relay service
 
-**Configuration:**
-```ts
-provider: 'web3forms',
-accessKey: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-```
+| Service | Variables |
+|---|---|
+| Web3Forms | `PUBLIC_LEAD_PROVIDER=web3forms`, `PUBLIC_WEB3FORMS_ACCESS_KEY=<public access key from web3forms.com>` |
+| Formspree | `PUBLIC_LEAD_PROVIDER=formspree`, `PUBLIC_LEAD_ENDPOINT=https://formspree.io/f/<id>` |
 
-### A2. Formspree
+**What I need from you:** the receiving e-mail address, and the access key or endpoint created with that address.
 
-**What I need from you:**
+## Option B: CRM
 
-1. A Formspree account owned by the company, with the receiving e-mail verified.
-2. The form endpoint, e.g. `https://formspree.io/f/abcdwxyz`.
-3. In Formspree, set the allowed domain to `aidex.lv`.
+| Destination | Variables |
+|---|---|
+| HubSpot | `PUBLIC_LEAD_PROVIDER=hubspot`, `PUBLIC_HUBSPOT_PORTAL_ID`, `PUBLIC_HUBSPOT_FORM_GUID`. The form needs the fields `firstname`, `lastname`, `email`, `phone`, `address`, `message`. |
+| Any CRM through a webhook (Make, Zapier, a CRM web-form URL or your own function) | `PUBLIC_LEAD_PROVIDER=webhook`, `PUBLIC_LEAD_ENDPOINT=https://…`. It must accept a JSON POST, allow CORS from `https://aidex.lv`, and return 2xx only once the enquiry is stored. |
 
-**Configuration:**
-```ts
-provider: 'formspree',
-endpoint: 'https://formspree.io/f/abcdwxyz',
-```
-
-For either service, also tell me who the processor is, so the Privacy Policy lists it as a data processor.
-
----
-
-## Option B: send enquiries to a CRM
-
-### B1. HubSpot (native support)
-
-**What I need from you:**
-
-1. HubSpot **Portal ID** (Hub ID).
-2. **Form GUID** of a HubSpot form that contains the fields `firstname`, `lastname`, `email`, `phone`, `address` and `message`. All the other enquiry data is placed in `message`.
-
-**Configuration:**
-```ts
-provider: 'hubspot',
-portalId: '12345678',
-formGuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-```
-
-### B2. Any other CRM (Pipedrive, Bitrix24, Salesforce, Zoho, amoCRM…) through a webhook
-
-CRM API keys are secret and must never be placed in the website. The site therefore posts to a **webhook URL** that forwards the enquiry to the CRM. That URL can be:
-
-- a Make.com or Zapier "Custom webhook" scenario → CRM (no code), or
-- a CRM's own incoming-webhook / web-form URL, if it accepts JSON from browsers, or
-- a small serverless function of your own (Cloudflare Worker, Netlify or Vercel function) that holds the CRM key.
-
-**What I need from you:**
-
-1. The **webhook URL** (must be `https://`).
-2. Confirmation that it:
-   - accepts `POST` with a JSON body (the fields in the table above);
-   - allows cross-origin requests from `https://aidex.lv` (CORS);
-   - returns HTTP **2xx** only when the enquiry is stored. Optionally it returns `{ "ok": true }`; `{ "ok": false }` is treated as a failure.
-3. The CRM field mapping you want (which of our fields go to which CRM fields).
-4. Optionally, an e-mail notification rule in the CRM or Make/Zapier, so the sales team is alerted.
-
-**Configuration:**
-```ts
-provider: 'webhook',
-endpoint: 'https://hook.eu1.make.com/xxxxxxxx',
-```
-
----
+CRM API keys are secret, so they belong in the webhook service and never in these variables.
 
 ## Before switching on
 
-- [ ] Send one test enquiry from each language (LV/RU/EN) and confirm it arrives.
-- [ ] Test the failure path: temporarily set a wrong endpoint and confirm the visitor sees an error, not "Thank you".
-- [ ] Add the processor (Web3Forms, Formspree, HubSpot, Make…) to the Privacy Policy recipients.
-- [ ] Decide the retention period for enquiries (the Privacy Policy currently says 12 months; confirm).
+- [ ] Send one test enquiry in each language and confirm it arrives.
+- [ ] Confirm that a failing destination shows an error, not "Thank you".
+- [ ] Add the processor (Netlify, Web3Forms, Formspree, HubSpot, Make…) to the Privacy Policy recipients.
+- [ ] Confirm the retention period for enquiries (the Privacy Policy currently says 12 months).

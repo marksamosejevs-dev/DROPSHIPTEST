@@ -16,9 +16,9 @@ export const faq: FaqItem[] = [
       en: 'How much does a home solar system cost?',
     },
     a: {
-      lv: 'Cenu nosaka sistēmas jauda, akumulatora izvēle, jumta tips un pieslēguma apstākļi. Mūsu komplektu sadaļā redzamas indikatīvas cenas gan pirms, gan pēc iespējamā valsts atbalsta. Precīzu summu iegūsiet bezmaksas aprēķinā pēc objekta izvērtēšanas.',
-      ru: 'Цена зависит от мощности системы, выбора аккумулятора, типа крыши и условий подключения. В разделе комплектов указаны ориентировочные цены до и после возможной государственной поддержки. Точную сумму вы получите в бесплатном расчёте после оценки объекта.',
-      en: 'Price depends on system size, whether you add a battery, the roof type and grid connection conditions. Our packages show indicative prices before and after potential government support. You get an exact figure in a free estimate once we have assessed your property.',
+      lv: 'Izmaksas nosaka sistēmas jauda, akumulatora izvēle, jumta tips un pieslēguma apstākļi. Tāpēc katrai mājai sagatavojam individuālu piedāvājumu pēc objekta izvērtēšanas. Pieprasiet piedāvājumu — tas jūs ne pie kā nesaista.',
+      ru: 'Стоимость зависит от мощности системы, выбора аккумулятора, типа крыши и условий подключения. Поэтому для каждого дома мы готовим индивидуальное предложение после оценки объекта. Запросите предложение — это ни к чему вас не обязывает.',
+      en: 'Cost depends on system size, whether you add a battery, the roof type and grid connection conditions. That is why we prepare an individual quote for each home after assessing the property. Request a quote — there is no obligation.',
     },
   },
   {
@@ -42,9 +42,9 @@ export const faq: FaqItem[] = [
       en: 'Is solar worthwhile in Latvia?',
     },
     a: {
-      lv: 'Latvijā saules paneļi gadā saražo aptuveni 900–1 000 kWh uz katru uzstādīto kW — līdzīgi kā Vācijas ziemeļos. Atmaksāšanās laiks ir atkarīgs no elektrības cenas, cik lielu daļu enerģijas izmantojat paši un vai saņemat atbalstu. Kalkulators parādīs indikatīvu atmaksāšanās laiku jūsu situācijai.',
-      ru: 'В Латвии панели вырабатывают около 900–1 000 кВт·ч в год на каждый установленный кВт — сопоставимо с севером Германии. Срок окупаемости зависит от цены электроэнергии, доли собственного потребления и наличия поддержки. Калькулятор покажет ориентировочную окупаемость для вашей ситуации.',
-      en: 'In Latvia, solar produces roughly 900–1,000 kWh per installed kW each year — comparable to northern Germany. Payback depends on electricity prices, how much of the energy you use yourself and whether you receive support. The calculator shows an indicative payback for your situation.',
+      lv: 'Latvijā saules paneļi gadā saražo aptuveni 900–1 000 kWh uz katru uzstādīto kW — līdzīgi kā Vācijas ziemeļos. Ieguvums ir atkarīgs no elektroenerģijas tarifiem, tā, cik lielu daļu saražotās enerģijas izmantojat paši, un no iespējamā valsts atbalsta. Individuālajā piedāvājumā izvērtējam jūsu situāciju.',
+      ru: 'В Латвии панели вырабатывают около 900–1 000 кВт·ч в год на каждый установленный кВт — сопоставимо с севером Германии. Выгода зависит от тарифов на электроэнергию, доли собственного потребления и возможной господдержки. В индивидуальном предложении мы оцениваем вашу ситуацию.',
+      en: 'In Latvia, solar produces roughly 900–1,000 kWh per installed kW each year — comparable to northern Germany. The benefit depends on electricity tariffs, how much of the energy you use yourself and any government support. We assess your situation in an individual quote.',
     },
   },
   {
@@ -94,9 +94,9 @@ export const faq: FaqItem[] = [
       en: 'How long does installation take?',
     },
     a: {
-      lv: 'Montāža uz vietas privātmājai parasti aizņem 1–3 darba dienas. Kopējo termiņu vairāk nosaka projektēšana, aprīkojuma piegāde un pieslēguma saskaņošana ar sadales tīklu — to precizējam piedāvājumā.',
-      ru: 'Монтаж на объекте для частного дома обычно занимает 1–3 рабочих дня. Общий срок больше зависит от проектирования, поставки оборудования и согласования подключения с сетевым оператором — мы уточним его в предложении.',
-      en: 'On-site installation for a house usually takes 1–3 working days. The overall timeline depends more on design, equipment delivery and grid-connection approval — we confirm it in your offer.',
+      lv: 'Montāžas ilgums ir atkarīgs no sistēmas lieluma un jumta. Kopējo termiņu vairāk nosaka projektēšana, aprīkojuma piegāde un pieslēguma saskaņošana ar sadales tīklu — to precizējam piedāvājumā.',
+      ru: 'Продолжительность монтажа зависит от размера системы и крыши. Общий срок больше зависит от проектирования, поставки оборудования и согласования подключения с сетевым оператором — мы уточним его в предложении.',
+      en: 'Installation time depends on the system size and the roof. The overall timeline depends more on design, equipment delivery and grid-connection approval — we confirm it in your quote.',
     },
   },
   {

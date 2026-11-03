@@ -8,6 +8,8 @@
  *  provider      endpoint / ids                             success means
  *  ------------  -----------------------------------------  ----------------------------
  *  'disabled'    —                                          never (honest "not connected" message)
+ *  'netlify'     — (Netlify Forms; no keys needed)           HTTP 2xx from Netlify (POST to the current page; site on Netlify
+ *                                                          with Form detection enabled; see DEPLOY_NETLIFY.md)
  *  'formspree'   endpoint: 'https://formspree.io/f/xxxx'    HTTP 2xx and { ok: true }
  *  'web3forms'   accessKey: '<public access key>'           HTTP 2xx and { success: true }
  *  'hubspot'     portalId + formGuid                        HTTP 2xx
@@ -18,7 +20,10 @@
  * received the enquiry. Any network error, non-2xx status or negative JSON
  * body shows an error and keeps what the visitor typed.
  */
-export type LeadProvider = 'disabled' | 'formspree' | 'web3forms' | 'hubspot' | 'webhook';
+export type LeadProvider = 'disabled' | 'netlify' | 'formspree' | 'web3forms' | 'hubspot' | 'webhook';
+
+/** Netlify Forms form name (all AIDEX request forms submit to this one form). */
+export const NETLIFY_FORM_NAME = 'aidex-request';
 
 export interface LeadConfig {
   provider: LeadProvider;
@@ -35,12 +40,19 @@ export interface LeadConfig {
   timeoutMs: number;
 }
 
+// The destination can be set in the hosting dashboard (build environment
+// variables) without code changes. Only PUBLIC values belong here — they end
+// up in the page source. Never put secret API keys in these variables.
+const env = import.meta.env;
+const PROVIDERS: LeadProvider[] = ['disabled', 'netlify', 'formspree', 'web3forms', 'hubspot', 'webhook'];
+const envProvider = String(env.PUBLIC_LEAD_PROVIDER ?? '').trim() as LeadProvider;
+
 export const leads: LeadConfig = {
-  provider: 'disabled',
-  endpoint: '',
-  accessKey: '',
-  portalId: '',
-  formGuid: '',
+  provider: PROVIDERS.includes(envProvider) ? envProvider : 'disabled',
+  endpoint: String(env.PUBLIC_LEAD_ENDPOINT ?? ''),
+  accessKey: String(env.PUBLIC_WEB3FORMS_ACCESS_KEY ?? ''),
+  portalId: String(env.PUBLIC_HUBSPOT_PORTAL_ID ?? ''),
+  formGuid: String(env.PUBLIC_HUBSPOT_FORM_GUID ?? ''),
   subject: 'AIDEX.lv — jauns pieteikums',
   timeoutMs: 15000,
 };
@@ -50,6 +62,7 @@ export const leadsEnabled = () => {
   switch (leads.provider) {
     case 'formspree':
     case 'webhook': return /^https:\/\//.test(leads.endpoint);
+    case 'netlify': return true;
     case 'web3forms': return !!leads.accessKey;
     case 'hubspot': return !!leads.portalId && !!leads.formGuid;
     default: return false;

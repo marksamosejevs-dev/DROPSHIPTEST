@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { useT, path, fmtDate, type Locale, type RouteKey } from '../i18n';
 import { legalDoc, type LegalKey } from '../content/legal';
-import { LEGAL_UPDATED } from '../config/company';
+import { LEGAL_UPDATED, CONSENT_REQUIRED } from '../config/company';
 import { breadcrumbLd } from '../lib/seo';
 interface Props { lang: Locale; route: RouteKey }
 const { lang, route } = Astro.props;
@@ -25,7 +25,7 @@ const nav: { key: LegalKey; label: string }[] = [
         <nav aria-label={t.footer.cols.legal}>
           <ul>
             {nav.map((n) => <li><a href={path(n.key, lang)} aria-current={n.key === key ? 'page' : undefined}>{n.label}</a></li>)}
-            <li><button type="button" data-cookie-settings>{t.footer.cookieSettings}</button></li>
+            {CONSENT_REQUIRED && <li><button type="button" data-cookie-settings>{t.footer.cookieSettings}</button></li>}
           </ul>
         </nav>
       </aside>

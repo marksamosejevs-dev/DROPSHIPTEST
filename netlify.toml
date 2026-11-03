@@ -1,0 +1,35 @@
+# Netlify configuration for AIDEX.lv (Astro static site in ./aidex-lv).
+# Leave "Base directory", "Build command" and "Publish directory" EMPTY in the
+# Netlify UI — this file sets them. See aidex-lv/DEPLOY_NETLIFY.md.
+
+[build]
+  base = "aidex-lv"
+  command = "npm run build"
+  publish = "dist"          # relative to base → aidex-lv/dist
+
+[build.environment]
+  NODE_VERSION = "22"       # Astro 7 requires Node >= 22.12
+  # Enquiry destination (public values only). Set in the Netlify UI instead to
+  # keep the repository neutral, e.g. PUBLIC_LEAD_PROVIDER = "netlify".
+
+# Root → Latvian (default language). Permanent, also when /index.html exists.
+[[redirects]]
+  from = "/"
+  to = "/lv/"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Content-Security-Policy = "frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+    Strict-Transport-Security = "max-age=31536000"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

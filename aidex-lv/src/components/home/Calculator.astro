@@ -1,20 +1,23 @@
 ---
 import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
-import { useT, path, fmtEur, fmtNum, units, type Locale } from '../../i18n';
+import { useT, path, fmtNum, units, type Locale } from '../../i18n';
 import { calculatorAssumptions as A } from '../../data/calculator';
 import { packages } from '../../data/packages';
 import { calculate } from '../../lib/calc';
+import { panelCatalogue } from '../../data/equipment';
 
 interface Props { lang: Locale; headingLevel?: 1 | 2 }
 const { lang, headingLevel = 2 } = Astro.props;
 const t = useT(lang);
 const c = t.calc;
 const u = units[lang];
-const r = calculate({ mode: 'kwh', value: A.defaultConsumption, battery: true, support: true });
+const r = calculate({ mode: 'kwh', value: A.defaultConsumption, battery: true });
 const pkgNames = Object.fromEntries(packages.map((p) => [p.id, p.name]));
 const note = c.note.replace('{yield}', fmtNum(A.specificYield, lang)).replace('{price}', fmtNum(A.electricityPrice, lang, 2));
-const i18n = { years: c.results.years, noBattery: c.results.noBattery, kw: u.kw, kwh: u.kwh, kwhMonth: c.kwhMonth, eurMonth: c.eurMonth };
+const i18n = { noBattery: c.results.noBattery, kw: u.kw, kwh: u.kwh, kwhMonth: c.kwhMonth, eurMonth: c.eurMonth };
+const m2 = lang === 'ru' ? 'м²' : 'm²';
+const panelW = panelCatalogue[0].watt;
 ---
 <section class="section calc" id="calculator" aria-labelledby="calc-title" data-calc data-pkgs={JSON.stringify(pkgNames)} data-i18n={JSON.stringify(i18n)} data-offer={path('offer', lang)} data-packages-href={path('packages', lang)}>
   <div class="container">
@@ -45,12 +48,11 @@ const i18n = { years: c.results.years, noBattery: c.results.noBattery, kw: u.kw,
             <span class="calc__unit">{c.eurMonth}</span>
           </div>
           <input type="range" class="range" min={A.billRange[0]} max={A.billRange[1]} step={A.billRange[2]} value={A.defaultBill} data-range="bill" aria-label={c.bill} />
-          <div class="calc__scale tnum" aria-hidden="true"><span>{fmtEur(A.billRange[0], lang)}</span><span>{fmtEur(A.billRange[1], lang)}</span></div>
+          <div class="calc__scale tnum" aria-hidden="true"><span>{fmtNum(A.billRange[0], lang)} {c.eurMonth}</span><span>{fmtNum(A.billRange[1], lang)} {c.eurMonth}</span></div>
         </div>
 
         <div class="calc__toggles">
           <label class="tgl"><input type="checkbox" name="battery" checked /><span class="tgl__ui" aria-hidden="true"></span><span>{c.battery}</span></label>
-          <label class="tgl"><input type="checkbox" name="support" checked /><span class="tgl__ui" aria-hidden="true"></span><span>{c.support}</span></label>
         </div>
         <p class="calc__note">{note}</p>
       </form>
@@ -63,16 +65,13 @@ const i18n = { years: c.results.years, noBattery: c.results.noBattery, kw: u.kw,
         </div>
         <dl class="calc__metrics">
           <div><dt>{c.results.production}</dt><dd class="tnum"><span data-out="production">{fmtNum(Math.round(r.productionKwh / 10) * 10, lang)}</span> <small>{u.kwh}</small></dd></div>
-          <div><dt>{c.results.savings}</dt><dd class="tnum" data-out="savings">{fmtEur(r.savings, lang)}</dd></div>
-          <div><dt>{c.results.payback}</dt><dd class="tnum"><span data-out="payback">{r.paybackYears ? fmtNum(r.paybackYears, lang, 1) : '—'}</span> <small>{c.results.years}</small></dd></div>
+          <div><dt>{c.results.panels}</dt><dd class="tnum"><span data-out="panels">{r.panels}</span> <small>× {fmtNum(panelW, lang)} {u.w}</small></dd></div>
+          <div><dt>{c.results.roof}</dt><dd class="tnum">~<span data-out="roof">{fmtNum(Math.round(r.roofM2), lang)}</span> <small>{m2}</small></dd></div>
           <div><dt>{c.results.battery}</dt><dd class="tnum" data-out="battery">{r.batteryKwh ? `${fmtNum(r.batteryKwh, lang)} ${u.kwh}` : c.results.noBattery}</dd></div>
         </dl>
         <div class="calc__cost">
-          <div>
-            <p class="calc__olabel">{c.results.cost}</p>
-            <p class="calc__costv tnum"><s data-out="gross" hidden={r.supportAmount === 0}>{fmtEur(r.cost, lang)}</s> <span data-out="net">{fmtEur(r.net, lang)}</span></p>
-          </div>
-          <a href={`${path('offer', lang)}?kwh=${Math.round(r.monthlyKwh)}`} class="btn btn--white" data-out="cta" data-cta="calculator">{c.cta}<Icon name="arrow" /></a>
+          <p class="calc__quote">{c.quoteText}</p>
+          <a href={`${path('offer', lang)}?kwh=${Math.round(r.monthlyKwh)}&battery=1${r.packageId ? `&package=${r.packageId}` : ''}`} class="btn btn--white" data-out="cta" data-cta="calculator">{c.cta}<Icon name="arrow" /></a>
         </div>
       </div>
     </div>
@@ -84,7 +83,6 @@ const i18n = { years: c.results.years, noBattery: c.results.noBattery, kw: u.kw,
   document.querySelectorAll<HTMLElement>('[data-calc]').forEach((root) => {
     const lang = document.documentElement.lang;
     const loc = lang === 'en' ? 'en-IE' : lang === 'ru' ? 'ru-RU' : 'lv-LV';
-    const eur = new Intl.NumberFormat(loc, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
     const num = (d = 0) => new Intl.NumberFormat(loc, { maximumFractionDigits: d });
     const pk: Record<string, string> = JSON.parse(root.dataset.pkgs!);
     const i18n = JSON.parse(root.dataset.i18n!);
@@ -103,19 +101,15 @@ const i18n = { years: c.results.years, noBattery: c.results.noBattery, kw: u.kw,
       const numInput = root.querySelector<HTMLInputElement>(`[data-num="${m}"]`)!;
       const value = Math.max(0, Number(numInput.value) || 0);
       const battery = form.querySelector<HTMLInputElement>('input[name="battery"]')!.checked;
-      const support = form.querySelector<HTMLInputElement>('input[name="support"]')!.checked;
-      const r = calculate({ mode: m, value, battery, support });
+      const r = calculate({ mode: m, value, battery });
       out('kw').textContent = num(1).format(r.kw);
       out('production').textContent = num().format(Math.round(r.productionKwh / 10) * 10);
-      out('savings').textContent = eur.format(r.savings);
-      out('payback').textContent = r.paybackYears ? num(1).format(r.paybackYears) : '—';
+      out('panels').textContent = String(r.panels);
+      out('roof').textContent = num().format(Math.round(r.roofM2));
       out('battery').textContent = r.batteryKwh ? `${num().format(r.batteryKwh)} ${i18n.kwh}` : i18n.noBattery;
-      out('net').textContent = eur.format(r.net);
-      out('gross').textContent = eur.format(r.cost);
-      out('gross').hidden = r.supportAmount === 0;
       out('pkg').textContent = r.packageId ? pk[r.packageId] : '—';
-      (out('cta') as HTMLAnchorElement).href = `${root.dataset.offer}?kwh=${Math.round(r.monthlyKwh)}&battery=${battery ? 1 : 0}`;
-      root.querySelectorAll('.calc__out dd, .calc__big, .calc__costv').forEach((el) => {
+      (out('cta') as HTMLAnchorElement).href = `${root.dataset.offer}?kwh=${Math.round(r.monthlyKwh)}&battery=${battery ? 1 : 0}${r.packageId ? `&package=${r.packageId}` : ''}`;
+      root.querySelectorAll('.calc__out dd, .calc__big').forEach((el) => {
         el.classList.remove('pulse'); void (el as HTMLElement).offsetWidth; el.classList.add('pulse');
       });
     }
@@ -192,9 +186,8 @@ const i18n = { years: c.results.years, noBattery: c.results.noBattery, kw: u.kw,
   .calc__metrics dt { font-size: .8125rem; color: rgba(238,241,236,.56); }
   .calc__metrics dd { margin: 0; font-family: var(--font-display); font-size: clamp(1.4rem, 2.4vw, 1.9rem); font-weight: 800; letter-spacing: -0.03em; color: #fff; }
   .calc__metrics small { font-size: .55em; opacity: .6; font-weight: 500; letter-spacing: 0; }
-  .calc__cost { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; }
-  .calc__costv { font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; letter-spacing: -0.035em; color: #fff; margin-top: 4px; }
-  .calc__costv s { font-size: .5em; color: rgba(238,241,236,.45); font-weight: 400; letter-spacing: 0; margin-right: 4px; }
+  .calc__cost { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; }
+  .calc__quote { flex: 1 1 240px; font-size: .9375rem; line-height: 1.5; color: rgba(238,241,236,.78); max-width: 42ch; }
   @media (prefers-reduced-motion: no-preference) {
     :global(.pulse) { animation: pulse .5s var(--ease); }
     @keyframes pulse { from { opacity: .45; transform: translateY(3px); } }

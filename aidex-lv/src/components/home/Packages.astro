@@ -7,9 +7,9 @@
 import SectionHead from '../SectionHead.astro';
 import Icon from '../Icon.astro';
 import Picture from '../Picture.astro';
-import PriceDisclaimer from '../PriceDisclaimer.astro';
-import { useT, path, fmtEur, fmtNum, units, type Locale } from '../../i18n';
-import { packages, standardPackages, effectivePrice, finalPrice, warrantyOf, dcKwp, type Offer, type SolarPackage, type Warranty } from '../../data/packages';
+import InfoDisclaimer from '../InfoDisclaimer.astro';
+import { useT, path, fmtNum, units, type Locale } from '../../i18n';
+import { packages, standardPackages, warrantyOf, dcKwp, type SolarPackage, type Warranty } from '../../data/packages';
 import { panelById, productById } from '../../data/equipment';
 import { equipmentPath } from '../../lib/equipment';
 import { media } from '../../data/media';
@@ -20,10 +20,7 @@ const t = useT(lang);
 const pk = t.packages;
 const v = t.v2.pk;
 const u = units[lang];
-const variants = [
-  { id: 'with', key: 'withBattery' as const },
-  { id: 'without', key: 'withoutBattery' as const },
-];
+const variants = [{ id: 'with' }, { id: 'without' }];
 const offerHref = (id: string, battery: boolean) => `${path('offer', lang)}?package=${id}&battery=${battery ? 1 : 0}`;
 const monthly = (y: number) => Math.round(y / 12 / 50) * 50;
 const perMonth = lang === 'en' ? 'mo' : lang === 'ru' ? 'мес.' : 'mēn.';
@@ -41,7 +38,6 @@ const panelOf = (p: SolarPackage) => (p.panel?.productId ? panelById(p.panel.pro
 // Brand/model are shown only for a verified catalogue product; otherwise the generic size.
 const invText = (p: SolarPackage) => { const i = p.inverter; if (!i) return null; const pr = productById(i.productId); return pr ? `${pr.manufacturer} ${pr.model}` : v.invGeneric(i.kw ? `${fmtNum(i.kw, lang)} ${u.kw}` : ''); };
 const batText = (p: SolarPackage) => { const b = p.battery; if (!b) return null; const pr = productById(b.productId); return `${pr ? `${pr.manufacturer} ${pr.model} · ` : ''}${fmtNum(b.kwh, lang)} ${u.kwh}`; };
-const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offer | null => p.offers[key];
 ---
 <section class="section pk" id="packages" aria-labelledby="packages-title" data-packages data-mode="with">
   <div class="container">
@@ -81,7 +77,7 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
                   <p class="pc__line">{pk.custom.kw} · {v.maxTitle}</p>
                   <p class="pc__desc">{p.description?.[lang] ?? v.maxText}</p>
                   <div class="pc__btns">
-                    <a href={`${path('offer', lang)}?package=${p.id}`} class="btn btn--primary">{t.cta.consult}<Icon name="arrow" /></a>
+                    <a href={`${path('offer', lang)}?package=${p.id}`} class="btn btn--primary" data-cta={`package-${p.id}`}>{t.cta.offer}<Icon name="arrow" /></a>
                     <a href={path('calculator', lang)} class="btn btn--white">{t.cta.calc}</a>
                   </div>
                 </>
@@ -92,25 +88,16 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
                     <span data-variant="with">{p.battery && <> · {v.withBat.replace('{kwh}', fmtNum(p.battery.kwh, lang))}</>}</span>
                     <span data-variant="without"> · {v.noBat}</span>
                   </p>
-                  {p.panel && <p class="pc__brand tnum">{v.panelLine(p.panel.count ?? 0, p.panel.manufacturer, `${fmtNum(p.panel.watt, lang)} ${u.w}`, panelOf(p)?.technology[lang] ?? '')}</p>}
                   {(p.householdProfile || p.description) && <p class="pc__desc">{(p.householdProfile ?? p.description)![lang]}</p>}
-                  {variants.map((vv) => {
-                    const o = pickOffer(p, vv.key);
-                    if (!o) return null;
-                    const hasSupport = (o.support ?? 0) > 0;
-                    return (
-                      <div class="pc__price" data-variant={vv.id}>
-                        <p class="pc__lbl">{hasSupport ? v.finalLabel : v.priceLabel}</p>
-                        <p class="pc__net tnum">{hasSupport && <small>{v.from}</small>} {fmtEur(finalPrice(o), lang)}</p>
-                        {hasSupport && (
-                          <dl class="pc__calc tnum">
-                            <div><dt>{v.priceLabel}</dt><dd>{o.promoPrice && <s>{fmtEur(o.price, lang)}</s>} {fmtEur(effectivePrice(o), lang)}</dd></div>
-                            <div><dt>{v.supportLabel}</dt><dd>− {fmtEur(o.support!, lang)}</dd></div>
-                          </dl>
-                        )}
-                      </div>
-                    );
-                  })}
+                  <div class="pc__price">
+                    <p class="pc__lbl">{v.dc}</p>
+                    <p class="pc__net tnum">{kwp(p)}</p>
+                    <dl class="pc__calc tnum">
+                      {p.panel && <div><dt>{pk.specs.panels}</dt><dd>{p.panel.count} × {p.panel.manufacturer} {fmtNum(p.panel.watt, lang)} {u.w}</dd></div>}
+                      {p.inverter && <div><dt>{pk.specs.inverter}</dt><dd>{invText(p)}</dd></div>}
+                      {p.battery && <div><dt>{pk.specs.battery}</dt><dd><span data-variant="with">{batText(p)}</span><span data-variant="without">{pk.specs.noBattery}</span></dd></div>}
+                    </dl>
+                  </div>
                   <div class="pc__btns">
                     {variants.map((vv) => (
                       <a href={offerHref(p.id, vv.id === 'with')} class="btn btn--primary" data-variant={vv.id} data-cta={`package-${p.id}`}>{t.cta.offer}<Icon name="arrow" /></a>
@@ -151,13 +138,6 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
               {wRows.filter((r) => has((p) => warrantyOf(p)[r.key])).map((r) => (
                 <tr><th scope="row">{r.label}</th>{std.map((p) => { const y = warrantyOf(p)[r.key]; return <td class="tnum">{y != null ? v.yrs(y) : '—'}</td>; })}</tr>
               ))}
-              {variants.map((vv) => (
-                <>
-                  <tr data-variant={vv.id} class="cmp__sep"><th scope="row">{v.priceLabel}</th>{std.map((p) => { const o = pickOffer(p, vv.key); return <td class="tnum">{o && <>{o.promoPrice && <s>{fmtEur(o.price, lang)}</s>} {fmtEur(effectivePrice(o), lang)}</>}</td>; })}</tr>
-                  <tr data-variant={vv.id}><th scope="row">{v.supportLabel}</th>{std.map((p) => { const o = pickOffer(p, vv.key); return <td class="tnum cmp__sup">{o?.support ? `− ${fmtEur(o.support, lang)}` : '—'}</td>; })}</tr>
-                  <tr data-variant={vv.id} class="cmp__total"><th scope="row">{v.yourPrice}</th>{std.map((p) => { const o = pickOffer(p, vv.key); return <td class="tnum">{o && <><small>{v.from}</small> {fmtEur(finalPrice(o), lang)}</>}</td>; })}</tr>
-                </>
-              ))}
               <tr class="cmp__cta"><th scope="row"></th>{std.map((p) => (
                 <td>
                   <a href={offerHref(p.id, true)} class="btn btn--primary btn--sm btn--block" data-variant="with">{t.cta.offer}</a>
@@ -173,7 +153,7 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
     <slot />
 
     <div class="pk__foot">
-      <PriceDisclaimer lang={lang} />
+      <InfoDisclaimer lang={lang} />
       <a href={path('support', lang)} class="link-arrow">{t.cta.support}<Icon name="arrow" /></a>
     </div>
   </div>
@@ -219,15 +199,13 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
   .pc__line { font-size: clamp(1rem, 1.3vw, 1.125rem); font-weight: 600; color: rgba(255,255,255,.9); }
   .pc__brand { font-size: .875rem; font-weight: 600; color: rgba(255,255,255,.72); letter-spacing: .01em; }
   .pc__desc { font-size: 1rem; color: rgba(255,255,255,.84); max-width: 42ch; margin-top: 4px; }
-  .pc__price { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2px 24px; margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.2); }
+  .pc__price { display: grid; grid-template-columns: 1fr; gap: 4px; margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.2); }
   .pc__lbl { grid-column: 1 / -1; font-size: .875rem; font-weight: 600; color: #8fe0b4; }
   .pc__net { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 4.2vw, 3.5rem); letter-spacing: -0.04em; line-height: 1; }
-  .pc__net small { font-size: .38em; font-weight: 700; letter-spacing: 0; opacity: .8; margin-right: 2px; }
-  .pc__calc { display: grid; gap: 4px; font-size: .875rem; padding-bottom: 4px; }
+  .pc__calc { display: grid; gap: 4px; font-size: .875rem; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.18); }
   .pc__calc div { display: flex; justify-content: space-between; gap: 16px; }
-  .pc__calc dt { color: rgba(255,255,255,.66); }
+  .pc__calc dt { color: rgba(255,255,255,.66); white-space: nowrap; }
   .pc__calc dd { color: #fff; font-weight: 600; text-align: right; }
-  .pc__calc s { opacity: .6; font-weight: 500; margin-right: 4px; }
   .pc__btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
   .pc__btns .btn { min-height: 52px; }
   .pc--max .pc__desc { margin: 6px 0 2px; }
@@ -248,15 +226,8 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
   .cmp__kw { display: block; font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; letter-spacing: -0.03em; color: var(--ink); }
   .cmp__nm { display: block; font-size: .8125rem; color: var(--muted); font-weight: 500; }
   thead th.is-featured .cmp__kw { color: var(--brand); }
-  .cmp__sep th, .cmp__sep td { border-top: 1px solid var(--line-strong); }
   .cmp__strong { font-weight: 700 !important; }
   .cmp__more { display: block; font-size: .8125rem; color: var(--brand); font-weight: 600; margin-top: 2px; text-decoration: underline; text-underline-offset: 3px; }
-  .cmp__sup { color: var(--brand) !important; }
-  .cmp__total th, .cmp__total td { border-bottom: 0; background: var(--brand-50); }
-  .cmp__total td { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; }
-  .cmp__total td small { font-size: .55em; font-weight: 700; color: var(--muted); }
-  .cmp__total th { color: var(--ink) !important; font-weight: 700 !important; border-radius: 12px 0 0 12px; }
-  .cmp__total td:last-child { border-radius: 0 12px 12px 0; }
   .cmp__cta th, .cmp__cta td { border-bottom: 0; padding-top: 18px; }
   :global(.cmp__ok) { display: inline-block; color: var(--brand); vertical-align: -3px; margin-right: 6px; }
 
@@ -269,17 +240,13 @@ const pickOffer = (p: SolarPackage, key: 'withBattery' | 'withoutBattery'): Offe
     .cmp__table th, .cmp__table td { padding: 12px 10px; }
     .cmp__table tbody th { width: 118px; min-width: 118px; font-size: .8125rem; line-height: 1.3; }
     .cmp__table th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 8px 0 12px -10px rgba(0,0,0,.25); }
-    .cmp__total th:first-child { background: var(--brand-50); }
-    .cmp__kw { font-size: 1.5rem; }
-    .cmp__total td { font-size: 1.2rem; }
-  }
+      .cmp__kw { font-size: 1.5rem; }
+    }
   @media (max-width: 719px) {
     .pk__toggle { margin: -8px 0 24px; }
     .pk__toggle .seg { width: 100%; }
     .pk__toggle .seg > button { flex: 1; padding: 0 10px; font-size: .9375rem; }
     .pc { min-height: 540px; }
-    .pc__price { grid-template-columns: 1fr; gap: 6px; }
-    .pc__calc { margin-top: 8px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.18); }
     .pc__btns { display: grid; grid-template-columns: 1fr; }
     .pc__use { font-size: .8125rem; height: 32px; padding: 0 12px; }
     .pc__top .badge { height: 28px; font-size: .75rem; }
